@@ -31,6 +31,8 @@ export function nearestFoe(a, x, y, range, skip, yTol = 1e9) {
   return best;
 }
 const add = (e) => { G.effects.push(e); return e; };
+/** How loudly an effect is drawn: yours, your party's and the monsters' at full strength, bystanders' quietly. */
+export const loud = (o) => { const r = o && (o.owner || o); return !r || r.kind === 'mob' || r.isPlayer || r.inParty && !(G.map.instance && G.map.instance.raid) ? 1 : 0.38; };
 
 // ------------------------------------------------------------------ element dressing
 const KIND_OF = (el) => (el === 'fire' ? 'fire' : el === 'cold' ? 'cold' : el === 'light' ? 'light' : el === 'poison' || el === 'acid' ? 'tox' : el === 'shadow' || el === 'blood' ? 'dark' : el === 'holy' ? 'holy' : el === 'phys' ? 'phys' : 'arc');
@@ -63,15 +65,15 @@ const SHAPE_OF = (fx) => (/arrow|javelin|spear|thrust|kunai|dagger|lance/.test(f
   : /shard|frost|ice|bone|spike|thorn|feather|caltrop/.test(fx) ? 'shard' : /rang|chakram|shuriken|blade|axe|hammer|shield|disc|claw/.test(fx) ? 'spinner' : /^n_|note/.test(fx) ? 'note' : 'orb');
 /** o: { owner, x, y, vx, vy, dmg:()=>({amount,crit}), el, fx, hopts, range, pierce, home, exp, bounce, ret, grav, size, onHit } */
 export function spawnProj(o) {
-  const shape = SHAPE_OF(o.fx || 'orb'), col = elemRgb(o.el), core = elemCore(o.el), owner = o.owner;
+  const shape = SHAPE_OF(o.fx || 'orb'), col = elemRgb(o.el), core = elemCore(o.el), owner = o.owner, PL = loud(owner);
   const e = { x: o.x, y: o.y, vx: o.vx, vy: o.vy, dist: 0, range: o.range || 620, hitSet: new Set(), bounce: o.bounce || 0, back: false, rot: 0, t: 0, size: o.size || 1, dead: false };
   e.upd = (dt) => {
     e.t += dt;
     if (o.home && !e.back) { const tg = nearestFoe(owner, e.x, e.y, 420, e.hitSet); if (tg) { const sp = Math.hypot(e.vx, e.vy), ang = Math.atan2(tg.cy - e.y, tg.x - e.x), cur = Math.atan2(e.vy, e.vx); let d = ang - cur; while (d > Math.PI) d -= TAU; while (d < -Math.PI) d += TAU; const na = cur + clamp(d, -6 * dt, 6 * dt); e.vx = Math.cos(na) * sp; e.vy = Math.sin(na) * sp; } }
     if (e.back) { const dx = owner.x - e.x, dy = owner.cy - e.y, d = Math.hypot(dx, dy) || 1, sp = Math.hypot(e.vx, e.vy) || 700; e.vx = dx / d * sp; e.vy = dy / d * sp; if (d < 40 || owner.dead) return false; }
     if (o.grav) e.vy += o.grav * dt;
-    const sx = e.vx * dt, sy = e.vy * dt; e.x += sx; e.y += sy; e.dist += Math.hypot(sx, sy); e.rot += dt * 16;
-    if (G.frame % 2 === 0 && Math.abs(e.x - G.cam.cx) < G.cam.viewW) { if (shape === 'orb' || shape === 'bolt' || shape === 'shard') elemTrail(o.el, e.x, e.y, e.size, e.vx, e.vy); else G.parts.add({ shape: 'glow', x: e.x, y: e.y, life: 0.25, size: 14 * e.size, size2: 2, col, a: 0.7 }); }
+    const sx = e.vx * dt, sy = e.vy * dt; e.x += sx; e.y += sy; if (!o.grav && e.vy > 0) { const fp = dropTo(G.map.geo, e.x, e.y - 60); if (fp && e.y > fp.y - 14) { e.y = fp.y - 14; e.vy = 0; } } e.dist += Math.hypot(sx, sy); e.rot += dt * 16;
+    if (G.frame % (PL < 1 ? 5 : 2) === 0 && Math.abs(e.x - G.cam.cx) < G.cam.viewW) { if (shape === 'orb' || shape === 'bolt' || shape === 'shard') elemTrail(o.el, e.x, e.y, e.size, e.vx, e.vy); else G.parts.add({ shape: 'glow', x: e.x, y: e.y, life: 0.25, size: 14 * e.size, size2: 2, col, a: 0.7 }); }
     for (const t of G.actors) {
       if (!owner.enemyOf(t) || e.hitSet.has(t)) continue;
       if (Math.abs(t.x - e.x) < t.w * 0.5 + 12 * e.size && e.y > t.y - t.h - 8 && e.y < t.y + 8) {
@@ -80,7 +82,7 @@ export function spawnProj(o) {
         if (o.onHit) o.onHit(t, e);
         if (o.exp) blast({ owner, x: e.x, y: t.cy, r: o.exp, dmg: () => { const q = o.dmg(); q.amount *= 0.6; return q; }, el: o.el, hopts: o.hopts, skip: t, delay: 0 });
         if (e.bounce > 0) { e.bounce--; const n = nearestFoe(owner, e.x, e.y, 460, e.hitSet); if (n) { const sp = Math.hypot(e.vx, e.vy), a = Math.atan2(n.cy - e.y, n.x - e.x); e.vx = Math.cos(a) * sp; e.vy = Math.sin(a) * sp; e.dist = 0; continue; } }
-        if (Math.abs(e.x - G.cam.cx) < G.cam.viewW) elemBurst(o.el, e.x, e.y, 34 * e.size, false);
+        if (PL === 1 && Math.abs(e.x - G.cam.cx) < G.cam.viewW) elemBurst(o.el, e.x, e.y, 34 * e.size, false);
         if (!o.pierce) { if (o.ret) { e.back = true; e.hitSet.clear(); e.hitSet.add(t); } else { puff(e.x, e.y, col); return false; } }
       }
     }
@@ -111,7 +113,7 @@ export function puff(x, y, col, n = 6) { G.parts.burst(x, y, n, { shape: 'glow',
 // ------------------------------------------------------------------ blasts
 /** A (possibly delayed, telegraphed) explosion. o: { owner, x, y, r, ry, dmg, el, hopts, delay, skip, heal, max, big, pillar } */
 export function blast(o) {
-  const col = elemRgb(o.el), core = elemCore(o.el), ry = o.ry || o.r * 0.7;
+  const col = elemRgb(o.el), core = elemCore(o.el), ry = o.ry || o.r * 0.7, L = loud(o.owner);
   const e = { t: -(o.delay || 0), done: false };
   if (o.delay > 0.3 && o.owner && o.owner.team !== 0) e.danger = { x: o.x, y: o.y, r: o.r + 40 };       // telegraphed: heroes on auto step out of it
   e.upd = (dt) => {
@@ -120,10 +122,10 @@ export function blast(o) {
       e.done = true;
       for (const t of inEllipse(o.owner, o.x, o.y, o.r, ry, o.max || 12)) { if (t === o.skip) continue; const d = o.dmg(); hit(o.owner, t, d.amount, { ...o.hopts, el: o.el, crit: d.crit, dir: Math.sign(t.x - o.x) || 1 }); if (o.pull) t.body.vx = Math.sign(o.x - t.x) * 420; }
       if (Math.abs(o.x - G.cam.cx) < G.cam.viewW) {
-        G.parts.burst(o.x, o.y, o.big ? 26 : 12, { shape: 'glow', speed: o.r * 2.6, life: 0.45, size: o.big ? 30 : 20, col, drag: 2.5 });
-        G.parts.burst(o.x, o.y, o.big ? 14 : 6, { shape: 'spark', speed: o.r * 3.4, life: 0.35, size: 30, col: core, orient: true, drag: 2 });
-        elemBurst(o.el, o.x, o.y, o.r, o.big);
-        if (o.big) { G.cam.shake = Math.max(G.cam.shake, 8); G.parts.burst(o.x, o.y, 8, { shape: 'smoke', speed: 90, life: 0.9, size: 50, size2: 110, col: [0.12, 0.1, 0.1], add: 0, a: 0.5, front: false }); }
+        if (L === 1) { G.parts.burst(o.x, o.y, o.big ? 26 : 12, { shape: 'glow', speed: o.r * 2.6, life: 0.45, size: o.big ? 30 : 20, col, drag: 2.5 });
+        G.parts.burst(o.x, o.y, o.big ? 14 : 6, { shape: 'spark', speed: o.r * 3.4, life: 0.35, size: 30, col: core, orient: true, drag: 2 }); }
+        if (L === 1) elemBurst(o.el, o.x, o.y, o.r, o.big);
+        if (o.big && L === 1) { G.cam.shake = Math.max(G.cam.shake, 8); G.parts.burst(o.x, o.y, 8, { shape: 'smoke', speed: 90, life: 0.9, size: 50, size2: 110, col: [0.12, 0.1, 0.1], add: 0, a: 0.5, front: false }); }
         if (!o.quiet) sfxAt(o.big ? 'explode' : 'hit_heavy', { x: o.x }, o.big ? 0.8 : 0.4);
       }
     }
@@ -132,9 +134,9 @@ export function blast(o) {
   e.draw = (rd) => {
     if (e.t < 0) { const u = 1 + e.t / (o.delay || 1), a = 0.25 + 0.5 * u; spr(rd, SHAPES.ring, o.x, o.y + ry * 0.55, o.r * 2 * (0.5 + 0.5 * u), ry * 0.7, 0, [col[0], col[1], col[2], a], 1); if (o.pillar) spr(rd, SHAPES.pillar, o.x, o.y - 300 + u * 100, 20, 600, 0, [col[0], col[1], col[2], 0.25 * u], 1); return; }
     const u = e.t / 0.32, s = o.r * 2 * (0.45 + u * 0.75);
-    spr(rd, SHAPES.glow, o.x, o.y, s * 1.2, s * 1.2 * (ry / o.r), 0, [col[0], col[1], col[2], (1 - u) * 0.5], 1);
-    spr(rd, SHAPES.ring, o.x, o.y, s * 1.15, s * 1.15 * (ry / o.r), 0, [col[0] * 0.6 + core[0] * 0.4, col[1] * 0.6 + core[1] * 0.4, col[2] * 0.6 + core[2] * 0.4, (1 - u) * 0.7], 1);
-    if (o.pillar) spr(rd, SHAPES.pillar, o.x, o.y - 260, 70 * (1 - u * 0.5), 620, 0, [core[0], core[1], core[2], (1 - u)], 1);
+    spr(rd, SHAPES.glow, o.x, o.y, s * 1.2, s * 1.2 * (ry / o.r), 0, [col[0], col[1], col[2], (1 - u) * 0.5 * L], 1);
+    spr(rd, SHAPES.ring, o.x, o.y, s * 1.15, s * 1.15 * (ry / o.r), 0, [col[0] * 0.6 + core[0] * 0.4, col[1] * 0.6 + core[1] * 0.4, col[2] * 0.6 + core[2] * 0.4, (1 - u) * 0.7 * L], 1);
+    if (o.pillar) spr(rd, SHAPES.pillar, o.x, o.y - 260, 70 * (1 - u * 0.5) * (L < 1 ? 0.6 : 1), 620, 0, [core[0], core[1], core[2], (1 - u) * L], 1);
   };
   return add(e);
 }

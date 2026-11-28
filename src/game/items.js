@@ -86,7 +86,7 @@ export function lookOf(cls, equip, designs) {
     if (head && designs.helms.length) {
       const top = Math.max(...designs.helms.map(d => d.rarity)), r = Math.min(head.rarity, top);
       const ok = designs.helms.filter(d => d.rarity === r); const pool = ok.length ? ok : designs.helms;
-      look.helm = [pool[head.look[0] % pool.length].id, head.look[1]];
+      look.helm = [pool[head.look[0] % pool.length].id, body ? body.look[1] : head.look[1]];      // the helm takes the armour's finish so the set matches
     }
   }
   for (const slot of ['weapon', 'offhand']) {

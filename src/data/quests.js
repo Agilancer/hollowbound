@@ -32,15 +32,15 @@ export const QUESTS = [
   { id: "q_scouts_arithmetic", name: "The Scout's Arithmetic", giver: "tobin", turnin: "mira", level: 2, after: "q_first_blood", area: "wilds", main: true,
     offer: [
       "Mira Thistle's been counting goblins out at Fallow Acres. She wants somebody to help her count downward.",
-      "The sneaks carry tally-sticks. One notch a theft. Bring her five and she'll know how hungry the ditch is getting.",
+      "The sneaks carry tally-sticks. One notch a theft. Bring her a dozen and she'll know how hungry the ditch is getting.",
       "She's over by the well, pretending not to watch everyone.",
     ],
     progress: ["The sticks are notched. If it isn't notched, you've mugged a goblin for kindling."],
     done: [
-      "Five sticks. Forty-odd notches apiece. That's not raiding, that's a census.",
+      "A dozen sticks. Forty-odd notches apiece. That's not raiding, that's a census.",
       "Somebody's organising them. Goblins don't organise. They barely queue.",
     ],
-    steps: [ { t: "collect", item: "Notched Tally-Stick", from: "scrapknife_sneak", n: 25, chance: 0.6 }, { t: "talk", npc: "mira" } ],
+    steps: [ { t: "collect", item: "Notched Tally-Stick", from: "scrapknife_sneak", n: 12, chance: 0.9 }, { t: "talk", npc: "mira" } ],
     reward: rw(2, 1.0, "potions") },
 
   { id: "q_listening_straw", name: "Rows of Listening Straw", giver: "mira", turnin: "nan", level: 3, after: "q_scouts_arithmetic", area: "wilds", main: true,
@@ -67,7 +67,7 @@ export const QUESTS = [
       "Hm. Grave-dirt, a milk tooth and a goblin's knot. That's ditch-work. That's his shaman.",
       "Grubnash Rust-Crown's planting sentries in my rows. A king in a ditch, with ambitions. Go and see the Warden at the Crossing.",
     ],
-    steps: [ { t: "kill", mob: "the_wicker_child", n: 8 }, { t: "collect", item: "Wicker Heart", from: "the_wicker_child", n: 30, chance: 0.6 } ],
+    steps: [ { t: "kill", mob: "the_wicker_child", n: 8 }, { t: "collect", item: "Wicker Heart", from: "the_wicker_child", n: 12, chance: 0.9 } ],
     reward: rw(4, 1.0, gear("offhand", 1)) },
 
   { id: "q_crown_of_nails", name: "A Crown of Nails", giver: "brina", turnin: "tobin", level: 5, after: "q_wicker_hearts", area: "wilds", main: true,
@@ -345,7 +345,7 @@ export const QUESTS = [
       "That's Bess's bell. And Dot's. And the one I called Mutton, as a warning to the others.",
       "Thank you. I'll hang them on the fence. It's a very well-behaved flock, now.",
     ],
-    steps: [ { t: "collect", item: "Sheep Bell", from: "scrapknife_sneak", n: 30, chance: 0.6 } ],
+    steps: [ { t: "collect", item: "Sheep Bell", from: "scrapknife_sneak", n: 12, chance: 0.9 } ],
     reward: rw(2, 0.8) },
   { id: "q_w_crows", name: "They Sit Like They're Owed", giver: "rowena", turnin: "rowena", level: 2, after: "q_w_bells", area: "wilds",
     offer: [
@@ -369,7 +369,7 @@ export const QUESTS = [
       "Lovely. Still buzzing a bit. That's how you know it's fresh.",
       "A spoonful for you. Go on. It only tastes of goblin at the end.",
     ],
-    steps: [ { t: "collect", item: "Cauldron Honey", from: "cauldron_carrier", n: 25, chance: 0.6 } ],
+    steps: [ { t: "collect", item: "Cauldron Honey", from: "cauldron_carrier", n: 12, chance: 0.9 } ],
     reward: rw(3, 0.8, "potions") },
   { id: "q_w_crone", name: "Professional Courtesy", giver: "nan", turnin: "nan", level: 4, after: "q_w_honey", area: "wilds",
     offer: [
@@ -1063,7 +1063,7 @@ export const QUESTS = [
       "Lovely and thick. Hear that? It's still grumbling. That's quality.",
       "A few bottles for your trouble. Drink them before they drink you. I'm joking. Mostly.",
     ],
-    steps: [ { t: "collect", item: "Bramble Jelly", from: "crowmask_sneak", n: 30, chance: 0.6 } ],
+    steps: [ { t: "collect", item: "Bramble Jelly", from: "crowmask_sneak", n: 12, chance: 0.9 } ],
     reward: rw(1, 0.8, "potions") },
   { id: "q_e_wobbly", name: "The Wobbly Bit", giver: "gobble", turnin: "gobble", level: 1, after: null, area: "hollow",
     offer: [
@@ -1075,7 +1075,7 @@ export const QUESTS = [
       "Mmmf. Mmmmf. Good. Minty. Why is it minty?",
       "Here. I was keeping it in my cheek. It's shiny. You like shiny. Tall people like shiny.",
     ],
-    steps: [ { t: "collect", item: "Wobbly Bit", from: "scorpion_spearer", n: 25, chance: 0.6 } ],
+    steps: [ { t: "collect", item: "Wobbly Bit", from: "scorpion_spearer", n: 12, chance: 0.9 } ],
     reward: rw(1, 0.6) },
   { id: "q_e_billhook", name: "A Long Excuse", giver: "garrick", turnin: "rowena", level: 2, after: null, area: "hollow",
     offer: [
@@ -1099,7 +1099,7 @@ export const QUESTS = [
       "Look at that. Two rivets and a chin-strap and that's a helmet. Smells of stew, but so does half the militia.",
       "Your cut. And I'll knock a bit off your next purchase. Not literally. Well.",
     ],
-    steps: [ { t: "collect", item: "Dented Pot-Helm", from: "pothelm_clubber", n: 25, chance: 0.6 } ],
+    steps: [ { t: "collect", item: "Dented Pot-Helm", from: "pothelm_clubber", n: 12, chance: 0.9 } ],
     reward: rw(3, 0.8, gear("head", 0)) },
   { id: "q_e_crate", name: "I've Decided It's a Clock", giver: "ulf", turnin: "lily", level: 3, after: null, area: "hollow",
     offer: [

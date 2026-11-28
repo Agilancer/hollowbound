@@ -4,7 +4,7 @@
 import { G, rnd, ri, clamp, pick, chance } from '../state.js';
 import { SKILLS, SUMMONS, manaCost, cooldown, useTime, buffAmount, skillDuration, TILE, ELEM } from '../data/game.js';
 import { hit, heal, skillHit, elemRgb, elemCore, sfxAt, floater } from './combat.js';
-import { spawnProj, blast, zone, beam, chainFx, orbit, cyclone, flashFx, pillarFx, inEllipse, inBox, nearestFoe, friends, foes, puff, elemTrail, elemBurst } from './effects.js';
+import { loud, spawnProj, blast, zone, beam, chainFx, orbit, cyclone, flashFx, pillarFx, inEllipse, inBox, nearestFoe, friends, foes, puff, elemTrail, elemBurst } from './effects.js';
 import { Actor } from './actor.js';
 import { dropTo, platAt } from './body.js';
 import { mobDef, BEST } from './bestiary.js';
@@ -58,8 +58,9 @@ export function cast(a, sk, target) {
   if (target && a.enemyOf(target) && Math.abs(target.x - a.x) > 6) a.body.face = target.x > a.x ? 1 : -1;
   if (target) a.target = target;
   if (MELEE_KINDS.has(sk.kind) || sk.attack) a.lunge = 1; else a.castT = 1;
-  if (!MELEE_KINDS.has(sk.kind) && Math.abs(a.x - G.cam.cx) < G.cam.viewW) {
-    const c = elemRgb(sk.el), [mx, my] = muzzle(a);
+  if (!MELEE_KINDS.has(sk.kind) && Math.abs(a.x - G.cam.cx) < G.cam.viewW && loud(a) === 1) {
+    const fromMouth = sk.kind === 'beam' && (a.cls === 'dragoon' || a.cls === 'dragon_knight') && (sk.m.cone || /breath|dragon|flame|fire/.test(sk.fx));
+    const c = elemRgb(sk.el), [mx, my] = fromMouth ? mouth(a) : muzzle(a);
     flashFx({ shape: 'ring', x: mx, y: my, w: 26, h: 26, col: c, dur: 0.22, grow: 2.2 });
     flashFx({ shape: 'star', x: mx, y: my, w: 54, h: 54, col: elemCore(sk.el), dur: 0.16, grow: 0.6, rot: Math.random() * 3 });
     for (let i = 0; i < 4; i++) elemTrail(sk.el, mx + rnd(-8, 8), my + rnd(-8, 8), 1);
@@ -89,7 +90,7 @@ const KIND = {
     if (left > 0) G.effects.push({ upd(dt) { if (a.dead) return false; t += dt; while (t >= 0.085 && left > 0) { t -= 0.085; left--; strike(); sfxAt('swing', a, 0.4); } return left > 0; }, draw() {} });
   },
   proj(a, sk, rank, m, target) {
-    const n = Math.min(24, m.n || 1), tg = target && a.enemyOf(target) ? target : aim(a, reach(sk) * 1.1), f = a.face;
+    const n0 = m.n || 1, n = Math.min(m.ring || m.nova ? 12 : 7, n0), more = Math.pow(n0 / n, 0.65), tg = target && a.enemyOf(target) ? target : aim(a, reach(sk) * 1.1), f = a.face;
     const sp = clamp((m.spd || 11) * TILE * 1.05, 420, 1050), range = reach(sk);
     const [ox, oy] = sk.attack ? [a.x + f * 26, a.cy - 8] : muzzle(a);
     let base = 0; if (tg) base = clamp(Math.atan2(tg.cy - oy, Math.abs(tg.x - ox) + 1), -0.65, 0.65);
@@ -98,7 +99,7 @@ const KIND = {
     for (let i = 0; i < n; i++) {
       const off = full ? i * step : (i - (n - 1) / 2) * step, ang = base + off;
       const vx = Math.cos(ang) * sp * (full ? 1 : f), vy = Math.sin(ang) * sp;
-      spawnProj({ owner: a, x: ox, y: oy, vx, vy: vy + (m.lob ? -260 : 0), grav: m.lob ? 900 : 0, dmg: dm(a, sk), el: sk.el, fx: sk.fx, hopts: hopts(sk), range,
+      spawnProj({ owner: a, x: ox, y: oy, vx, vy: vy + (m.lob ? -260 : 0), grav: m.lob ? 900 : 0, dmg: dm(a, sk, more), el: sk.el, fx: sk.fx, hopts: hopts(sk), range,
         pierce: !!m.pierce, home: !!m.home, exp: m.exp ? 1.5 * TILE : 0, bounce: m.bounce || (m.ricochet ? Math.min(m.ricochet, 2 + Math.floor((rank - 1) / 4)) : 0) || (m.chain ? 3 : 0), ret: !!m.ret, size: /meteor|fireball|comet|sun|quasar|nuke|rocket/.test(sk.fx) ? 1.5 : 1 });
     }
   },

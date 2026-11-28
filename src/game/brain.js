@@ -68,7 +68,7 @@ function attack(m, tg, dt, adx, dy) {
   if (m.windup > 0) { m.windup -= dt; if (m.windup <= 0 && m.pending) { const f = m.pending; m.pending = null; if (!m.dead && m.status.stun <= 0 && m.status.freeze <= 0) f(); } return; }
   m.atkT -= dt; if (m.atkT > 0 || m.status.stun > 0 || m.status.freeze > 0) return;
   const el = m.el, dmg = () => ({ amount: m.dmg * rnd(0.85, 1.15) * (m.status.weaken > 0 ? 0.7 : 1), crit: false });
-  const tele = (t, f) => { m.windup = t; m.pending = f; m.flash = 0.6; m.flashCol = [1, 0.3, 0.2]; m.castT = 1; };
+  const tele = (t, f) => { m.windup = t; m.pending = f; m.flash = 0.6; m.flashCol = [1, 0.3, 0.2]; m.castT = 1; if (m.boss || m.elite) { const d = { t: 0, danger: { x: m.x, y: m.cy, r: m.w * 0.5 + 190 }, upd(dt) { this.t += dt; if (this.t >= t || m.dead) { this.danger = null; return false; } return true; }, draw() {} }; G.effects.push(d); } };
   if (m.boss) return bossAttack(m, tg, adx, dy, dmg, tele);
   const reachM = m.w * 0.5 + 58;
   if (m.ai === 'ranged' || m.ai === 'beamer') {
@@ -142,7 +142,7 @@ export class Bot {
   go(x, plat, tol = 26) {
     const h = this.h, b = h.body, nav = G.map.nav, w = this.want;
     if (b.rope) {                       // on a rope: keep climbing the way the route wants
-      const l = this.link;
+      const l = this.link; if (plat) this.ropeTo = plat;
       if (l && l.type === 'rope' && l.rope === b.rope) { if (l.up) w.up = true; else w.down = true; } else if (plat && plat.y > h.y) w.down = true; else w.up = true;
       return false;
     }
@@ -169,7 +169,10 @@ export class Bot {
       if (!h.enemyOf(o)) continue; if (f && !f(o) && !(o.aggro === h && Math.abs(o.x - h.x) < 320 && Math.abs(o.y - h.y) < 90)) continue;
       const dx = Math.abs(o.x - h.x), dy = Math.abs(o.y - h.y); if (dx > range) continue;
       let s = dx + dy * 2.2; if (o.body.plat === h.body.plat) s -= 260; if (o.aggro === h) s -= 300; if (o.boss && !G.map.instance) s += 400;
-      if (h.fake && o.tagged && o.tagged !== h && o.tagged.kind === 'hero' && !h.fake.bad && !h.inParty) s += 500;   // polite players leave your kills alone
+      if (dx > 700) s += 1500 + dx;                                  // far quarry only when nothing is near
+      if (o === h.target) s -= 220;                                  // stick with what we are fighting
+      if (h.fake && !h.inParty && o.tagged && o.tagged !== h && (o.tagged === G.player || o.tagged.inParty)) { if (!h.fake.bad) continue; s += 600; }   // only the rude ones steal your kills
+      else if (h.fake && o.tagged && o.tagged !== h && o.tagged.kind === 'hero' && !h.fake.bad && !h.inParty) s += 500;
       if (s < bs) { bs = s; best = o; }
     }
     return best;
@@ -207,10 +210,10 @@ export class Bot {
   /** Fight tg: close in, keep range if ranged, throw skills. */
   fight(tg) {
     const h = this.h; let dx = tg.x - h.x, adx = Math.abs(dx), dy = Math.abs(tg.y - h.y), basic = SKILLS[h.data.basic];
-    const want = h.ranged ? Math.min(380, reach(basic) * 0.75) : Math.max(60, reach(basic) - 34 + tg.w * 0.35);
+    const slot = (h.uid % 5), want = (h.ranged ? Math.min(380, reach(basic) * 0.75) + slot * 16 : Math.max(60, reach(basic) - 34 + tg.w * 0.35)) + (h.inParty && !h.ranged ? slot * 9 : 0);
     h.target = tg;
     if (!h.body.rope && h.body.plat && (adx > want + 80 || dy > 50)) { const b = this.blocker(); if (b && b !== tg) { tg = b; h.target = b; return this.fight(b); } }
-    if (h.body.rope) { if (dy > 50 && tg.body.plat) { this.go(tg.x, tg.body.plat, want); return; } }      // mid-climb: finish it (or let go if the quarry came to us)
+    if (h.body.rope) { this.go(tg.x, this.ropeTo || tg.body.plat || null, want); return; }      // on a rope: always finish the climb and step off before fighting      // mid-climb: finish it (or let go if the quarry came to us)
     else if (tg.body.plat && h.body.plat && tg.body.plat !== h.body.plat && dy > 50 && !tg.body.fly) { this.go(tg.x, tg.body.plat, want); if (!(h.ranged && adx < 460 && dy < 150)) return; }
     else if (adx > want) this.move = Math.sign(dx);
     else if (h.ranged && adx < 130 && !tg.boss && this.t > 0) this.move = -Math.sign(dx);
@@ -236,7 +239,8 @@ export class Bot {
     if (this.wait > 0) { this.wait -= dt; }
     else if (g.type === 'grind' || g.type === 'duel') {
       let tg = h.target; this.scan = (this.scan || 0) - dt;
-      if (!tg || tg.dead || tg.remove || !h.enemyOf(tg) || this.scan <= 0 || (g.filter && !g.filter(tg))) { this.scan = 0.6; const n = this.pickTarget(g.range || 1400); if (n && (!tg || tg.dead || tg.remove || n.aggro === h || Math.abs(n.x - h.x) + 200 < Math.abs(tg.x - h.x))) tg = n; if (tg && (tg.dead || tg.remove)) tg = null; h.target = tg; }
+      const gone = !tg || tg.dead || tg.remove || !h.enemyOf(tg); this.lockT = (this.lockT || 0) - dt;
+      if (gone || (this.scan <= 0 && this.lockT <= 0)) { this.scan = 0.6; const n = this.pickTarget(g.range || 1400); if (n && n !== tg && (gone || (n.aggro === h && tg.aggro !== h) || Math.abs(n.x - h.x) + 260 < Math.abs(tg.x - h.x))) { tg = n; this.lockT = 2; } if (tg && (tg.dead || tg.remove)) tg = null; h.target = tg; }
       if (tg) this.fight(tg);
       else if (g.home) { if (this.go(g.home.x, g.home.plat, 60)) { if (chance(0.01)) g.home = this.roam(); } }
       else { this.roamT = (this.roamT || 0) - dt; if (!this.roamTo || this.roamT <= 0) { this.roamTo = this.roam(); this.roamT = 8; } if (this.go(this.roamTo.x, this.roamTo.plat, 50)) this.roamTo = null; }
@@ -256,12 +260,13 @@ export class Bot {
       if (!g.to) { g.to = this.roam(true); g.stay = rnd(4, 22); }
       if (this.go(g.to.x, g.to.plat, 30)) { g.stay -= dt; if (chance(0.004)) this.want.jump = true; if (g.stay <= 0) g.to = null; h.body.face = g.faceTo ? Math.sign(g.faceTo.x - h.x) || 1 : h.body.face; }
     }
-    if (h.body.rope && !this.want.up && !this.want.down) { this.want.jump = true; if (!this.move) this.move = h.face; }   // nothing to climb for: let go
+    if (h.body.rope && !this.want.up && !this.want.down) { const r = h.body.rope; if (h.y - r.y1 < 140) this.want.up = true; else this.want.down = true; this.move = 0; }   // never jump off a rope: climb to the nearer end
+    if (!h.body.rope) this.ropeTo = null;
     // a marked patch of ground about to erupt under us: get out of it (unless mid-climb)
-    if (!h.body.rope && h.body.plat) for (const e of G.effects) { const d = e.danger; if (!d || Math.abs(d.y - h.cy) > 160) continue; const dx = h.x - d.x; if (Math.abs(dx) < d.r) { this.move = dx >= 0 ? 1 : -1; const p = h.body.plat; if ((this.move > 0 && h.x > p.x2 - 30) || (this.move < 0 && h.x < p.x1 + 30)) this.move = -this.move; this.dodging = 0.25; break; } }
+    if (!h.body.rope && h.body.plat) for (const e of G.effects) { const d = e.danger; if (!d || Math.abs(d.y - h.cy) > 160) continue; const dx = h.x - d.x; if (Math.abs(dx) < d.r) { this.move = dx >= 0 ? 1 : -1; this.dodge = 0.2; const p = h.body.plat; if ((this.move > 0 && h.x > p.x2 - 30) || (this.move < 0 && h.x < p.x1 + 30)) this.move = -this.move; this.dodging = 0.25; break; } }
     if (this.move) this.lastMove = this.move;
     if (h.status.stun > 0 || h.status.freeze > 0) { this.move = 0; this.want = {}; }
-    if (h.useT > 0 && !h.whirl) this.move *= h.ranged ? 0.25 : 0.4;
+    if (this.dodge > 0) { this.dodge -= dt; h.useT = Math.min(h.useT, 0); } else if (h.useT > 0 && !h.whirl) this.move *= h.ranged ? 0.25 : 0.4;
     const ev = h.body.step(G.map.geo, dt, this.move, this.want);
     if (ev === 'land') h.squash = -0.14; else if (ev === 'jump') h.squash = 0.1;
   }

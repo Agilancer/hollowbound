@@ -65,7 +65,10 @@ export async function buildScene(M) {
     if (p.ground) continue;
     if (town && !p.small) { p.roof = true; continue; }               // town ledges are rooftops (drawn with the building)
     const len = p.x2 - p.x1, LS = th.ledgeSprites || [], BR = th.bridges || [];
-    const pick = p.small && LS.length ? LS[Math.floor(r() * LS.length)] : !p.small && BR.length && len <= 760 && r() < 0.55 ? BR[Math.floor(r() * BR.length)] : !p.small && LS.length && len <= 420 ? LS[Math.floor(r() * LS.length)] : null;
+    // a sprite is only used near its own pixel size (never stretched into mush)
+    const fits = (list) => list.filter(q => q.rect && (len + 16) / q.rect[2] >= 0.6 && (len + 16) / q.rect[2] <= 1.3);
+    const fl = fits(LS), fb = fits(BR);
+    const pick = p.small && fl.length ? fl[Math.floor(r() * fl.length)] : !p.small && fb.length && r() < 0.6 ? fb[Math.floor(r() * fb.length)] : !p.small && fl.length && len <= 420 ? fl[Math.floor(r() * fl.length)] : null;
     if (pick && pick.rect) { const sp = propSprite({ ...pick, h: 100 }), k = (len + 16) / pick.rect[2]; sp.k = k; S.platSprites.push({ s: sp, x: (p.x1 + p.x2) / 2, y: p.y, k, ax: pick.anchor ? pick.anchor[0] : pick.rect[2] / 2, ay: pick.anchor ? pick.anchor[1] : 8 }); continue; }
     for (let x = p.x1; x < p.x2; x += CH) {
       const w = Math.min(CH, p.x2 - x), H = 78, [c, g] = mk(w, H);
@@ -109,7 +112,7 @@ function ledgeArt(g, tex, style, w, H, capL, capR, r, ox) {
   const sh = g.createLinearGradient(0, 5, 0, 5 + T); sh.addColorStop(0, 'rgba(255,255,255,0.16)'); sh.addColorStop(0.18, 'rgba(0,0,0,0)'); sh.addColorStop(0.6, 'rgba(0,0,0,0.3)'); sh.addColorStop(1, 'rgba(0,0,0,0.75)');
   g.fillStyle = sh; g.fillRect(0, 5, w, T); g.restore();
   g.strokeStyle = 'rgba(0,0,0,0.8)'; g.lineWidth = 2; g.beginPath(); g.roundRect(1, 6, w - 2, T - 1, [capL ? 4 : 0, capR ? 4 : 0, capR ? 7 : 0, capL ? 7 : 0]); g.stroke();
-  g.fillStyle = 'rgba(255,255,255,0.2)'; g.fillRect(capL ? 4 : 0, 6, w - (capL ? 4 : 0) - (capR ? 4 : 0), 2); g.fillStyle = 'rgba(0,0,0,0.35)'; g.fillRect(0, 14, w, 2);
+  g.fillStyle = 'rgba(255,255,255,0.38)'; g.fillRect(capL ? 4 : 0, 6, w - (capL ? 4 : 0) - (capR ? 4 : 0), 2); g.fillStyle = 'rgba(0,0,0,0.35)'; g.fillRect(0, 14, w, 2);
   // what hangs beneath
   const y0 = 5 + T;
   if (style === 'wood') { for (let x = 28; x < w - 10; x += 150) { g.fillStyle = '#1c130c'; g.fillRect(x, y0, 9, 22); g.beginPath(); g.moveTo(x + 9, y0); g.lineTo(x + 36, y0); g.lineTo(x + 9, y0 + 22); g.fill(); } }
@@ -125,7 +128,8 @@ function ropeArt(kind) {
   if (kind === 'chain') { g.strokeStyle = '#8a8a90'; g.lineWidth = 3; for (let y = 0; y < 64; y += 16) { g.beginPath(); g.ellipse(13, y + 5, 4, 7, 0, 0, 7); g.stroke(); g.beginPath(); g.moveTo(13, y + 10); g.lineTo(13, y + 17); g.stroke(); } }
   else if (kind === 'ladder_wood' || kind === 'ladder_iron') { g.fillStyle = kind === 'ladder_iron' ? '#3a3d44' : '#5a3c22'; g.fillRect(2, 0, 4, 64); g.fillRect(20, 0, 4, 64); g.fillStyle = kind === 'ladder_iron' ? '#6a6e78' : '#8a6238'; for (let y = 6; y < 64; y += 16) g.fillRect(2, y, 22, 4); }
   else if (kind === 'vine' || kind === 'root') { g.strokeStyle = kind === 'vine' ? '#2f5a26' : '#4a3422'; g.lineWidth = 5; g.beginPath(); g.moveTo(13, 0); g.bezierCurveTo(4, 16, 22, 32, 13, 64); g.stroke(); if (kind === 'vine') { g.fillStyle = '#4f8a36'; for (let y = 6; y < 64; y += 15) { g.beginPath(); g.ellipse(y % 30 ? 6 : 20, y, 6, 3, 0.6, 0, 7); g.fill(); } } }
-  else { g.fillStyle = '#7a6140'; g.fillRect(10, 0, 6, 64); g.strokeStyle = '#3d2f1c'; g.lineWidth = 1.5; for (let y = -6; y < 64; y += 7) { g.beginPath(); g.moveTo(10, y + 6); g.lineTo(16, y); g.stroke(); } g.fillStyle = 'rgba(255,255,255,0.18)'; g.fillRect(10, 0, 2, 64); }
+  else { g.fillStyle = '#2a1e10'; g.fillRect(7, 0, 12, 64); g.fillStyle = '#a8875a'; g.fillRect(9, 0, 8, 64); g.fillStyle = '#d8bc8a'; g.fillRect(9, 0, 3, 64); g.strokeStyle = '#4a361e'; g.lineWidth = 2; for (let y = -8; y < 64; y += 8) { g.beginPath(); g.moveTo(9, y + 8); g.lineTo(17, y); g.stroke(); } return c; }
+  if (false) { g.fillStyle = '#7a6140'; g.fillRect(10, 0, 6, 64); g.strokeStyle = '#3d2f1c'; g.lineWidth = 1.5; for (let y = -6; y < 64; y += 7) { g.beginPath(); g.moveTo(10, y + 6); g.lineTo(16, y); g.stroke(); } g.fillStyle = 'rgba(255,255,255,0.18)'; g.fillRect(10, 0, 2, 64); }
   return c;
 }
 
