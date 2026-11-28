@@ -98,7 +98,7 @@ export const game = {
     if (fam.length) for (const h of G.heroes) { const id = h.isPlayer ? G.char.pet : h.fake && (h.fake.seed % 100) < 38 ? fam[h.fake.seed % fam.length].id : null; if (id) givePet(h, id, 'map'); }
     const cam = G.cam; cam.x = G.player.x - cam.viewW / 2; cam.y = G.player.y - cam.viewH * 0.76; this.clampCam();
     G.loading = false; emit('loading', { on: false }); audio.sfx('portal');
-    if (!inst) { G.char.map = id; this.save(); }
+    if (!inst) { G.char.map = id; const v = G.char.visited = G.char.visited || []; if (!v.includes(id)) v.push(id); this.save(); }
     if (M.def.kind === 'town') { const P = G.player; P.hp = P.maxHp; if (P.cls !== 'barbarian') P.mp = P.maxMp; }
     return M;
   },
