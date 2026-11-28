@@ -25,4 +25,4 @@ export async function loadBestiary() {
 }
 export const mobDef = (id) => BEST.byId.get(id) || null;
 /** Enemy creatures only (no pets, summons, icons). */
-export const isEnemy = (d) => !['familiars', 'minions', 'va'].includes(d.grp) || /^va_(velscour|deathknight|claygolem|bonecolossus|wraith|abomination|plaguebearer|hydra)$/.test(d.id);
+export const isEnemy = (d) => !['familiars', 'minions', 'va', 'slimes'].includes(d.grp) && !/slime/i.test(d.name) && d.sheet !== 'slimes' || /^va_(velscour|deathknight|claygolem|bonecolossus|wraith|abomination|plaguebearer|hydra)$/.test(d.id);

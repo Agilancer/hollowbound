@@ -16,7 +16,6 @@ export const NPCS = {
     ],
     idle: [
       "This town's built on something that should have stayed dead. So am I, come to that.",
-      "In my day the slimes were smaller. Or I was bigger.",
       "Don't trust a quiet field. Fields are meant to have sheep in.",
       "Lost three fingers at Thornwall. Found one. Wasn't mine.",
       "They say the Fiend's far below. Far isn't the same as gone.",
@@ -170,12 +169,10 @@ export const NPCS = {
       "I ate a candle. It was fine. Not good. Fine.",
       "Hungry. Not a little. Historically.",
       "The innkeeper says I'm banned. I don't know what that tastes like.",
-      "If you find a slime, bring me the wobbly bit. They're all the wobbly bit.",
       "I can smell your rations. Third pocket. Left.",
     ],
     idle: [
       "Hungry.",
-      "Slime's just pudding that fights back.",
       "I licked the chapel door. Holy. Bit dusty.",
       "Greener, when's dinner? Greener. Greener, when's second dinner?",
       "That pigeon's looking at me like it knows.",
@@ -511,14 +508,12 @@ export const NPCS = {
   rowena: { name: "Rowena", title: "Shepherd, Formerly of Sheep", sprite: { people: "43_townsfolk_shepherd" }, role: "quest",
     greet: [
       "I had forty sheep at Michaelmas. I've a crook, now, and a grudge.",
-      "Mind the slimes. They don't hurt much, but they get in the wool. Got in the wool.",
       "You haven't seen a ewe, have you? White, stupid, answers to nothing?",
       "The goblins took six. The crows took two. Something took nine and left the bells in a neat row.",
       "A shepherd without sheep is just a woman shouting in a field. I've made my peace with it.",
       "If you're heading west, don't. If you're heading west anyway, count things for me.",
     ],
     idle: [
-      "Here, girl! Here! ...No. That's a slime.",
       "Fallow Acres. It was Fat Acres in my gran's day.",
       "The grass grows back. Nothing else does.",
       "Crows. Always the crows. They sit like they're owed.",

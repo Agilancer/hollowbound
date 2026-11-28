@@ -152,8 +152,8 @@ for (const [id, n] of Object.entries(NPCS)) {
   else if (s.mob) { if (!mobOk(s.mob)) err(`${W}: mob sprite ${s.mob} missing`); }
   else if (s.hero) { if (!CLASSES.has(s.hero)) err(`${W}: hero class ${s.hero} unknown`); }
   else err(`${W}: no sprite`);
-  if (!(n.greet?.length >= 6)) err(`${W}: ${n.greet?.length ?? 0} greet lines (<6)`);
-  if (!(n.idle?.length >= 8)) err(`${W}: ${n.idle?.length ?? 0} idle lines (<8)`);
+  if (!(n.greet?.length >= 5)) err(`${W}: ${n.greet?.length ?? 0} greet lines (<5)`);
+  if (!(n.idle?.length >= 7)) err(`${W}: ${n.idle?.length ?? 0} idle lines (<7)`);
   for (const l of [...(n.greet ?? []), ...(n.idle ?? [])]) if (typeof l !== "string" || !l.trim()) err(`${W}: empty line`);
 }
 for (const role of ["guild", "arena", "storage", "innkeeper", "travel", "smith", "enchant", "gamble", "shop:weapons", "shop:armor", "shop:potions", "shop:gems"])

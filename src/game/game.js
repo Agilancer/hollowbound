@@ -62,7 +62,7 @@ export const game = {
   async newGame({ name, cls }) {
     const c = { v: 1, name: name || 'Hero', cls, lvl: 1, xp: 0, sp: 0, equip: {}, ranks: {}, bar: [], autoSkills: true, gold: 60, bag: [], bagMax: 40, potions: { hp: 8, mp: 5 }, etc: {},
       quests: { active: {}, done: {} }, map: 'hh_square', guild: null, kills: 0, deaths: 0, settings: { ...G.settings }, autoGear: true };
-    c.pet = pick(['bs1_0', 'bs1_3', 'wf0', 'bs2_1', 'bs1_7']);
+    c.pet = 'wf0';
     const kit = kitFor(cls, 1); c.equip = { weapon: kit.weapon, body: kit.body }; if (kit.offhand) c.equip.offhand = kit.offhand;
     for (const k in c.equip) c.equip[k].rarity = 0;
     await this.begin(c);
@@ -94,8 +94,8 @@ export const game = {
     const M = await loadMap(id, from, inst || null);
     S.populate(M); Q.onMap(); Q.refreshMarks();
     G.heroes = G.actors.filter(a => a.kind === 'hero');
-    const fam = BEST.groups.familiars || [];
-    if (fam.length) for (const h of G.heroes) { const id = h.isPlayer ? G.char.pet : h.fake && (h.fake.seed % 100) < 38 ? fam[h.fake.seed % fam.length].id : null; if (id) givePet(h, id, 'map'); }
+    const fam = (BEST.groups.familiars || []).filter(d => !/slime|puddle/i.test(d.name) && !/^blue/.test(d.sheet));
+    if (fam.length) for (const h of G.heroes) { const id = h.isPlayer ? (/^bs/.test(G.char.pet || '') ? (G.char.pet = 'wf0') : G.char.pet) : h.fake && (h.fake.seed % 100) < 38 ? fam[h.fake.seed % fam.length].id : null; if (id) givePet(h, id, 'map'); }
     const cam = G.cam; cam.x = G.player.x - cam.viewW / 2; cam.y = G.player.y - cam.viewH * 0.76; this.clampCam();
     G.loading = false; emit('loading', { on: false }); audio.sfx('portal');
     if (!inst) { G.char.map = id; const v = G.char.visited = G.char.visited || []; if (!v.includes(id)) v.push(id); this.save(); }

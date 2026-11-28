@@ -1,4 +1,4 @@
-// VELSCOUR : HOLLOWBOUND — quests. Mob ids are bestiary ids / "slime:<key>"; npc and map ids come from npcs.js / world.js.
+// VELSCOUR : HOLLOWBOUND — quests. Mob ids are bestiary ids; npc and map ids come from npcs.js / world.js.
 // Step types: kill {mob|area|any, n} · collect {item, from: mobId|{area}, n, chance} · talk {npc} · visit {map} · boss {mob}
 //             dungeon {id} · level {n} · deliver {npc, item}
 // Validate with: node tools/check_content.mjs
@@ -18,7 +18,7 @@ export const QUESTS = [
   { id: "q_first_blood", name: "Something That Should Have Stayed Dead", giver: "tobin", turnin: "tobin", level: 1, after: null, area: "wilds", main: true,
     offer: [
       "New, are you? You've the look. Clean boots and all your fingers.",
-      "There's slimes on the Hollow Road again. Meadow ones. Harmless, if you're a fence post.",
+      "There's gravehounds on the Hollow Road again. Lean ones. Harmless, if you're a fence post.",
       "Go and burst eight of them. It's not glory, but glory's got to start somewhere, and it generally starts in muck.",
     ],
     progress: ["Eight, I said. I can count, you know. It's fingers I'm short of, not numbers."],
@@ -26,7 +26,7 @@ export const QUESTS = [
       "There. You've killed something that wobbled. Soldiers have been decorated for less.",
       "Take this. Don't spend it at Fortunato's table. I'll know. Everybody will know. He rings a little bell.",
     ],
-    steps: [ { t: "kill", mob: "slime:meadow", n: 8 } ],
+    steps: [ { t: "kill", mob: "gravehound", n: 8 } ],
     reward: rw(1, 1.2, gear("weapon", 0)) },
 
   { id: "q_scouts_arithmetic", name: "The Scout's Arithmetic", giver: "tobin", turnin: "mira", level: 2, after: "q_first_blood", area: "wilds", main: true,
@@ -40,7 +40,7 @@ export const QUESTS = [
       "Five sticks. Forty-odd notches apiece. That's not raiding, that's a census.",
       "Somebody's organising them. Goblins don't organise. They barely queue.",
     ],
-    steps: [ { t: "collect", item: "Notched Tally-Stick", from: "scrapknife_sneak", n: 5, chance: 0.6 }, { t: "talk", npc: "mira" } ],
+    steps: [ { t: "collect", item: "Notched Tally-Stick", from: "scrapknife_sneak", n: 25, chance: 0.6 }, { t: "talk", npc: "mira" } ],
     reward: rw(2, 1.0, "potions") },
 
   { id: "q_listening_straw", name: "Rows of Listening Straw", giver: "mira", turnin: "nan", level: 3, after: "q_scouts_arithmetic", area: "wilds", main: true,
@@ -67,7 +67,7 @@ export const QUESTS = [
       "Hm. Grave-dirt, a milk tooth and a goblin's knot. That's ditch-work. That's his shaman.",
       "Grubnash Rust-Crown's planting sentries in my rows. A king in a ditch, with ambitions. Go and see the Warden at the Crossing.",
     ],
-    steps: [ { t: "kill", mob: "the_wicker_child", n: 8 }, { t: "collect", item: "Wicker Heart", from: "the_wicker_child", n: 6, chance: 0.6 } ],
+    steps: [ { t: "kill", mob: "the_wicker_child", n: 8 }, { t: "collect", item: "Wicker Heart", from: "the_wicker_child", n: 30, chance: 0.6 } ],
     reward: rw(4, 1.0, gear("offhand", 1)) },
 
   { id: "q_crown_of_nails", name: "A Crown of Nails", giver: "brina", turnin: "tobin", level: 5, after: "q_wicker_hearts", area: "wilds", main: true,
@@ -108,7 +108,7 @@ export const QUESTS = [
       "Every one of these says the same thing. OPEN. Just that. Six times over.",
       "Right. Dain the mason's at the Barrow door, bricking and swearing. It's time someone went down and asked the Prior what he wants.",
     ],
-    steps: [ { t: "collect", item: "Barrow-Clay Token", from: "bluecrest_spear", n: 6, chance: 0.5 } ],
+    steps: [ { t: "collect", item: "Barrow-Clay Token", from: "bluecrest_spear", n: 30, chance: 0.6 } ],
     reward: rw(7, 0.9, "potions") },
 
   { id: "q_hollow_barrow", name: "The Hollow Barrow", giver: "kestrel", turnin: "kestrel", level: 8, after: "q_barrow_tokens", area: "forest", main: true,
@@ -163,7 +163,7 @@ export const QUESTS = [
       "Gorm sent you. Course he did. He drew the long straw eleven years ago and he's not let go of it since.",
       "Tar's the least of it. The water's been running the wrong way since the Barrow opened. Toward the cathedral. Water shouldn't have preferences.",
     ],
-    steps: [ { t: "visit", map: "sewers_1" }, { t: "kill", mob: "tar_pancake", n: 10 }, { t: "talk", npc: "hale" } ],
+    steps: [ { t: "visit", map: "sewers_1" }, { t: "kill", mob: "rustblood_raider", n: 10 }, { t: "talk", npc: "hale" } ],
     reward: rw(11, 1.0, gear("body", 1)) },
 
   { id: "q_one_thousand_nights", name: "One Thousand and Seven Nights", giver: "agatha", turnin: "maeve", level: 12, after: "q_what_town_sits_on", area: "graveyard", main: true,
@@ -247,7 +247,7 @@ export const QUESTS = [
       "Seal-stone. In their knuckles. So the fourth seal didn't break. It was eaten.",
       "That accounts for the lake, then. Sit by the lantern. I'll tell you about the lake, and then you'll wish I hadn't, and then you'll go anyway.",
     ],
-    steps: [ { t: "visit", map: "caves_2" }, { t: "collect", item: "Seal-Stone Shard", from: "de_milkvein_knuckler", n: 8, chance: 0.5 }, { t: "talk", npc: "halvard" } ],
+    steps: [ { t: "visit", map: "caves_2" }, { t: "collect", item: "Seal-Stone Shard", from: "de_milkvein_knuckler", n: 40, chance: 0.6 }, { t: "talk", npc: "halvard" } ],
     reward: rw(18, 1.0, gear("ring", 2)) },
 
   { id: "q_brine_testament", name: "Old Soundless", giver: "halvard", turnin: "thessaly", level: 20, after: "q_stone_stops", area: "caves", main: true,
@@ -345,31 +345,31 @@ export const QUESTS = [
       "That's Bess's bell. And Dot's. And the one I called Mutton, as a warning to the others.",
       "Thank you. I'll hang them on the fence. It's a very well-behaved flock, now.",
     ],
-    steps: [ { t: "collect", item: "Sheep Bell", from: "scrapknife_sneak", n: 6, chance: 0.5 } ],
+    steps: [ { t: "collect", item: "Sheep Bell", from: "scrapknife_sneak", n: 30, chance: 0.6 } ],
     reward: rw(2, 0.8) },
   { id: "q_w_crows", name: "They Sit Like They're Owed", giver: "rowena", turnin: "rowena", level: 2, after: "q_w_bells", area: "wilds",
     offer: [
       "The crows have got bold. They don't wait for things to die any more. They stand about and suggest it.",
-      "Six of them. And a few of those amber slimes while you're at it, they've been sitting on my good grass.",
+      "Six of them. And a few of those gravehounds while you're at it, they've been digging up my good grass.",
     ],
     progress: ["Still crows on my fence. I can feel them judging the wool."],
     done: [
       "Quiet. Listen to that. No, there's nothing. That's the point.",
       "Here. It was going to be for shearing season. There isn't going to be a shearing season.",
     ],
-    steps: [ { t: "kill", mob: "grave_crow", n: 6 }, { t: "kill", mob: "amber_dome", n: 6 } ],
+    steps: [ { t: "kill", mob: "grave_crow", n: 6 }, { t: "kill", mob: "bellback_fanatic", n: 6 } ],
     reward: rw(2, 1.0, gear("body", 0)) },
   { id: "q_w_honey", name: "Not From Bees", giver: "nan", turnin: "nan", level: 3, after: null, area: "wilds",
     offer: [
-      "There's a slime in the Acres that's gone and eaten a hive. Several hives. It's honey right through now, and furious.",
-      "Slime-honey's the best thing for a cough and the worst thing for a carpet. Five gobbets, dearie.",
+      "There's goblins in the Acres boiling stolen hives in a cauldron. Several hives. The whole pot's honey now, and so are they.",
+      "Cauldron-honey's the best thing for a cough and the worst thing for a carpet. Bring me plenty, dearie.",
     ],
     progress: ["The yellow ones. If it's green, that's a different jar and a different ailment."],
     done: [
       "Lovely. Still buzzing a bit. That's how you know it's fresh.",
-      "A spoonful for you. Go on. It only tastes of slime at the end.",
+      "A spoonful for you. Go on. It only tastes of goblin at the end.",
     ],
-    steps: [ { t: "collect", item: "Slime-Honey", from: "slime:honey", n: 5, chance: 0.6 } ],
+    steps: [ { t: "collect", item: "Cauldron Honey", from: "cauldron_carrier", n: 25, chance: 0.6 } ],
     reward: rw(3, 0.8, "potions") },
   { id: "q_w_crone", name: "Professional Courtesy", giver: "nan", turnin: "nan", level: 4, after: "q_w_honey", area: "wilds",
     offer: [
@@ -405,7 +405,7 @@ export const QUESTS = [
       "Eight. Oh, that's beautiful. I'm going to bury them. Deep.",
       "Here, for your trouble. And if you ever take up the cymbals, we are no longer friends.",
     ],
-    steps: [ { t: "collect", item: "Dented Pan Lid", from: "panlid_duelist", n: 8, chance: 0.6 } ],
+    steps: [ { t: "collect", item: "Dented Pan Lid", from: "panlid_duelist", n: 40, chance: 0.6 } ],
     reward: rw(5, 0.9, gear("head", 1)) },
   { id: "q_w_orchard", name: "Is Any of That Food", giver: "greener", turnin: "gobble", level: 6, after: null, area: "wilds",
     offer: [
@@ -418,7 +418,7 @@ export const QUESTS = [
       "Apple. Apple apple apple apple. That's five. I can count when it's food.",
       "You can have this. I found it in my mouth. It's a coin. I don't like coins. They don't go down.",
     ],
-    steps: [ { t: "visit", map: "wilds_5" }, { t: "collect", item: "Unpicked Apple", from: "vine_whip_raider", n: 5, chance: 0.5 } ],
+    steps: [ { t: "visit", map: "wilds_5" }, { t: "collect", item: "Unpicked Apple", from: "vine_whip_raider", n: 25, chance: 0.6 } ],
     reward: rw(6, 1.0, gear("ring", 1)) },
 
   // ═════════════════════════════ THE DARK FOREST ═════════════════════════════
@@ -432,7 +432,7 @@ export const QUESTS = [
       "These'll do. That one's got a bit of a stare, but I'll put it on the inside.",
       "Coin, as agreed. And a tonic. You've a scratch that's thinking about becoming a personality.",
     ],
-    steps: [ { t: "collect", item: "Unmangy Pelt", from: "briar_wolf", n: 8, chance: 0.35 } ],
+    steps: [ { t: "collect", item: "Unmangy Pelt", from: "briar_wolf", n: 40, chance: 0.6 } ],
     reward: rw(5, 0.9, "potions") },
   { id: "q_f_archers", name: "The Path Was Here This Morning", giver: "kestrel", turnin: "kestrel", level: 7, after: null, area: "forest",
     offer: [
@@ -468,7 +468,7 @@ export const QUESTS = [
       "Lovely. See the grain on that? That'll hold a dead prior for, oh, days.",
       "Here's your cut. I've put it on the Hollow's bill. They'll never pay it, but it's the principle.",
     ],
-    steps: [ { t: "collect", item: "Kobold Sling-Stone", from: "yellow_sling_runner", n: 6, chance: 0.6 } ],
+    steps: [ { t: "collect", item: "Kobold Sling-Stone", from: "yellow_sling_runner", n: 30, chance: 0.6 } ],
     reward: rw(8, 0.8) },
   { id: "q_f_prior_owes", name: "The Prior Owes Me For Bricks", giver: "dain", turnin: "dain", level: 9, after: "q_hollow_barrow", area: "forest",
     offer: [
@@ -492,7 +492,7 @@ export const QUESTS = [
       "Look at that. You could hang a bishop from one thread of it. They did, once, I heard.",
       "Fair's fair. I'm a coward, not a cheat.",
     ],
-    steps: [ { t: "visit", map: "forest_4" }, { t: "collect", item: "Widow Silk", from: "stiltleg_spider", n: 6, chance: 0.5 } ],
+    steps: [ { t: "visit", map: "forest_4" }, { t: "collect", item: "Widow Silk", from: "stiltleg_spider", n: 30, chance: 0.6 } ],
     reward: rw(10, 1.0, gear("amulet", 1)) },
   { id: "q_f_huntsman", name: "Hob Carrow's Last Season", giver: "kestrel", turnin: "kestrel", level: 11, after: "q_f_gallowsman", area: "forest",
     offer: [
@@ -531,7 +531,7 @@ export const QUESTS = [
       "That's a week of wicks. Every flame's a soul at rest. Well. A soul being asked nicely.",
       "For your trouble. And a candle. Don't light it indoors; it's one of the strong ones.",
     ],
-    steps: [ { t: "collect", item: "Grave Tallow", from: "gravedigger", n: 8, chance: 0.6 } ],
+    steps: [ { t: "collect", item: "Grave Tallow", from: "gravedigger", n: 40, chance: 0.6 } ],
     reward: rw(8, 0.8, "potions") },
   { id: "q_g_moths", name: "After the Wick", giver: "quill", turnin: "quill", level: 9, after: "q_g_tallow", area: "graveyard",
     offer: [
@@ -555,7 +555,7 @@ export const QUESTS = [
       "That's it. That's Harold's hat. Oh, it still smells of him. Pipe smoke and disappointment.",
       "Bless you. Here's a copper a wail's worth, saved up. I've done a lot of wailing.",
     ],
-    steps: [ { t: "collect", item: "Edwin's Hat", from: "grinning_ghoul", n: 1, chance: 0.15 } ],
+    steps: [ { t: "collect", item: "Edwin's Hat", from: "grinning_ghoul", n: 25, chance: 0.6 } ],
     reward: rw(10, 1.0, gear("head", 1)) },
   { id: "q_g_paupers", name: "No Stones, No Names", giver: "marrow", turnin: "marrow", level: 10, after: "q_g_edwin", area: "graveyard",
     offer: [
@@ -579,7 +579,7 @@ export const QUESTS = [
       "Six. I shall set them on the Stair. Whoever comes up will at least see what they are climbing toward.",
       "The order's thanks. I am the order. So: my thanks.",
     ],
-    steps: [ { t: "collect", item: "Wandering Lantern", from: "pale_lanternwraith", n: 6, chance: 0.5 } ],
+    steps: [ { t: "collect", item: "Wandering Lantern", from: "pale_lanternwraith", n: 30, chance: 0.6 } ],
     reward: rw(12, 0.9, gear("offhand", 1)) },
   { id: "q_g_bell", name: "No Rope on That Bell", giver: "maeve", turnin: "maeve", level: 13, after: "q_g_lanterns", area: "graveyard",
     offer: [
@@ -629,7 +629,7 @@ export const QUESTS = [
       "Oh, that's rich stuff. Smell that. No, don't.",
       "Here's a few reds for your trouble. Fresh batch. New recipe. Entirely unrelated.",
     ],
-    steps: [ { t: "collect", item: "Rendered Tallow", from: "tallow_husk", n: 8, chance: 0.6 } ],
+    steps: [ { t: "collect", item: "Rendered Tallow", from: "tallow_husk", n: 40, chance: 0.6 } ],
     reward: rw(12, 0.9, "potions") },
   { id: "q_s_door", name: "Everything Under Four Inches Knows", giver: "bartholomew", turnin: "bartholomew", level: 13, after: null, area: "sewers",
     offer: [
@@ -653,7 +653,7 @@ export const QUESTS = [
       "Oh, look at them! Little darlings. Nell's a good girl. Smells like a harbour, but a good girl.",
       "Now, hold still. No, I'm joking, dear. These are for paying customers.",
     ],
-    steps: [ { t: "collect", item: "Porcelain Leech", from: "porcelain_leech", n: 6, chance: 0.5 }, { t: "talk", npc: "wren" } ],
+    steps: [ { t: "collect", item: "Porcelain Leech", from: "porcelain_leech", n: 30, chance: 0.6 }, { t: "talk", npc: "wren" } ],
     reward: rw(14, 0.9, "potions") },
   { id: "q_s_regent", name: "Don't Make Him Get Up", giver: "nell", turnin: "nell", level: 14, after: "q_drowned_cistern", area: "sewers",
     offer: [
@@ -716,7 +716,7 @@ export const QUESTS = [
       "Ten. Back in the wall with you. Out. Face OUT. There.",
       "That's another eight yards of Gallery I can turn my back on. Bless you for it.",
     ],
-    steps: [ { t: "collect", item: "Watching Skull", from: "crypt_cleaver_skeleton", n: 10, chance: 0.6 } ],
+    steps: [ { t: "collect", item: "Watching Skull", from: "crypt_cleaver_skeleton", n: 50, chance: 0.6 } ],
     reward: rw(14, 0.9, "potions") },
   { id: "q_c_incense", name: "Faith's Holding About Level", giver: "cassius", turnin: "cassius", level: 16, after: "q_c_skulls", area: "catacombs",
     offer: [
@@ -728,7 +728,7 @@ export const QUESTS = [
       "It'll serve. It smells of old grief, but so do I.",
       "For you. A knight-exorcist's blessing, and something more practical.",
     ],
-    steps: [ { t: "collect", item: "Censer Ash", from: "censer_friar", n: 6, chance: 0.5 } ],
+    steps: [ { t: "collect", item: "Censer Ash", from: "censer_friar", n: 30, chance: 0.6 } ],
     reward: rw(16, 1.0, gear("amulet", 2)) },
   { id: "q_c_rubbings", name: "Especially Rude Writing", giver: "thessaly", turnin: "thessaly", level: 16, after: null, area: "catacombs",
     offer: [
@@ -740,7 +740,7 @@ export const QUESTS = [
       "Oh. Oh, these are wonderful. 'Here lies the left hand of' and then it's been scratched out. From inside.",
       "Take this. A grant. From my own purse, the university having declined to believe me.",
     ],
-    steps: [ { t: "collect", item: "Reliquary Rubbing", from: "reliquary_bearer", n: 5, chance: 0.5 } ],
+    steps: [ { t: "collect", item: "Reliquary Rubbing", from: "reliquary_bearer", n: 25, chance: 0.6 } ],
     reward: rw(16, 1.0, gear("ring", 2)) },
   { id: "q_c_kneeling", name: "Do Not Help Him Up", giver: "anselm", turnin: "anselm", level: 17, after: "q_saint_ivo", area: "catacombs",
     offer: [
@@ -791,7 +791,7 @@ export const QUESTS = [
       "Feel that. Like butter. Butter that remembers being a hand.",
       "There's your pay, and a pot. I made that one. You can tell because it's a bit rubbish.",
     ],
-    steps: [ { t: "collect", item: "Remembering Clay", from: "de_wellhand", n: 8, chance: 0.6 } ],
+    steps: [ { t: "collect", item: "Remembering Clay", from: "de_wellhand", n: 40, chance: 0.6 } ],
     reward: rw(14, 0.8, "potions") },
   { id: "q_d_miners", name: "Told Not To Dig", giver: "halvard", turnin: "halvard", level: 14, after: null, area: "caves",
     offer: [
@@ -839,7 +839,7 @@ export const QUESTS = [
       "Six. That's a month of not being in the dark. I'd kiss you if you didn't smell of cave.",
       "Payment. And I've glazed you a little charm. It's meant to be a fish.",
     ],
-    steps: [ { t: "collect", item: "Lantern-Belly Oil", from: "de_navel_lantern", n: 6, chance: 0.5 } ],
+    steps: [ { t: "collect", item: "Lantern-Belly Oil", from: "de_navel_lantern", n: 30, chance: 0.6 } ],
     reward: rw(18, 0.9, gear("amulet", 2)) },
   { id: "q_d_pearls", name: "What the Dredgers Bring Up", giver: "marta", turnin: "marta", level: 20, after: "q_d_oil", area: "caves",
     offer: [
@@ -851,7 +851,7 @@ export const QUESTS = [
       "Oh, look at the depth on that. You could fall into that glaze.",
       "Here. And if you see the surface, tell it Marta's got a batch in and she'll be up after.",
     ],
-    steps: [ { t: "collect", item: "Black Lake-Pearl", from: "de_grief_dredger", n: 5, chance: 0.35 } ],
+    steps: [ { t: "collect", item: "Black Lake-Pearl", from: "de_grief_dredger", n: 25, chance: 0.6 } ],
     reward: rw(20, 1.0, gear("ring", 2)) },
   { id: "q_d_listening", name: "The Quiet Is Occupied", giver: "halvard", turnin: "halvard", level: 22, after: "q_brine_testament", area: "caves",
     offer: [
@@ -877,7 +877,7 @@ export const QUESTS = [
       "Eight pairs. Barely worn. Well. Worn by the dead, but they don't sweat.",
       "Coin. And don't tell the sergeant where they've been. Let him have this.",
     ],
-    steps: [ { t: "collect", item: "Dry-ish Stockings", from: "fen_crossbowman", n: 8, chance: 0.5 } ],
+    steps: [ { t: "collect", item: "Dry-ish Stockings", from: "fen_crossbowman", n: 40, chance: 0.6 } ],
     reward: rw(16, 0.8, "potions") },
   { id: "q_m_toads", name: "Squelch", giver: "bastian", turnin: "bastian", level: 16, after: null, area: "march",
     offer: [
@@ -949,7 +949,7 @@ export const QUESTS = [
       "Oh, my darlings. Look what they did to the nap. Never mind. Never mind. Mother's here.",
       "You've saved a business. It's a business in a swamp selling to corpses, but it's mine.",
     ],
-    steps: [ { t: "collect", item: "Bolt of Velvet", from: "rustblade_marauder", n: 6, chance: 0.4 } ],
+    steps: [ { t: "collect", item: "Bolt of Velvet", from: "rustblade_marauder", n: 30, chance: 0.6 } ],
     reward: rw(24, 1.0, gear("body", 3)) },
 
   // ═════════════════════════════ THORNWALL ═════════════════════════════
@@ -963,7 +963,7 @@ export const QUESTS = [
       "Nine, ten, eleven. Sign here to say you returned them. And here to say I received them. And here.",
       "Payment, less nothing. I'm in a good mood. Tell no one.",
     ],
-    steps: [ { t: "collect", item: "Unsigned-For Pike", from: "ck_rust_pike_revenant", n: 11, chance: 0.6 } ],
+    steps: [ { t: "collect", item: "Unsigned-For Pike", from: "ck_rust_pike_revenant", n: 55, chance: 0.6 } ],
     reward: rw(24, 0.9, "potions") },
   { id: "q_k_hounds", name: "Morale Is Complicated", giver: "vane", turnin: "vane", level: 24, after: null, area: "castle",
     offer: [
@@ -1011,7 +1011,7 @@ export const QUESTS = [
       "That's it. That's the spoon. Don't look at me like that; you've not seen an army try to share a ladle.",
       "I'm writing you into the ledger. Under 'Assets'. It's the highest honour I'm empowered to bestow.",
     ],
-    steps: [ { t: "collect", item: "The Spoon", from: "ck_keyring_imp", n: 1, chance: 0.12 } ],
+    steps: [ { t: "collect", item: "The Spoon", from: "ck_keyring_imp", n: 25, chance: 0.6 } ],
     reward: rw(26, 1.1, gear("ring", 3)) },
   { id: "q_k_slit", name: "Second Arrow-Slit From the Left", giver: "rosette", turnin: "rosette", level: 27, after: null, area: "castle",
     offer: [
@@ -1035,7 +1035,7 @@ export const QUESTS = [
       "Thornwall steel, eight bars, still warm. And stamped this month. They're keeping better books than the captain.",
       "Homunculus the Proud will weep when he sees these. Here's your share. I've rounded up. Don't make a thing of it.",
     ],
-    steps: [ { t: "visit", map: "castle_6" }, { t: "collect", item: "Thornwall Ingot", from: "ck_soot_smith", n: 8, chance: 0.5 } ],
+    steps: [ { t: "visit", map: "castle_6" }, { t: "collect", item: "Thornwall Ingot", from: "ck_soot_smith", n: 40, chance: 0.6 } ],
     reward: rw(29, 1.0, gear("head", 3)) },
   { id: "q_k_seneschal", name: "He Kept the Keys", giver: "elsabet", turnin: "elsabet", level: 30, after: "q_ossuarch", area: "castle",
     offer: [
@@ -1049,13 +1049,13 @@ export const QUESTS = [
       "Six keys, and an empty loop where the seventh hung. Worn bright. He gave it to someone, and recently.",
       "Then it is not over. It has barely been introduced. Keep your blade sharp and your guild close. Thornwall thanks you. So do I, which is rarer.",
     ],
-    steps: [ { t: "boss", mob: "ck_the_veiled_seneschal" }, { t: "collect", item: "Seneschal's Key-Ring", from: "ck_the_veiled_seneschal", n: 1, chance: 1 } ],
+    steps: [ { t: "boss", mob: "ck_the_veiled_seneschal" }, { t: "collect", item: "Seneschal's Key-Ring", from: "ck_the_veiled_seneschal", n: 25, chance: 1 } ],
     reward: rw(30, 1.2, gear("amulet", 3), 2) },
 
   // ═════════════════════════════ TOWN ERRANDS ═════════════════════════════
   { id: "q_e_jelly", name: "Mainly Newt", giver: "wren", turnin: "wren", level: 1, after: null, area: "hollow",
     offer: [
-      "I'm short of bramble-slime jelly, dear. It's what makes the red ones red. Well. It's what makes them stay down.",
+      "I'm short of crowmask nettle-jelly, dear. It's what makes the red ones red. Well. It's what makes them stay down.",
       "Six scoops, off the Hollow Road. Use the jar. Not your hands. You'll want those later.",
     ],
     progress: ["The prickly green ones. Scoop from the middle. The edges are bitter."],
@@ -1063,7 +1063,7 @@ export const QUESTS = [
       "Lovely and thick. Hear that? It's still grumbling. That's quality.",
       "A few bottles for your trouble. Drink them before they drink you. I'm joking. Mostly.",
     ],
-    steps: [ { t: "collect", item: "Bramble Jelly", from: "slime:bramble", n: 6, chance: 0.7 } ],
+    steps: [ { t: "collect", item: "Bramble Jelly", from: "crowmask_sneak", n: 30, chance: 0.6 } ],
     reward: rw(1, 0.8, "potions") },
   { id: "q_e_wobbly", name: "The Wobbly Bit", giver: "gobble", turnin: "gobble", level: 1, after: null, area: "hollow",
     offer: [
@@ -1075,7 +1075,7 @@ export const QUESTS = [
       "Mmmf. Mmmmf. Good. Minty. Why is it minty?",
       "Here. I was keeping it in my cheek. It's shiny. You like shiny. Tall people like shiny.",
     ],
-    steps: [ { t: "collect", item: "Wobbly Bit", from: "emerald_droplet", n: 3, chance: 0.6 } ],
+    steps: [ { t: "collect", item: "Wobbly Bit", from: "scorpion_spearer", n: 25, chance: 0.6 } ],
     reward: rw(1, 0.6) },
   { id: "q_e_billhook", name: "A Long Excuse", giver: "garrick", turnin: "rowena", level: 2, after: null, area: "hollow",
     offer: [
@@ -1099,7 +1099,7 @@ export const QUESTS = [
       "Look at that. Two rivets and a chin-strap and that's a helmet. Smells of stew, but so does half the militia.",
       "Your cut. And I'll knock a bit off your next purchase. Not literally. Well.",
     ],
-    steps: [ { t: "collect", item: "Dented Pot-Helm", from: "pothelm_clubber", n: 5, chance: 0.6 } ],
+    steps: [ { t: "collect", item: "Dented Pot-Helm", from: "pothelm_clubber", n: 25, chance: 0.6 } ],
     reward: rw(3, 0.8, gear("head", 0)) },
   { id: "q_e_crate", name: "I've Decided It's a Clock", giver: "ulf", turnin: "lily", level: 3, after: null, area: "hollow",
     offer: [
@@ -1135,7 +1135,7 @@ export const QUESTS = [
       "Good shanks. Bit of sorrow in the meat, but that cooks out.",
       "Bowl's on the house. Bed's still four gold.",
     ],
-    steps: [ { t: "collect", item: "Goat Shank", from: "mourner_s_goat", n: 4, chance: 0.6 } ],
+    steps: [ { t: "collect", item: "Goat Shank", from: "mourner_s_goat", n: 25, chance: 0.6 } ],
     reward: rw(5, 0.8, "potions") },
   { id: "q_e_amulet", name: "Under-Explained", giver: "jamie", turnin: "thessaly", level: 6, after: null, area: "hollow",
     offer: [
@@ -1159,7 +1159,7 @@ export const QUESTS = [
       "Behold! Kobold iron! Crude, but honest, like a sermon from Brother Cael!",
       "Thy reward. Hilda says thou art adequate. From her that is a sonnet.",
     ],
-    steps: [ { t: "collect", item: "Kobold Spearhead", from: "bluecrest_spear", n: 5, chance: 0.6 } ],
+    steps: [ { t: "collect", item: "Kobold Spearhead", from: "bluecrest_spear", n: 25, chance: 0.6 } ],
     reward: rw(7, 0.8, gear("weapon", 1)) },
   { id: "q_e_tapers", name: "A Candle for Every Grave", giver: "agatha", turnin: "quill", level: 8, after: null, area: "hollow",
     offer: [
