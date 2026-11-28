@@ -119,8 +119,8 @@ export function buildNav(geo) {
   }
   P.forEach((p, i) => {
     if (p.ground) return;
-    for (const x of [p.x1 - 24, p.x2 + 24]) { const q = dropTo(geo, clamp(x, 40, geo.w - 40), p.y + 6); if (q) add(i, ix.get(q), { type: 'walkoff', x, dir: x < p.x1 ? -1 : 1 }); }
-    for (const f of [0.25, 0.5, 0.75]) { const x = p.x1 + (p.x2 - p.x1) * f; let q = null; for (const o of P) if (o !== p && x >= o.x1 && x <= o.x2 && o.y > p.y + 10 && (!q || o.y < q.y)) q = o; if (q) add(i, ix.get(q), { type: 'drop', x }); }
+    for (const x of [p.x1 - 45, p.x2 + 45]) { const q = dropTo(geo, clamp(x, 40, geo.w - 40), p.y + 6), q2 = dropTo(geo, clamp(x < p.x1 ? x + 30 : x - 30, 40, geo.w - 40), p.y + 6); if (q && q === q2) add(i, ix.get(q), { type: 'walkoff', x, dir: x < p.x1 ? -1 : 1, edge: x < p.x1 ? p.x1 : p.x2 }); }
+    for (const f of [0.25, 0.5, 0.75]) { const x = p.x1 + (p.x2 - p.x1) * f; let q = null; for (const o of P) if (o !== p && x >= o.x1 && x <= o.x2 && o.y > p.y + 10 && (!q || o.y < q.y)) q = o; if (q && x >= q.x1 + 40 && x <= q.x2 - 40) add(i, ix.get(q), { type: 'drop', x }); }
     // hop up onto this ledge from something just below it
     for (const o of P) { if (o === p || o.y <= p.y || o.y - p.y > 108) continue; const lo = Math.max(o.x1, p.x1 - 70), hi = Math.min(o.x2, p.x2 + 70); if (lo < hi) { const x = clamp((p.x1 + p.x2) / 2, lo, hi); add(ix.get(o), i, { type: 'jump', x, tx: clamp(x, p.x1 + 16, p.x2 - 16) }); } }
   });
@@ -146,16 +146,18 @@ export class Bot {
       if (l && l.type === 'rope' && l.rope === b.rope) { if (l.up) w.up = true; else w.down = true; } else if (plat && plat.y > h.y) w.down = true; else w.up = true;
       return false;
     }
-    const cur = b.plat; if (!cur) { this.move = Math.sign(x - h.x) * (Math.abs(x - h.x) > 20 ? 1 : 0); return false; }
+    // in the air: keep the heading the jump was made with (a hop up a step or onto a ledge must carry through)
+    const cur = b.plat; if (!cur) { this.move = this.airDir != null ? this.airDir : Math.sign(x - h.x) * (Math.abs(x - h.x) > 20 ? 1 : 0); return false; }
+    this.airDir = null;
     if (!plat || plat === cur) { this.link = null; const dx = x - h.x; if (Math.abs(dx) <= tol) return true; this.move = Math.sign(dx); this.unstick(); return false; }
     const l = this.link = nextLink(nav, nav.ix.get(cur), nav.ix.get(plat));
     if (!l) { const dx = x - h.x; this.move = Math.abs(dx) > tol ? Math.sign(dx) : 0; return Math.abs(dx) <= tol; }
     const dx = l.x - h.x;
     if (l.type === 'rope') { if (Math.abs(dx) > 9) this.move = Math.sign(dx); else { this.move = 0; b.vx = 0; if (l.up) w.up = true; else w.down = true; } }
-    else if (l.type === 'drop') { if (Math.abs(dx) > 30) this.move = Math.sign(dx); else { w.down = true; w.jump = true; } }
-    else if (l.type === 'walkoff') { this.move = l.dir; }
-    else if (l.type === 'step') { this.move = l.dir; if (l.up && Math.abs(dx) < 60) w.jump = true; }
-    else if (l.type === 'jump') { if (Math.abs(dx) > 34) this.move = Math.sign(dx); else { w.jump = true; this.move = Math.sign(l.tx - h.x) || h.face; } }
+    else if (l.type === 'drop') { if (Math.abs(dx) > 14) { this.move = Math.sign(dx); if (Math.abs(dx) < 60 && Math.abs(b.vx) > 90) b.vx = Math.sign(b.vx) * 90; } else { b.vx = 0; w.down = true; w.jump = true; this.airDir = 0; } }
+    else if (l.type === 'walkoff') { this.move = l.dir; this.airDir = 0; if (Math.abs(l.edge - h.x) < 50 && Math.abs(b.vx) > 80) b.vx = Math.sign(b.vx) * 80; }      // step off the edge, do not sprint off it
+    else if (l.type === 'step') { this.move = l.dir; this.airDir = l.dir; if (l.up && Math.abs(dx) < 60) w.jump = true; }
+    else if (l.type === 'jump') { if (Math.abs(dx) > 34) this.move = Math.sign(dx); else { w.jump = true; this.move = Math.sign(l.tx - h.x) || 0; this.airDir = this.move; } }
     this.unstick();
     return false;
   }
