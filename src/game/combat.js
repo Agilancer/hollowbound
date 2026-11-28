@@ -7,6 +7,7 @@ import { grantSkills, autoSpend } from './actor.js';
 import { hexRgb, rarityRgb } from '../gfx/draw.js';
 import { audio } from '../core/audio.js';
 import { pillarFx } from './effects.js';
+import { SHAPES } from '../gfx/fx.js';
 
 export const elemRgb = (el) => { const e = ELEM[el] || ELEM.phys; return e._g || (e._g = hexRgb(e.glow)); };
 export const elemCore = (el) => { const e = ELEM[el] || ELEM.phys; return e._c || (e._c = hexRgb(e.core)); };
@@ -78,6 +79,7 @@ export function hit(src, tgt, amount, opts = {}) {
     tgt.aggroT = 12; tgt.tagged = tgt.tagged || root;
     if (root.cls === 'barbarian') root.mp = Math.min(100, root.mp + 6);
   }
+  if (mine && tgt.kind === 'mob' && (opts.crit || tgt.hp <= 0) && !opts.dot) { G.hitStop = Math.max(G.hitStop || 0, tgt.boss ? 0.07 : 0.035); G.cam.shake = Math.max(G.cam.shake, opts.crit ? 4 : 2.5); }
   if (tgt.hp <= 0) die(tgt, src, opts);
   return amt;
 }
@@ -117,7 +119,11 @@ export function die(a, src, opts = {}) {
   } else if (a.kind === 'hero') {
     sfxAt('die', a); G.parts.burst(a.x, a.cy, 16, { shape: 'smoke', speed: 70, life: 1, size: 40, size2: 80, col: [0.2, 0.2, 0.25], add: 0, a: 0.5 });
     for (const s of a.summons) if (!s.dead) die(s, null);
-    if (a.isPlayer) { emit('playerDied', { by: root ? root.name : 'the dark' }); G.rd.post.flash = 0.7; G.rd.post.flashCol = [0.4, 0, 0]; }
+    if (a.isPlayer) { emit('playerDied', { by: root ? root.name : 'the dark' });
+      // the gravestone that falls out of the sky onto the spot
+      const gx = a.x, gy = a.y; let ty = gy - 700, vy = 0, landed = false, t = 0;
+      G.effects.push({ upd(dt) { t += dt; if (!landed) { vy += 2600 * dt; ty += vy * dt; if (ty >= gy) { ty = gy; landed = true; G.cam.shake = 9; sfxAt('land', a); G.parts.burst(gx, gy, 12, { shape: 'smoke', speed: 110, life: 0.6, size: 30, size2: 70, col: [0.4, 0.38, 0.36], add: 0, a: 0.6 }); } } return a.dead && G.actors.includes(a); },
+        draw(rd) { rd.quad(SHAPES.tomb, gx + 30, ty - 62, 48, 62); } }); G.rd.post.flash = 0.7; G.rd.post.flashCol = [0.4, 0, 0]; }
     else G.game.onHeroDied(a, root);
   } else if (a.kind === 'summon') { G.parts.burst(a.x, a.cy, 10, { shape: 'smoke', speed: 60, life: 0.7, size: 30, size2: 60, col: [0.3, 0.3, 0.4], add: 0, a: 0.5 }); }
 }

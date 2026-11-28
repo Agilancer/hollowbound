@@ -20,8 +20,8 @@ class Page {
 export class Atlas {
   constructor(device) {
     this.device = device;
-    this.layers = 6;
-    this.maxLayers = Math.min(64, device.limits.maxTextureArrayLayers);
+    this.layers = 5;
+    this.maxLayers = Math.min(24, device.limits.maxTextureArrayLayers);
     this.tex = this._make(this.layers);
     this.version = 0;
     this.pages = [];
@@ -43,7 +43,7 @@ export class Atlas {
   flush() {}
 
   _grow() {
-    const n = Math.min(this.maxLayers, this.layers * 2);
+    const n = Math.min(this.maxLayers, this.layers + 2);
     if (n === this.layers) return false;
     const t = this._make(n), enc = this.device.createCommandEncoder();
     enc.copyTextureToTexture({ texture: this.tex }, { texture: t }, [PAGE, PAGE, this.layers]);

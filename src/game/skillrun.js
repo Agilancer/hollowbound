@@ -182,7 +182,7 @@ const KIND = {
       for (const k of kinds) { if (k === 'slow') t.status.slow = dur; else if (k === 'weaken') t.status.weaken = dur; else if (k === 'fear') t.status.fear = t.boss ? 0 : Math.min(3, dur); else if (k === 'stun' || k === 'charm' || k === 'confuse') { if (!t.boss) t.status.stun = 1.4; } else if (k === 'freeze') { if (!t.boss) t.status.freeze = 1.6; } else if (k === 'decay' || k === 'doom' || k === 'bomb') t.dots.push({ t: Math.min(8, dur), tick: 0.5, dmg: d.amount * 0.35, el: sk.el, src: a }); else t.status.amp = dur; }
       G.parts.burst(t.x, t.cy - t.h * 0.4, 5, { shape: 'skull', speed: 50, life: 0.9, size: 16, col, g: -60, add: 0.3 });
     }
-    flashFx({ shape: 'rune', x, y: y + 20, w: r * 1.6, h: r * 0.55, col, dur: 0.6, grow: 0.3 });
+    flashFx({ shape: 'rune', x, y: y + 30, w: r * 1.1, h: r * 0.34, col, dur: 0.6, grow: 0.25, a: 0.6 });
   },
   summon(a, sk, rank, m) {
     const key = m.sum, S = SUMMONS[key]; if (!S) { KIND.buff(a, sk, rank, m); return; }

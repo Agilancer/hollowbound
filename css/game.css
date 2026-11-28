@@ -391,7 +391,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 .keys{width:100%;border-collapse:collapse;font-size:13.5px}.keys td{padding:3px 4px;border-bottom:1px dotted rgba(110,90,51,.3)}.keys td:first-child{color:var(--parch)}.keys td:last-child{text-align:right;font-weight:700}
 
 /* ============================================================== NPC dialog */
-#dialog{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--xph) + 96px + var(--sb));width:min(620px,calc(100vw - 16px));max-height:min(540px,calc(100dvh - 190px));z-index:300;display:flex;flex-direction:column;padding:0;animation:fadein .15s}
+#dialog{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--xph) + 96px + var(--sb));width:min(620px,calc(100vw - 16px));max-height:min(540px,calc(100dvh - 190px));z-index:1;display:flex;flex-direction:column;padding:0;animation:fadein .15s}
 #dialog.wide{width:min(720px,calc(100vw - 16px))}
 .d-head{display:flex;align-items:center;gap:8px;padding:9px 10px 8px 16px;border-bottom:1px solid var(--edge);background:linear-gradient(180deg,#3a2d1b,#221b14 70%,#1a1612);border-radius:4px 4px 0 0;flex:none}
 .d-who{flex:1;min-width:0}.d-who h3{font-size:18px;color:var(--gold);display:inline;margin-right:10px}.d-who small{color:var(--parch);font-style:italic}
@@ -513,18 +513,18 @@ body.touch #menu .gold{padding:2px 8px 2px 4px;font-size:12.5px;margin-right:1px
 body.touch #mm{width:138px}body.touch .mm-title{padding:2px 6px}body.touch .mm-name{font-size:10.5px}body.touch .mm-street{font-size:10px;min-height:12px}
 body.touch #buffs{top:calc(46px + var(--st));max-width:200px;gap:4px}body.touch .buff{width:30px;height:30px}
 body.touch .buff .ring{-webkit-mask:radial-gradient(circle,transparent 11.5px,#000 12px);mask:radial-gradient(circle,transparent 11.5px,#000 12px)}
-body.touch #tracker{top:calc(84px + var(--st));width:190px;padding:4px 7px}
+body.touch #tracker{top:calc(98px + var(--st));width:190px;padding:3px 7px 4px}body.touch .tr-q{margin-top:0}
 body.touch .tr-name{font-size:12px}body.touch .tr-step{font-size:11.5px}body.touch .tr-head{display:none}
 body.touch #party{top:calc(104px + var(--st))}body.touch .pf{width:132px;padding:2px 5px 3px 2px!important}body.touch .pf-cls{display:none}body.touch .pf-lv{width:20px;height:20px;font-size:10px}
 body.touch #boss{top:calc(46px + var(--st));width:min(360px,44vw)}body.touch .boss-name{font-size:13px}body.touch .boss-bar{height:14px}
-body.touch #toasts{top:calc(84px + var(--st))}.touch .toast{font-size:13px}
+body.touch #toasts{top:calc(84px + var(--st));width:min(440px,calc(100vw - 400px))}.touch .toast{font-size:12.5px;padding:3px 12px}
 body.touch #chat{left:calc(184px + var(--sl));bottom:calc(var(--xph) + 36px + var(--sb));width:min(300px,calc(100vw - 184px - 262px - var(--sl) - var(--sr)))}
 body.touch .chat-log{height:62px;font-size:12px;padding:3px 6px}
 body.touch .chat-tabs,body.touch .chat-row{display:none}
 body.touch #chat.open .chat-tabs,body.touch #chat.open .chat-row{display:flex}body.touch #chat.open .chat-log{height:110px;background:rgba(10,8,14,.82)}
 body.touch #dialog{bottom:calc(var(--xph) + 44px + var(--sb))}
 @media (max-height:440px){
-  body.touch #tracker .tr-q:nth-of-type(n+4){display:none}
+  body.touch #tracker .tr-q:nth-of-type(n+3){display:none}
   body.touch #party .pf:nth-child(n+4){display:none}
   body.touch #party.raid .pf{display:flex!important}
 }
@@ -535,9 +535,9 @@ body.touch #dialog{bottom:calc(var(--xph) + 44px + var(--sb))}
   body.touch #chat{left:calc(6px + var(--sl));bottom:calc(var(--tb) + 252px + var(--sb));width:min(340px,72vw)}
   body.touch .chat-log{height:84px}
   body.touch #buffs{top:calc(84px + var(--st))}
-  body.touch #tracker{top:calc(122px + var(--st))}
+  body.touch #tracker{top:calc(136px + var(--st))}
   body.touch #boss{top:calc(128px + var(--st));width:min(360px,60vw);left:calc(8px + var(--sl));transform:none}
-  body.touch #toasts{top:calc(200px + var(--st))}
+  body.touch #toasts{top:calc(310px + var(--st));width:92vw}
   body.touch #party{top:calc(190px + var(--st))}
   #flourish{top:30%}
 }
@@ -575,7 +575,7 @@ body.touch #dialog{bottom:calc(var(--xph) + 44px + var(--sb))}
   .settings{grid-template-columns:1fr}.storage{grid-template-columns:1fr}
   .stats2{grid-template-columns:1fr}.attrs{grid-template-columns:repeat(2,1fr)}
   .be-grid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}
-  .cs-main{grid-template-columns:1fr;grid-template-rows:minmax(150px,42%) 1fr;gap:10px}
+  .cs-main{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);gap:10px}.cs-grid{max-height:50dvh}
   .cs-grid{grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:5px}.cs-card span{font-size:8.5px}
   .cs-art{max-height:150px;flex-basis:70px}.cs-info h3{font-size:20px}.cs-info p{font-size:13.5px}
   .title-select h2{margin-bottom:6px}
@@ -584,7 +584,7 @@ body.touch #dialog{bottom:calc(var(--xph) + 44px + var(--sb))}
   .title-logo{max-height:44vh}.title-main{gap:6px}.title-actions{flex-direction:row;flex-wrap:wrap;justify-content:center}.tbtn{width:auto;min-width:230px;padding:6px 18px 7px!important}.tbtn b{font-size:16px}
   .title-select{padding-top:calc(8px + var(--st));padding-bottom:calc(8px + var(--sb))}.title-select h2{display:none}
   .cs-main{grid-template-columns:1fr 46%;gap:10px}.cs-grid{grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:5px}.cs-card span{font-size:8.5px}
-  .cs-det{flex-direction:row;align-items:center;gap:8px;padding:8px 10px}.cs-art{flex:0 0 26%;max-height:100%;height:90%}.cs-info h3{font-size:19px}.cs-info p{font-size:12.5px;margin-bottom:6px}.cs-prim{font-size:11px;margin-bottom:3px}
+  .cs-det{flex-direction:row;align-items:center;gap:8px;padding:8px 10px}.cs-art{flex:0 0 27%;width:27%;min-width:0;max-height:96%;height:auto}.cs-info{flex:1;min-width:0}.cs-info h3{font-size:19px}.cs-info p{font-size:12.5px;margin-bottom:6px}.cs-prim{font-size:11px;margin-bottom:3px}
   .cs-trees{margin-bottom:7px;gap:3px}.cs-trees span{font-size:11px;padding:1px 7px}.cs-name{width:130px;height:38px}.cs-go .btn.big{min-height:38px;padding:4px 18px!important}
   .inv{grid-template-columns:200px 1fr}.sk-main{grid-template-columns:auto 1fr}
   .sk-cell{height:74px}.sk-cell .skicon{width:38px;height:38px}.sk-grid{grid-template-columns:34px repeat(3,88px);gap:5px}

@@ -102,8 +102,8 @@ export function blast(o) {
   e.draw = (rd) => {
     if (e.t < 0) { const u = 1 + e.t / (o.delay || 1), a = 0.25 + 0.5 * u; spr(rd, SHAPES.ring, o.x, o.y + ry * 0.55, o.r * 2 * (0.5 + 0.5 * u), ry * 0.7, 0, [col[0], col[1], col[2], a], 1); if (o.pillar) spr(rd, SHAPES.pillar, o.x, o.y - 300 + u * 100, 20, 600, 0, [col[0], col[1], col[2], 0.25 * u], 1); return; }
     const u = e.t / 0.32, s = o.r * 2 * (0.45 + u * 0.75);
-    spr(rd, SHAPES.glow, o.x, o.y, s * 1.2, s * 1.2 * (ry / o.r), 0, [col[0], col[1], col[2], (1 - u) * 0.9], 1);
-    spr(rd, SHAPES.ring, o.x, o.y, s * 1.15, s * 1.15 * (ry / o.r), 0, [core[0], core[1], core[2], (1 - u) * 0.9], 1);
+    spr(rd, SHAPES.glow, o.x, o.y, s * 1.2, s * 1.2 * (ry / o.r), 0, [col[0], col[1], col[2], (1 - u) * 0.5], 1);
+    spr(rd, SHAPES.ring, o.x, o.y, s * 1.15, s * 1.15 * (ry / o.r), 0, [col[0] * 0.6 + core[0] * 0.4, col[1] * 0.6 + core[1] * 0.4, col[2] * 0.6 + core[2] * 0.4, (1 - u) * 0.7], 1);
     if (o.pillar) spr(rd, SHAPES.pillar, o.x, o.y - 260, 70 * (1 - u * 0.5), 620, 0, [core[0], core[1], core[2], (1 - u)], 1);
   };
   return add(e);

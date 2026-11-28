@@ -91,11 +91,12 @@ function lip(g, gr, w, r) {
 }
 function ledgeArt(g, tex, style, w, H, capL, capR, r, ox) {
   const T = 30;
-  g.save(); g.beginPath(); g.roundRect(0, 5, w, T, [capL ? 9 : 0, capR ? 9 : 0, capR ? 12 : 0, capL ? 12 : 0]); g.clip();
+  g.save(); g.beginPath(); g.roundRect(0, 5, w, T, [capL ? 4 : 0, capR ? 4 : 0, capR ? 7 : 0, capL ? 7 : 0]); g.clip();
   tile(g, tex, 0, 5, w, T, 1, ox);
   const sh = g.createLinearGradient(0, 5, 0, 5 + T); sh.addColorStop(0, 'rgba(255,255,255,0.16)'); sh.addColorStop(0.18, 'rgba(0,0,0,0)'); sh.addColorStop(0.6, 'rgba(0,0,0,0.3)'); sh.addColorStop(1, 'rgba(0,0,0,0.75)');
   g.fillStyle = sh; g.fillRect(0, 5, w, T); g.restore();
-  g.strokeStyle = 'rgba(0,0,0,0.8)'; g.lineWidth = 2; g.beginPath(); g.roundRect(1, 6, w - 2, T - 1, [capL ? 9 : 0, capR ? 9 : 0, capR ? 12 : 0, capL ? 12 : 0]); g.stroke();
+  g.strokeStyle = 'rgba(0,0,0,0.8)'; g.lineWidth = 2; g.beginPath(); g.roundRect(1, 6, w - 2, T - 1, [capL ? 4 : 0, capR ? 4 : 0, capR ? 7 : 0, capL ? 7 : 0]); g.stroke();
+  g.fillStyle = 'rgba(255,255,255,0.2)'; g.fillRect(capL ? 4 : 0, 6, w - (capL ? 4 : 0) - (capR ? 4 : 0), 2); g.fillStyle = 'rgba(0,0,0,0.35)'; g.fillRect(0, 14, w, 2);
   // what hangs beneath
   const y0 = 5 + T;
   if (style === 'wood') { for (let x = 28; x < w - 10; x += 150) { g.fillStyle = '#1c130c'; g.fillRect(x, y0, 9, 22); g.beginPath(); g.moveTo(x + 9, y0); g.lineTo(x + 36, y0); g.lineTo(x + 9, y0 + 22); g.fill(); } }

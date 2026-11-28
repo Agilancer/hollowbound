@@ -11,7 +11,7 @@ export function defineWin(id, def) { defs[id] = def; }
 export function initWindows(root) {
   layerEl = h('div#wins'); tipEl = h('div#tip.hide'); root.put(layerEl, tipEl);
   Object.assign(U, { openWin, closeWin, toggleWin, closeTop, isOpen: (id) => !!wins[id]?.open, refreshWin: (id) => dirty.add(id), tip, hideTip, modal, confirm, pushLayer, popLayer,
-    blocking: () => layers.some((l) => l.block), anyOpen: () => layers.length > 0, closeAll });
+    blocking: () => layers.some((l) => l.block), anyOpen: () => layers.length > 0, closeAll, layer: layerEl, nextZ: () => ++z });
 }
 function pushLayer(l) { popLayer(l.id); layers.push(l); return l; }
 function popLayer(id) { const i = layers.findIndex((l) => l.id === id); if (i >= 0) layers.splice(i, 1); }

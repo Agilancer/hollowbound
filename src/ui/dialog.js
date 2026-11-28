@@ -18,7 +18,8 @@ export function initDialog(root) {
   el.name = h('h3'); el.title = h('small'); el.body = h('div.d-body.scroll');
   el.root = h('section#dialog.panel.hide', { role: 'dialog' }, h('header.d-head', h('div.d-who', el.name, el.title), h('button.x', { type: 'button', 'aria-label': 'Close', onclick: () => { closeDialog(); sfx('ui_close'); } }, h('img', { src: ICON('close'), draggable: false }))), el.body);
   el.death = h('div#death.hide'); el.done = h('div#ddone.panel.hide');
-  root.put(el.root, el.done, el.death);
+  U.layer.put(el.root); root.put(el.done, el.death);          // the dialog shares the windows' z-order, so a bag opened from a shop sits over it
+  el.root.addEventListener('pointerdown', () => { el.root.style.zIndex = U.nextZ(); }, true);
   U.closeDialog = closeDialog;
 }
 function closeDialog() {
@@ -28,7 +29,7 @@ function closeDialog() {
 function openDialog(e) {
   D = { ...e, view: 'main' }; U.shop = null; U.storage = false;
   el.name.textContent = e.name; el.title.textContent = e.title || '';
-  el.root.classList.remove('hide'); U.pushLayer({ id: 'dialog', close: closeDialog, block: true });
+  el.root.classList.remove('hide'); el.root.style.zIndex = U.nextZ(); U.pushLayer({ id: 'dialog', close: closeDialog, block: true });
   const t = Q.turninsOf(e.id), o = Q.offersOf(e.id);
   if (t.length) { D.view = 'quest'; D.q = t[0]; D.mode = 'turnin'; }
   else if (o.length && !SERVICE[e.role] && !e.role.startsWith('dungeon:')) { D.view = 'quest'; D.q = o[0]; D.mode = 'offer'; }
@@ -155,7 +156,7 @@ function dungeonDone(dg) {
 
 export function dialogEvent(e) {
   switch (e.type) {
-    case 'dialog': U.modalClose && U.modalClose(); openDialog(e); break;
+    case 'dialog': openDialog(e); break;
     case 'playerMenu': U.playerMenu(e.hero, e.info); break;
     case 'dungeonGate': gate(e.dungeon); break;
     case 'dungeonDone': dungeonDone(e.dungeon); break;

@@ -27,6 +27,7 @@ import { actions } from './actions.js';
 import { Director } from './director.js';
 
 const SAVE_KEY = 'velscour_hollowbound_v1';
+const dust = (a, n) => G.parts.burst(a.x, a.y - 2, n, { shape: 'smoke', speed: 70, life: 0.4, size: 14, size2: 34, col: [0.55, 0.5, 0.45], add: 0, a: 0.35, dir: -Math.PI / 2, arc: Math.PI, front: false });
 const timers = [];
 export const game = {
   ...actions,
@@ -162,6 +163,7 @@ export const game = {
     if (G.mode !== 'play' || G.loading || !G.map) { endFrame(); return; }
     const M = G.map, P = G.player, geo = M.geo;
     if (G.paused) { this.camera(dt); endFrame(); return; }
+    if (G.hitStop > 0) { G.hitStop -= dt; G.parts.update(dt * 0.2); this.camera(dt); return; }       // a breath of freeze on a telling blow
     G.heroes = G.actors.filter(a => a.kind === 'hero' && !a.dead);
     this.controlPlayer(dt);
     for (let i = G.actors.length - 1; i >= 0; i--) {
@@ -204,7 +206,7 @@ export const game = {
     if (down.up && b.plat && !b.rope) { const po = this.portalNear(); if (po && pressed('up')) { this.usePortal(po); return; } }
     if (P.status.stun > 0 || P.status.freeze > 0) { move = 0; want.jump = false; }
     if (P.useT > 0 && b.plat && !P.whirl && !P.leaping) move *= 0.15;         // committed to the swing
-    if (!P.leaping) { const ev = b.step(geo, dt, move, want); if (ev === 'jump') { P.squash = 0.12; audio.sfx('jump', { vol: 0.5 }); } else if (ev === 'land') { P.squash = -0.16; audio.sfx('land', { vol: 0.5 }); } }
+    if (!P.leaping) { const ev = b.step(geo, dt, move, want); if (ev === 'jump') { P.squash = 0.12; audio.sfx('jump', { vol: 0.5 }); dust(P, 4); } else if (ev === 'land') { P.squash = -0.16; audio.sfx('land', { vol: 0.5 }); dust(P, 7); } }
     else b.step(geo, dt, 0, {});
     if (!b.rope) {
       if (down.attack) { const sk = SKILLS[G.char.basic]; if (sk && ready(P, sk)) cast(P, sk, null); }
