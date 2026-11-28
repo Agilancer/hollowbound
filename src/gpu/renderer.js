@@ -80,11 +80,13 @@ fn fbm(p: vec2f) -> f32 { return noise(p) * 0.55 + noise(p * 2.1 + 7.3) * 0.3 + 
   let y = v.uv.y;
   var col = mix(s.top.rgb, s.mid.rgb, smoothstep(0.0, 0.55, y));
   col = mix(col, s.bot.rgb, smoothstep(0.5, 1.0, y));
-  // stars / drifting embers
-  let sp = vec2f(v.uv.x * asp + s.misc.y * 0.00002, y) * 90.0;
-  let st = hash(floor(sp));
-  let tw = 0.6 + 0.4 * sin(s.misc.x * (1.0 + st * 3.0) + st * 40.0);
-  col += vec3f(step(0.992, st) * tw * s.misc.w * (1.0 - y));
+  // stars
+  let sp = vec2f(v.uv.x * asp + s.misc.y * 0.00002, y) * 70.0;
+  let cell = floor(sp); let st = hash(cell);
+  let sub = fract(sp) - vec2f(0.5 + (hash(cell + 7.1) - 0.5) * 0.6, 0.5 + (hash(cell + 3.3) - 0.5) * 0.6);
+  let tw = 0.55 + 0.45 * sin(s.misc.x * (1.0 + st * 3.0) + st * 40.0);
+  let sd = smoothstep(0.09 + st * 0.05, 0.0, length(sub));
+  col += vec3f(step(0.9, st) * sd * tw * s.misc.w * (1.0 - y * 1.2));
   // orb (moon / dead sun)
   let op = vec2f((v.uv.x - s.orb.x) * asp, y - s.orb.y);
   let od = length(op);
@@ -302,7 +304,7 @@ export class Renderer {
     for (let i = 0; i < nb; i++) {
       if (globalThis.SKIP & 2) break;
       const b = this.batches[i];
-      if (b.post) { pass.setPipeline(this.postPipe); pass.setBindGroup(0, this.postBind); pass.draw(3);
+      if (b.post && !globalThis.NOPOST) { pass.setPipeline(this.postPipe); pass.setBindGroup(0, this.postBind); pass.draw(3);
         pass.setPipeline(this.spritePipe); pass.setVertexBuffer(0, this.instBuf); }
       if (!b.count) continue;
       pass.setBindGroup(0, this.spriteBind, [i * 256]);

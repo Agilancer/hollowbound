@@ -104,11 +104,11 @@ export class Atlas {
   get(url, scope = 'map') {
     let r = this.urls.get(url);
     if (r && (r.layer >= 0 || r.pending)) return r;
-    if (!r) { r = { layer: -1, w: 0, h: 0, url }; this.urls.set(url, r); }
+    if (!r) { r = { layer: -1, w: 0, h: 0, url, scope }; this.urls.set(url, r); }
     r.pending = true; this.loading++;
     r.promise = fetch(url).then(q => { if (!q.ok) throw new Error(q.status + ' ' + url); return q.blob(); })
       .then(b => createImageBitmap(b, { premultiplyAlpha: 'none', colorSpaceConversion: 'none' }))
-      .then(bm => { r.bitmap = bm; r.iw = bm.width; r.ih = bm.height; this.addCanvas(bm, scope, 0, 0, bm.width, bm.height, r); return r; })
+      .then(bm => { r.iw = bm.width; r.ih = bm.height; if (!r.dead) this.addCanvas(bm, scope, 0, 0, bm.width, bm.height, r); bm.close && bm.close(); return r; })
       .catch(e => { r.failed = true; console.warn('sprite failed', url, e.message); return r; })
       .finally(() => { r.pending = false; this.loading--; });
     return r;
@@ -135,6 +135,31 @@ export class Atlas {
     return s.promise;
   }
 
+  // One cell of a big sheet: the sheet is decoded once (a few bitmaps are kept), and only
+  // the cell's pixels go into the atlas. This is how monsters load: a map uploads the
+  // creatures it spawns, not the 1024-wide sheets they were cut from.
+  cell(url, x, y, w, h, scope = 'map') {
+    const key = url + '#' + x + ',' + y + ',' + w + ',' + h;
+    let r = this.urls.get(key);
+    if (r) return r;
+    r = { layer: -1, w, h, url: key, scope }; this.urls.set(key, r);
+    r.pending = true; this.loading++;
+    r.promise = this.bitmap(url).then(bm => { if (!r.dead) this.addCanvas(bm, scope, x, y, Math.min(w, bm.width - x), Math.min(h, bm.height - y), r); return r; })
+      .catch(e => { r.failed = true; console.warn('cell failed', url, e.message); return r; })
+      .finally(() => { r.pending = false; this.loading--; });
+    return r;
+  }
+  bitmap(url) {
+    this.bitmaps = this.bitmaps || new Map();
+    let e = this.bitmaps.get(url);
+    if (e) { this.bitmaps.delete(url); this.bitmaps.set(url, e); return e; }
+    e = fetch(url).then(q => { if (!q.ok) throw new Error(q.status + ' ' + url); return q.blob(); })
+      .then(b => createImageBitmap(b, { premultiplyAlpha: 'none', colorSpaceConversion: 'none' }));
+    this.bitmaps.set(url, e);
+    if (this.bitmaps.size > 14) { const [k, old] = this.bitmaps.entries().next().value; this.bitmaps.delete(k); old.then(b => setTimeout(() => b.close && b.close(), 4000)).catch(() => {}); }
+    return e;
+  }
+
   // Sub-region of a loaded region (pixel rect inside it).
   sub(r, x, y, w, h) {
     return { layer: r.layer, w, h, x: r.x + x, y: r.y + y,
@@ -144,7 +169,7 @@ export class Atlas {
   // Wipe every page of a scope (called on map change).
   reset(scope) {
     for (const p of this.pages) if (p.scope === scope) { p.scope = null; p.shelves = []; p.y = 0; p.dirty = true; }
-    for (const [k, r] of this.urls) if (r.scope === scope) { r.layer = -1; r.frames = null; r.promise = null; this.urls.delete(k); }
+    for (const [k, r] of this.urls) if (r.scope === scope) { r.layer = -1; r.frames = null; r.promise = null; r.dead = true; this.urls.delete(k); }
   }
   usage() { return this.pages.filter(p => p.scope).length + '/' + this.layers; }
 }
