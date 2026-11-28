@@ -18,7 +18,7 @@ export function initDialog(root) {
   el.name = h('h3'); el.title = h('small'); el.body = h('div.d-body.scroll');
   el.root = h('section#dialog.panel.hide', { role: 'dialog' }, h('header.d-head', h('div.d-who', el.name, el.title), h('button.x', { type: 'button', 'aria-label': 'Close', onclick: () => { closeDialog(); sfx('ui_close'); } }, h('img', { src: ICON('close'), draggable: false }))), el.body);
   el.death = h('div#death.hide'); el.done = h('div#ddone.panel.hide');
-  root.append(el.root, el.done, el.death);
+  root.put(el.root, el.done, el.death);
   U.closeDialog = closeDialog;
 }
 function closeDialog() {
@@ -45,31 +45,31 @@ function render() {
 }
 function mainView(b) {
   const g = G.game, id = D.id, turn = Q.turninsOf(id), offers = Q.offersOf(id), act = Q.activeList().filter((q) => q.giver === id && !Q.complete(q));
-  b.append(h('p.d-say', D.text));
-  for (const q of D.advanced || []) b.append(h('p.d-note', `Quest updated: ${q.name} — ${Q.stepText(q) || 'done'}`));
+  b.put(h('p.d-say', D.text));
+  for (const q of D.advanced || []) b.put(h('p.d-note', `Quest updated: ${q.name} — ${Q.stepText(q) || 'done'}`));
   const list = h('div.opts');
-  for (const q of turn) list.append(opt('ready', 'quest_ready', q.name, () => go('quest', { q, mode: 'turnin' }), 'Complete'));
-  for (const q of offers) list.append(opt('offer', 'quest_offer', q.name, () => go('quest', { q, mode: 'offer' }), `Lv ${q.level || 1}${q.main ? ' · Main story' : ''}`));
-  for (const q of act) list.append(opt('busy', 'quest_busy', q.name, () => go('quest', { q, mode: 'active' }), Q.stepText(q)));
-  if (SERVICE[D.role]) list.append(opt('svc', D.role === 'storage' ? 'sort' : D.role === 'guild' ? 'home' : D.role === 'arena' ? 'role_dps' : D.role === 'smith' || D.role === 'enchant' ? 'staff' : 'gold', SERVICE[D.role], () => go('service')));
+  for (const q of turn) list.put(opt('ready', 'quest_ready', q.name, () => go('quest', { q, mode: 'turnin' }), 'Complete'));
+  for (const q of offers) list.put(opt('offer', 'quest_offer', q.name, () => go('quest', { q, mode: 'offer' }), `Lv ${q.level || 1}${q.main ? ' · Main story' : ''}`));
+  for (const q of act) list.put(opt('busy', 'quest_busy', q.name, () => go('quest', { q, mode: 'active' }), Q.stepText(q)));
+  if (SERVICE[D.role]) list.put(opt('svc', D.role === 'storage' ? 'sort' : D.role === 'guild' ? 'home' : D.role === 'arena' ? 'role_dps' : D.role === 'smith' || D.role === 'enchant' ? 'staff' : 'gold', SERVICE[D.role], () => go('service')));
   if (D.role.startsWith('dungeon:')) {
     const did = D.role.slice(8), dg = DUNGEONS.find((d) => d.id === did), here = G.map.portals.some((p) => p.dungeon === did);
-    if (dg && here) list.append(opt('svc', 'open', 'Enter ' + dg.name, () => { closeDialog(); gate(dg); }, `${dg.kind === 'raid' ? 'Raid' : 'Dungeon'} · Lv ${dg.level}`));
-    else if (dg) b.append(h('p.d-note', `${dg.name} lies elsewhere. Find its gate and I will see you through.`));
+    if (dg && here) list.put(opt('svc', 'open', 'Enter ' + dg.name, () => { closeDialog(); gate(dg); }, `${dg.kind === 'raid' ? 'Raid' : 'Dungeon'} · Lv ${dg.level}`));
+    else if (dg) b.put(h('p.d-note', `${dg.name} lies elsewhere. Find its gate and I will see you through.`));
   }
-  if (D.role === 'travel') b.append(h('p.d-note', 'The roads are walked on foot for now. The cart is spoken for.'));
-  list.append(opt('bye', 'shut', 'Farewell', closeDialog));
-  b.append(list);
+  if (D.role === 'travel') b.put(h('p.d-note', 'The roads are walked on foot for now. The cart is spoken for.'));
+  list.put(opt('bye', 'shut', 'Farewell', closeDialog));
+  b.put(list);
 }
 function questView(b) {
   const g = G.game, q = D.q, m = D.mode;
   const lines = m === 'turnin' ? q.done : m === 'active' ? q.progress : q.offer;
-  b.append(h('div.d-qh', h('img', { src: ICON(m === 'turnin' ? 'quest_ready' : m === 'active' ? 'quest_busy' : 'quest_offer'), draggable: false }), h('div', h('h4', q.name), h('small', `${q.main ? 'Main story' : 'Side quest'} · Level ${q.level || 1}`))),
+  b.put(h('div.d-qh', h('img', { src: ICON(m === 'turnin' ? 'quest_ready' : m === 'active' ? 'quest_busy' : 'quest_offer'), draggable: false }), h('div', h('h4', q.name), h('small', `${q.main ? 'Main story' : 'Side quest'} · Level ${q.level || 1}`))),
     (lines || ['...']).map((l) => h('p.d-say', l)));
-  if (m === 'active') b.append(h('p.d-note', 'Now: ' + Q.stepText(q)));
-  b.append(rewardRow(q));
+  if (m === 'active') b.put(h('p.d-note', 'Now: ' + Q.stepText(q)));
+  b.put(rewardRow(q));
   const back = () => go('main');
-  b.append(h('div.row.end.wrap',
+  b.put(h('div.row.end.wrap',
     m === 'offer' ? [btn('Decline', back), btn('Accept', () => { g.acceptQuest(q.id); D.text = 'Off you go, then.'; back(); }, 'primary')] :
     m === 'turnin' ? btn('Complete quest', () => { g.turnInQuest(q.id); const n = Q.turninsOf(D.id)[0] || Q.offersOf(D.id)[0]; if (n) go('quest', { q: n, mode: Q.complete(n) ? 'turnin' : 'offer' }); else back(); }, 'primary') :
     btn('Back', back)));
@@ -78,18 +78,18 @@ function questView(b) {
 // ------------------------------------------------------------------ services
 function serviceView(b) {
   const g = G.game, c = G.char, r = D.role;
-  const head = (t, note) => b.append(h('div.sv-head', btn('‹ Back', () => go('main'), 'sm'), h('h4', t), h('span.grow'), h('span.goldline', h('img', { src: ICON('gold') }), h('b', fmt(c.gold)))), note ? h('p.d-note', note) : null);
+  const head = (t, note) => b.put(h('div.sv-head', btn('‹ Back', () => go('main'), 'sm'), h('h4', t), h('span.grow'), h('span.goldline', h('img', { src: ICON('gold') }), h('b', fmt(c.gold)))), note ? h('p.d-note', note) : null);
   if (isShop(r)) {
     head(SERVICE[r], r === 'gamble' ? 'Unidentified wares. What you get is what you get.' : 'Open your bag to sell: right-click or tap an item there.');
-    if (r === 'innkeeper') { const cost = 10 + c.lvl * 3; b.append(h('div.shop-row.rest', h('div.iticon.bed', '☾'), h('div.sr-t', h('b', 'Rest by the fire'), h('small', 'Restores life and mana. Kindled: +10% experience for ten minutes.')), h('span.price', fmt(cost)), dis(btn('Rest', () => g.rest(), 'sm primary'), c.gold < cost))); }
+    if (r === 'innkeeper') { const cost = 10 + c.lvl * 3; b.put(h('div.shop-row.rest', h('div.iticon.bed', '☾'), h('div.sr-t', h('b', 'Rest by the fire'), h('small', 'Restores life and mana. Kindled: +10% experience for ten minutes.')), h('span.price', fmt(cost)), dis(btn('Rest', () => g.rest(), 'sm primary'), c.gold < cost))); }
     const items = g.shopStock(r, D.id), list = h('div.shop-list');
     for (const it of items) {
       const pot = it.type === 'potion', row = h('div.shop-row', itemIcon(it), h('div.sr-t', h('b', { style: { color: pot ? '' : it.mystery ? '#c9a2ff' : rarityColor(it.rarity) } }, it.mystery ? 'Unidentified ' + SLOT_NAME[it.slot] : it.name), h('small', pot ? (it.pot === 'hp' ? `Restores life · you carry ${c.potions.hp || 0}` : `Restores mana · you carry ${c.potions.mp || 0}`) : it.mystery ? `Item level ${it.ilvl}` : statBrief(it))), h('span.price', fmt(it.price)),
         pot ? h('span.row', [1, 5, 10].map((n) => dis(btn('×' + n, () => g.buy(it, n), 'sm'), c.gold < it.price * n))) : dis(btn('Buy', () => g.buy(it), 'sm primary'), c.gold < it.price));
-      U.tip(row.firstChild, () => itemTip(it)); list.append(row);
+      U.tip(row.firstChild, () => itemTip(it)); list.put(row);
     }
-    if (!items.length) list.append(h('p.note', 'Sold out. Come back later.'));
-    b.append(list, h('div.row.end.wrap', btn('Open bag', () => U.openWin('inv')), btn('Sell junk', () => { if (!g.sellJunk()) U.toast('Nothing worth less than what you wear.'); })));
+    if (!items.length) list.put(h('p.note', 'Sold out. Come back later.'));
+    b.put(list, h('div.row.end.wrap', btn('Open bag', () => U.openWin('inv')), btn('Sell junk', () => { if (!g.sellJunk()) U.toast('Nothing worth less than what you wear.'); })));
   } else if (r === 'smith' || r === 'enchant') {
     const up = r === 'smith';
     head(up ? 'The Forge' : 'The Enchanter', up ? 'Each tempering adds +1 (to +10): more damage or armour.' : 'Rerolls an item\'s magical properties. Its damage and armour stay.');
@@ -98,28 +98,28 @@ function serviceView(b) {
       const maxed = up && (it.plus || 0) >= 10, cost = up ? g.upgradeCost(it) : g.enchantCost(it), worn = c.equip[it.slot] === it;
       const row = h('div.shop-row', itemIcon(it), h('div.sr-t', h('b', { style: { color: rarityColor(it.rarity) } }, it.name + (it.plus ? ' +' + it.plus : '')), h('small', (worn ? 'Worn · ' : '') + statBrief(it, up ? 2 : 6))), h('span.price', maxed ? '—' : fmt(cost)),
         dis(btn(maxed ? 'Max' : up ? 'Temper' : 'Reroll', () => (up ? g.upgrade(it.id) : g.enchant(it.id)), 'sm primary'), maxed || c.gold < cost || (!up && it.rarity < 1)));
-      U.tip(row.firstChild, () => itemTip(it, { compare: false })); list.append(row);
+      U.tip(row.firstChild, () => itemTip(it, { compare: false })); list.put(row);
     }
-    b.append(list);
+    b.put(list);
   } else if (r === 'storage') {
     head('Strongbox', 'Click an item to move it. The strongbox holds sixty.');
     const stash = c.stash || [], bg = h('div.bag-grid'), sg = h('div.bag-grid');
-    for (let i = 0; i < Math.max(c.bagMax, c.bag.length); i++) bg.append(itemSlot(c.bag[i], { mark: true, onUse: (x) => g.stash(x.id), onMore: (x) => itemCard(x, 'bag') }));
-    for (let i = 0; i < 60; i++) sg.append(itemSlot(stash[i], { onUse: (x) => g.unstash(x.id), onMore: (x) => itemCard(x, 'stash') }));
-    b.append(h('div.storage', h('div', h('div.sec-h', `Bag ${c.bag.length} / ${c.bagMax}`), bg), h('div', h('div.sec-h', `Strongbox ${stash.length} / 60`), sg)));
+    for (let i = 0; i < Math.max(c.bagMax, c.bag.length); i++) bg.put(itemSlot(c.bag[i], { mark: true, onUse: (x) => g.stash(x.id), onMore: (x) => itemCard(x, 'bag') }));
+    for (let i = 0; i < 60; i++) sg.put(itemSlot(stash[i], { onUse: (x) => g.unstash(x.id), onMore: (x) => itemCard(x, 'stash') }));
+    b.put(h('div.storage', h('div', h('div.sec-h', `Bag ${c.bag.length} / ${c.bagMax}`), bg), h('div', h('div.sec-h', `Strongbox ${stash.length} / 60`), sg)));
   } else if (r === 'guild') {
     head('The Charter Desk');
-    if (c.guild) b.append(h('p.d-say', `<${c.guild.name}> is on the rolls: level ${c.guild.level}, renown ${fmt(c.guild.renown || 0)}. The Charterhouse door is two along.`), h('div.row.end', btn('Open guild ledger', () => U.openWin('guild'), 'primary')));
+    if (c.guild) b.put(h('p.d-say', `<${c.guild.name}> is on the rolls: level ${c.guild.level}, renown ${fmt(c.guild.renown || 0)}. The Charterhouse door is two along.`), h('div.row.end', btn('Open guild ledger', () => U.openWin('guild'), 'primary')));
     else {
       const inp = h('input.inp', { type: 'text', maxLength: 22, placeholder: 'Name your guild', spellcheck: false }), ok = c.lvl >= 10 && c.gold >= 5000;
-      b.append(h('p.d-say', 'A charter wants a hero of the tenth level, five thousand gold, and a name that will not embarrass the town.'),
+      b.put(h('p.d-say', 'A charter wants a hero of the tenth level, five thousand gold, and a name that will not embarrass the town.'),
         h('ul.q-steps', h('li' + (c.lvl >= 10 ? '.done' : '.cur'), `Level 10 (you are ${c.lvl})`), h('li' + (c.gold >= 5000 ? '.done' : '.cur'), `5,000 gold (you carry ${fmt(c.gold)})`)),
         h('div.row.wrap', inp, dis(btn('Found the guild', () => { g.foundGuild(inp.value); if (G.char.guild) { inp.blur(); render(); } }, 'primary'), !ok)));
     }
   } else if (r === 'arena') {
     head('The Pit of Small Mercies', 'Win gold, and renown for your guild. Losing costs only pride.');
     const inPit = G.map.def.kind === 'arena';
-    b.append(h('div.row.wrap', dis(btn('Duel · 1 v 1', () => { closeDialog(); g.startDuel(1); }, 'primary'), !inPit || !!g.duel), dis(btn('Skirmish · 1 v 3', () => { closeDialog(); g.startDuel(3); }), !inPit || !!g.duel)), !inPit ? h('p.note', 'Bouts are fought down in the Pit itself.') : g.duel ? h('p.note', 'A bout is already under way.') : null);
+    b.put(h('div.row.wrap', dis(btn('Duel · 1 v 1', () => { closeDialog(); g.startDuel(1); }, 'primary'), !inPit || !!g.duel), dis(btn('Skirmish · 1 v 3', () => { closeDialog(); g.startDuel(3); }), !inPit || !!g.duel)), !inPit ? h('p.note', 'Bouts are fought down in the Pit itself.') : g.duel ? h('p.note', 'A bout is already under way.') : null);
   }
 }
 const dis = (b, off) => { b.disabled = !!off; return b; };
@@ -140,7 +140,7 @@ function showDeath(by) {
 }
 function buildDeath() {
   const auto = h('div.death-auto'); dead.autoEl = auto; dead.shown = true; G.paused = true;
-  clear(el.death).append(h('div.death-in', h('div.death-rule'), h('h1', 'You have fallen'), h('p', 'Slain by ', h('b', dead.by || 'the dark')), h('p.small', 'A little of your experience bleeds away into the Hollow.'),
+  clear(el.death).put(h('div.death-in', h('div.death-rule'), h('h1', 'You have fallen'), h('p', 'Slain by ', h('b', dead.by || 'the dark')), h('p.small', 'A little of your experience bleeds away into the Hollow.'),
     btn('Return to Herrington Hollow', respawn, 'primary big'), auto));
   el.death.classList.remove('hide'); U.pushLayer({ id: 'death', close() {}, block: true, locked: true });
 }
@@ -148,7 +148,7 @@ function respawn() {
   if (!dead) return; dead = null; el.death.classList.add('hide'); U.popLayer('death'); G.paused = false; G.game.respawn();
 }
 function dungeonDone(dg) {
-  clear(el.done).append(h('div.gate-kind', dg?.kind === 'raid' ? 'Raid conquered' : 'Dungeon cleared'), h('h3', dg?.name || 'The depths fall silent'), h('p.note', 'Spoils are shared and the purse is heavier. Gather what has dropped before you go.'),
+  clear(el.done).put(h('div.gate-kind', dg?.kind === 'raid' ? 'Raid conquered' : 'Dungeon cleared'), h('h3', dg?.name || 'The depths fall silent'), h('p.note', 'Spoils are shared and the purse is heavier. Gather what has dropped before you go.'),
     h('div.row.end', btn('Stay a while', () => el.done.classList.add('hide')), btn('Leave', () => { el.done.classList.add('hide'); G.game.leaveDungeon(); }, 'primary')));
   el.done.classList.remove('hide'); U.flourish(dg?.kind === 'raid' ? 'Raid Conquered' : 'Dungeon Cleared', dg?.name || '', 'gold', 2800);
 }

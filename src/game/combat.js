@@ -40,6 +40,7 @@ export function hit(src, tgt, amount, opts = {}) {
     if (src && src.lvl < tgt.lvl - 5) amt *= Math.max(0.35, 1 - (tgt.lvl - 5 - src.lvl) * 0.08);   // punching far above your level
   }
   if (tgt.status.amp > 0) amt *= 1.3;
+  if (src && tgt.kind === 'hero' && (src.kind === 'hero' || (src.owner && src.owner.kind === 'hero'))) amt *= 0.4;      // duels last longer than a blink
   amt = Math.max(1, Math.round(amt));
   tgt.hp -= amt; tgt.barT = 3; tgt.flash = 0.5; tgt.flashCol = null; tgt.hurtT = Math.max(tgt.hurtT, opts.dot ? 0.2 : 0.7);
   // numbers stack upward while hits keep landing on the same target

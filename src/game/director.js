@@ -55,6 +55,8 @@ export class Director {
       if (G.drops.length && (this.idle += 0.5) < 8) return;
       this.idle = 0; this.key = ''; G.game.leaveDungeon(); return;
     }
+    // places you walked into on purpose are not left on auto: the Pit, the Breach
+    if (G.game.duel || M.def.special === 'breach' || M.def.kind === 'arena') return this.grind(null, 'stay');
     if (M.def.kind === 'town') { if (c.bag.length > c.bagMax - 8) G.game.sellJunk(true); }
     // potions
     if (c.potions.hp < 4 && c.gold >= 150) return this.npc('wren', () => { const s = G.game.shopStock('shop:potions', 'wren'); const hp = s.find(x => x.pot === 'hp'), mp = s.find(x => x.pot === 'mp'); const n = Math.max(1, Math.min(15, Math.floor(c.gold * 0.5 / hp.price))); G.game.buy(hp, n); if (P.cls !== 'barbarian' && c.potions.mp < 6) G.game.buy(mp, Math.max(1, Math.min(8, Math.floor(c.gold * 0.3 / mp.price)))); G.game.sellJunk(true); });

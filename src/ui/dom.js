@@ -28,6 +28,8 @@ export function h(sel, props, ...kids) {
   return el;
 }
 export function add(el, kids) { for (const k of kids) { if (k == null || k === false) continue; if (Array.isArray(k)) add(el, k); else el.append(k.nodeType ? k : document.createTextNode(String(k))); } return el; }
+// el.put(...kids): like append(), but skips null/false and flattens arrays (what every builder here wants)
+Element.prototype.put = function (...kids) { add(this, kids); return this; };
 export const clear = (el) => { el.textContent = ''; return el; };
 export const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 export const fmt = (n) => Math.round(n || 0).toLocaleString('en-US');

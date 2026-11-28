@@ -48,7 +48,7 @@ export function initHud(root) {
   el.lv = h('div.lv', h('small', 'Lv'), h('b', '1')); el.name = h('div.who-name'); el.cls = h('div.who-cls');
   const atk = makeSlot(-1, 'X', 'atk'); hold(atk.el, 'attack');
   const slots = h('div.slots', atk.el);
-  for (let i = 0; i < 8; i++) { const s = makeSlot(i, String(i + 1)); hold(s.el, 's' + (i + 1)); slots.append(s.el); }
+  for (let i = 0; i < 8; i++) { const s = makeSlot(i, String(i + 1)); hold(s.el, 's' + (i + 1)); slots.put(s.el); }
   const pot = (kind, key, img) => { const n = h('span.cnt', '0'); const b = h('button.pot.' + kind, { type: 'button', title: kind === 'hp' ? 'Blood Draught' : 'Wit Tincture', onclick: () => G.game.usePotion(kind) }, h('img', { src: A('ui/' + img), draggable: false }), n, h('span.key', key)); el['pot_' + kind] = n; el['potb_' + kind] = b; return b; };
   el.auto = h('button#auto', { type: 'button', title: 'Auto-play (T): quests, hunts and loots for you', onclick: () => G.game.toggleAuto() }, h('span.auto-rune'), h('b', 'AUTO'), h('span.key', 'T'));
   el.gold = h('span.gold-n', '0');
@@ -64,7 +64,7 @@ export function initHud(root) {
   el.badges = {};
   for (const [id, name, key, ic] of MENU) {
     const badge = h('span.badge'); el.badges[id] = badge;
-    el.menu.append(h('button.mbtn', { type: 'button', title: `${name} (${key})`, 'aria-label': name, onclick: () => { sfx('ui_click'); U.toggleWin(id); } }, h('img', { src: ICON(ic), draggable: false }), h('span.mk', key), badge));
+    el.menu.put(h('button.mbtn', { type: 'button', title: `${name} (${key})`, 'aria-label': name, onclick: () => { sfx('ui_click'); U.toggleWin(id); } }, h('img', { src: ICON(ic), draggable: false }), h('span.mk', key), badge));
   }
   // minimap
   el.mmName = h('div.mm-name'); el.mmStreet = h('div.mm-street'); el.mmCanvas = h('canvas', { width: 380, height: 168 });
@@ -76,7 +76,7 @@ export function initHud(root) {
   el.hint = h('button#hint.hide', { type: 'button', onclick: () => { const po = G.game.portalNear(); if (el.hint._portal && po) G.game.usePortal(po); else G.game.interact(); } });
   el.fade = h('div#fade', h('div.fade-in', h('div.fade-rune'), el.fadeName = h('div.fade-name'), h('div.fade-sub', 'travelling')));
   el.root = h('div#hud.hide', el.mm, el.buffs, el.tracker, el.party, el.boss, el.toasts, el.flourish, el.taunt, el.hint, el.menu, el.bar, el.xp);
-  root.append(el.root, el.fade);
+  root.put(el.root, el.fade);
   U.toast = toast; U.flourish = flourish; U.hudShow = (on) => el.root.classList.toggle('hide', !on);
   U.refreshHud = () => { last.sig = last.party = last.buffs = null; };
 }
@@ -85,19 +85,19 @@ export function initHud(root) {
 function toast(text, kind, rarity) {
   const t = h('div.toast' + (kind ? '.' + kind : ''), { text });
   if (kind === 'item' && rarity != null) t.style.color = rarityColor(rarity);
-  el.toasts.append(t); while (el.toasts.children.length > 4) el.toasts.firstChild.remove();
+  el.toasts.put(t); while (el.toasts.children.length > 4) el.toasts.firstChild.remove();
   setTimeout(() => t.classList.add('out'), 3200); setTimeout(() => t.remove(), 3700);
 }
 const fq = []; let fBusy = false;
 function flourish(title, sub, cls = '', ms = 2300) { fq.push({ title, sub, cls, ms }); if (fq.length > 4) fq.splice(0, fq.length - 4); if (!fBusy) nextFlourish(); }
 function nextFlourish() {
   const f = fq.shift(); if (!f) { fBusy = false; el.flourish.classList.add('hide'); return; }
-  fBusy = true; el.flourish.className = f.cls; clear(el.flourish).append(h('div.fl-rule'), h('div.fl-title', f.title), f.sub ? h('div.fl-sub', f.sub) : null, h('div.fl-rule'));
+  fBusy = true; el.flourish.className = f.cls; clear(el.flourish).put(h('div.fl-rule'), h('div.fl-title', f.title), f.sub ? h('div.fl-sub', f.sub) : null, h('div.fl-rule'));
   void el.flourish.offsetWidth; el.flourish.classList.add('show'); setTimeout(nextFlourish, f.ms);
 }
 let tauntT = 0;
 function taunt(lines, lvl) {
-  clear(el.taunt).append(h('div.ta-who', 'Velscour, the Demon Lord'), lines.filter(Boolean).map((l) => h('div.ta-line', l.trim())));
+  clear(el.taunt).put(h('div.ta-who', 'Velscour, the Demon Lord'), lines.filter(Boolean).map((l) => h('div.ta-line', l.trim())));
   el.taunt.classList.remove('hide', 'show'); void el.taunt.offsetWidth; el.taunt.classList.add('show');
   clearTimeout(tauntT); tauntT = setTimeout(() => el.taunt.classList.add('hide'), 4600);
 }
@@ -163,7 +163,7 @@ function findHint() {
 function pinHint() {
   const t = hintTarget, on = !!t && !U.blocking(); setCls(el.hint, 'hide', !on); if (!on) return;
   const sig = t.key + t.text + t.sub; if (el.hint._s !== sig) { el.hint._s = sig; el.hint._portal = !!t.portal; el.hint.innerHTML = `<kbd>${t.key}</kbd><span class="tapk">Tap</span> <b>${t.text}</b> <em>${esc(t.sub || '')}</em>`; }
-  const [x, y] = t.a ? G.game.toScreen(t.a.x, t.a.y - (t.a.h || 100) - 62) : G.game.toScreen(t.po.x, t.po.y - 150);
+  const [x, y] = t.a ? G.game.toScreen(t.a.x, t.a.y - (t.a.h || 100) - 26) : G.game.toScreen(t.po.x, t.po.y - 132);
   const X = Math.round(Math.max(70, Math.min(innerWidth - 70, x))), Y = Math.round(Math.max(60, Math.min(innerHeight - 120, y)));
   if (el.hint._x !== X || el.hint._y !== Y) { el.hint._x = X; el.hint._y = Y; el.hint.style.transform = `translate(${X}px,${Y}px) translate(-50%,-100%)`; }
 }
@@ -173,8 +173,8 @@ function tracker() {
   if (sig === last.sig) return; last.sig = sig;
   clear(el.tracker); if (!qs.length) { el.tracker.classList.add('hide'); return; } el.tracker.classList.remove('hide');
   qs.sort((a, b) => (b.done - a.done) || ((b.q.main ? 1 : 0) - (a.q.main ? 1 : 0)));
-  el.tracker.append(h('div.tr-head', 'Quests', h('small', qs.length > 4 ? ` +${qs.length - 4} more` : '')));
-  for (const q of qs.slice(0, 4)) el.tracker.append(h('div.tr-q' + (q.done ? '.done' : '') + (q.q.main ? '.main' : ''), h('div.tr-name', q.q.name), h('div.tr-step', q.text)));
+  el.tracker.put(h('div.tr-head', 'Quests', h('small', qs.length > 4 ? ` +${qs.length - 4} more` : '')));
+  for (const q of qs.slice(0, 4)) el.tracker.put(h('div.tr-q' + (q.done ? '.done' : '') + (q.q.main ? '.main' : ''), h('div.tr-name', q.q.name), h('div.tr-step', q.text)));
 }
 
 let partyViews = [];
@@ -186,7 +186,7 @@ function party(rebuild) {
       for (const p of list) {
         const fill = h('i'), nm = h('span.pf-name', p.name), lv = h('span.pf-lv', String(p.lvl));
         const root = h('button.pf', { type: 'button', onclick: () => U.playerMenu(p) }, lv, h('span.pf-body', nm, h('span.pf-cls', { text: CLASSES[p.cls]?.name || '', style: { color: CLASSES[p.cls]?.color } }), h('span.pf-hp', fill)));
-        el.party.append(root); partyViews.push({ p, fill, root, lv });
+        el.party.put(root); partyViews.push({ p, fill, root, lv });
       }
     }
   }
@@ -208,7 +208,7 @@ function buffs() {
   const sig = list.map((b) => b.id).join(',');
   if (sig !== last.buffs) {
     last.buffs = sig; clear(el.buffs); buffViews = [];
-    for (const b of list) { const ic = h('span.ic'), n = h('span.bn'); if (SKILLS[b.id]) paintSkill(ic, SKILLS[b.id]); else ic.classList.add('flame'); const root = h('div.buff', { title: b.name }, ic, h('span.ring'), n); el.buffs.append(root); buffViews.push({ root, n }); }
+    for (const b of list) { const ic = h('span.ic'), n = h('span.bn'); if (SKILLS[b.id]) paintSkill(ic, SKILLS[b.id]); else ic.classList.add('flame'); const root = h('div.buff', { title: b.name }, ic, h('span.ring'), n); el.buffs.put(root); buffViews.push({ root, n }); }
   }
   list.forEach((b, i) => { const v = buffViews[i]; if (!v) return; setVar(v.root, '--p', Math.round(Math.max(0, Math.min(1, b.t / b.dur)) * 50) * 2 + '%'); setText(v.n, b.t >= 60 ? Math.ceil(b.t / 60) + 'm' : Math.ceil(b.t) + ''); });
 }

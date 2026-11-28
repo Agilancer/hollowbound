@@ -207,19 +207,20 @@ export class Renderer {
   _offTarget() {
     if (!this._off || this._off.width !== this.w || this._off.height !== this.h) {
       this._off = this.device.createTexture({ size: [this.w, this.h], format: 'rgba8unorm', usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC });
-      this._offBuf = this.device.createBuffer({ size: Math.ceil(this.w * 4 / 256) * 256 * this.h, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ });
     }
     return this._off;
   }
   _readback(enc, tex) {
-    const w = this.w, h = this.h, bpr = Math.ceil(w * 4 / 256) * 256, buf = this._offBuf;
+    // a fresh buffer per frame read: never touched again once mapped
+    const now = performance.now(); if (now - (this._lastRead || 0) < 90) return; this._lastRead = now;
+    const w = this.w, h = this.h, bpr = Math.ceil(w * 4 / 256) * 256;
+    const buf = this.device.createBuffer({ size: bpr * h, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ });
     enc.copyTextureToBuffer({ texture: tex }, { buffer: buf, bytesPerRow: bpr }, [w, h]);
-    this._reading = true;
     this._pendingMap = () => buf.mapAsync(GPUMapMode.READ).then(() => {
       const src = new Uint8Array(buf.getMappedRange()), img = this.ctx2d.createImageData(w, h);
       for (let y = 0; y < h; y++) img.data.set(src.subarray(y * bpr, y * bpr + w * 4), y * w * 4);
-      buf.unmap(); this.ctx2d.putImageData(img, 0, 0); this._reading = false;
-    }).catch(() => { this._reading = false; });
+      buf.unmap(); buf.destroy(); if (this.canvas.width === w && this.canvas.height === h) this.ctx2d.putImageData(img, 0, 0);
+    }).catch(() => {});
   }
 
   begin() { this.count = 0; this.batches.length = 0; this._batch = null; }
@@ -311,7 +312,7 @@ export class Renderer {
       pass.draw(4, b.count, 0, b.start);
     }
     pass.end();
-    if (this.offscreen && !this._reading) this._readback(enc, target);
+    if (this.offscreen) this._readback(enc, target);
     d.queue.submit([enc.finish()]);
     if (this._pendingMap) { const f = this._pendingMap; this._pendingMap = null; f(); }
     this.stats.sprites = this.count; this.stats.batches = nb;

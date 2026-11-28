@@ -18,11 +18,11 @@ const mobName = (id) => mobDef(id)?.name || String(id).replace(/^slime:/, '').re
 // ------------------------------------------------------------------ quests
 export function rewardRow(q) {
   const r = q.reward || {}, out = h('div.rewards', h('span.rw-l', 'Rewards'));
-  if (r.xp) out.append(h('span.rw.xp', fmt(r.xp) + ' xp'));
-  if (r.gold) out.append(h('span.rw.gold', fmt(r.gold) + ' gold'));
-  if (r.item === 'potions') out.append(h('span.rw', 'Potions ×8'));
-  else if (r.item && typeof r.item === 'object') out.append(h('span.rw', { style: { color: rarityColor(r.item.rarity ?? 1) } }, `${rarityName(r.item.rarity ?? 1)} ${SLOT_NAME[r.item.slot] || 'gear'}`));
-  if (r.skillPoint) out.append(h('span.rw.sp', `+${r.skillPoint} skill point`));
+  if (r.xp) out.put(h('span.rw.xp', fmt(r.xp) + ' xp'));
+  if (r.gold) out.put(h('span.rw.gold', fmt(r.gold) + ' gold'));
+  if (r.item === 'potions') out.put(h('span.rw', 'Potions ×8'));
+  else if (r.item && typeof r.item === 'object') out.put(h('span.rw', { style: { color: rarityColor(r.item.rarity ?? 1) } }, `${rarityName(r.item.rarity ?? 1)} ${SLOT_NAME[r.item.slot] || 'gear'}`));
+  if (r.skillPoint) out.put(h('span.rw.sp', `+${r.skillPoint} skill point`));
   return out;
 }
 export function stepLabel(s) {
@@ -40,19 +40,19 @@ export function stepLabel(s) {
 let ql = { tab: 'active', sel: null };
 defineWin('quests', {
   title: 'Quest Log', icon: 'journal', pos: [0.5, 0.42], on: ['quest', 'bag', 'started'],
-  build(body) { ql.tabs = h('div.tabs'); ql.list = h('div.q-list.scroll'); ql.det = h('div.q-det.scroll'); body.append(h('div.quests', ql.tabs, h('div.q-main', ql.list, ql.det))); },
+  build(body) { ql.tabs = h('div.tabs'); ql.list = h('div.q-list.scroll'); ql.det = h('div.q-det.scroll'); body.put(h('div.quests', ql.tabs, h('div.q-main', ql.list, ql.det))); },
   tick() { if (ql.tab === 'active') this.refresh(); },
   refresh() {
     const g = G.game, act = g.quests(), done = g.questsDone();
-    clear(ql.tabs).append(...[['active', `Active (${act.length})`], ['done', `Completed (${done.length})`]].map(([k, l]) => h('button.tab' + (ql.tab === k ? '.on' : ''), { type: 'button', onclick: () => { ql.tab = k; ql.sel = null; sfx('ui_click'); this.refresh(); } }, l)));
+    clear(ql.tabs).put(...[['active', `Active (${act.length})`], ['done', `Completed (${done.length})`]].map(([k, l]) => h('button.tab' + (ql.tab === k ? '.on' : ''), { type: 'button', onclick: () => { ql.tab = k; ql.sel = null; sfx('ui_click'); this.refresh(); } }, l)));
     const st = ql.list.scrollTop; clear(ql.list); clear(ql.det);
     const items = ql.tab === 'active' ? act.map((a) => a.q) : done.slice().reverse();
-    if (!items.length) { ql.list.append(h('p.note', ql.tab === 'active' ? 'No quests. Look for folk with a lamp over their heads.' : 'Nothing finished yet.')); return; }
+    if (!items.length) { ql.list.put(h('p.note', ql.tab === 'active' ? 'No quests. Look for folk with a lamp over their heads.' : 'Nothing finished yet.')); return; }
     if (!items.some((q) => q.id === ql.sel)) ql.sel = items[0].id;
-    for (const q of items) { const a = act.find((x) => x.q === q); ql.list.append(h('button.q-item' + (q.id === ql.sel ? '.on' : '') + (a && a.done ? '.ready' : '') + (q.main ? '.main' : ''), { type: 'button', onclick: () => { ql.sel = q.id; sfx('ui_click'); this.refresh(); } }, h('b', q.name), h('small', a ? a.text : 'Completed'))); }
+    for (const q of items) { const a = act.find((x) => x.q === q); ql.list.put(h('button.q-item' + (q.id === ql.sel ? '.on' : '') + (a && a.done ? '.ready' : '') + (q.main ? '.main' : ''), { type: 'button', onclick: () => { ql.sel = q.id; sfx('ui_click'); this.refresh(); } }, h('b', q.name), h('small', a ? a.text : 'Completed'))); }
     ql.list.scrollTop = st;
     const q = items.find((x) => x.id === ql.sel), a = act.find((x) => x.q === q), cur = G.char.quests.active[q.id]?.step ?? q.steps.length;
-    ql.det.append(h('h4', q.name), h('div.q-sub', `${q.main ? 'Main story' : 'Side quest'} · Level ${q.level || 1} · from ${NPCS[q.giver]?.name || '?'}${q.area && AREAS[q.area] ? ' · ' + AREAS[q.area].name : ''}`),
+    ql.det.put(h('h4', q.name), h('div.q-sub', `${q.main ? 'Main story' : 'Side quest'} · Level ${q.level || 1} · from ${NPCS[q.giver]?.name || '?'}${q.area && AREAS[q.area] ? ' · ' + AREAS[q.area].name : ''}`),
       h('div.q-text', (q.offer || []).map((l) => h('p', l))),
       h('div.sec-h', 'Objectives'),
       h('ul.q-steps', q.steps.map((s, i) => h('li' + (i < cur ? '.done' : i === cur ? '.cur' : ''), i === cur && a ? a.text : stepLabel(s))), h('li' + (a && a.done ? '.cur' : !a ? '.done' : ''), 'Return to ' + (NPCS[q.turnin || q.giver]?.name || '?'))),
@@ -78,13 +78,13 @@ defineWin('map', {
       const box = h('div.wm-area.a-' + aid + (A.under ? '.under' : ''), { style: { gridColumn: at[0] + 1, gridRow: at[1] + 1 } }, h('div.wm-an', A.name, maps.some((m) => m.level) ? h('small', ` Lv ${A.level[0]}–${A.level[1]}`) : null));
       const row = h('div.wm-maps');
       for (const m of maps) {
-        row.append(wm.nodes[m.id] = h('button.wm-node.k-' + m.kind + (m.boss ? '.boss' : ''), { type: 'button', onclick: () => info(m) }, m.level ? h('i', String(m.level)) : null, h('span', m.kind === 'town' ? m.street || m.name : m.name)));
-        for (const p of m.portals) if (p.dungeon) { const D = DUNGEONS.find((d) => d.id === p.dungeon); if (D) row.append(wm.nodes['d:' + D.id] = h('button.wm-node.k-' + D.kind, { type: 'button', onclick: () => info(null, D) }, h('i', String(D.level)), h('span', D.name))); }
+        row.put(wm.nodes[m.id] = h('button.wm-node.k-' + m.kind + (m.boss ? '.boss' : ''), { type: 'button', onclick: () => info(m) }, m.level ? h('i', String(m.level)) : null, h('span', m.kind === 'town' ? m.street || m.name : m.name)));
+        for (const p of m.portals) if (p.dungeon) { const D = DUNGEONS.find((d) => d.id === p.dungeon); if (D) row.put(wm.nodes['d:' + D.id] = h('button.wm-node.k-' + D.kind, { type: 'button', onclick: () => info(null, D) }, h('i', String(D.level)), h('span', D.name))); }
       }
-      box.append(row); wm.chart.append(box);
+      box.put(row); wm.chart.put(box);
     }
     wm.wrap = h('div.wm-wrap.scroll', wm.chart);
-    body.append(h('div.wm', wm.wrap, h('div.wm-foot', h('div.wm-legend', h('span.lg.town', 'Town'), h('span.lg.field', 'Wilds'), h('span.lg.boss', 'Lair of a named foe'), h('span.lg.dungeon', 'Dungeon'), h('span.lg.raid', 'Raid'), h('span.lg.here', 'You are here')), wm.info)));
+    body.put(h('div.wm', wm.wrap, h('div.wm-foot', h('div.wm-legend', h('span.lg.town', 'Town'), h('span.lg.field', 'Wilds'), h('span.lg.boss', 'Lair of a named foe'), h('span.lg.dungeon', 'Dungeon'), h('span.lg.raid', 'Raid'), h('span.lg.here', 'You are here')), wm.info)));
   },
   refresh() {
     const M = G.map; for (const k in wm.nodes) wm.nodes[k].classList.remove('here');
@@ -120,32 +120,32 @@ function personRow(a, acts) {
 let ps = {};
 defineWin('party', {
   title: 'Party & Players', icon: 'talk', pos: [0.24, 0.42], on: ['party', 'mapChanged', 'started'],
-  build(body) { ps.party = h('div'); ps.near = h('div'); ps.ph = h('div.sec-h'); body.append(h('div.social', ps.ph, ps.party, h('div.sec-h', 'Players nearby'), ps.near)); },
+  build(body) { ps.party = h('div'); ps.near = h('div'); ps.ph = h('div.sec-h'); body.put(h('div.social', ps.ph, ps.party, h('div.sec-h', 'Players nearby'), ps.near)); },
   tick() { this.refresh(); },
   refresh() {
     const g = G.game, P = G.player, list = g.partyList();
     ps.ph.textContent = list.length > 4 ? `Raid (${list.length + 1})` : `Party (${list.length + 1} / 5)`;
-    clear(ps.party).append(personRow(P, h('span.note', 'Leader')));
-    for (const p of list) ps.party.append(personRow(p, [btn('Inspect', () => playerMenu(p), 'sm'), btn('Kick', () => g.kick(p), 'sm danger')]));
-    if (!list.length) ps.party.append(h('p.note', 'You travel alone. Invite someone below, or step into a dungeon: its gate gathers a party for you.'));
+    clear(ps.party).put(personRow(P, h('span.note', 'Leader')));
+    for (const p of list) ps.party.put(personRow(p, [btn('Inspect', () => playerMenu(p), 'sm'), btn('Kick', () => g.kick(p), 'sm danger')]));
+    if (!list.length) ps.party.put(h('p.note', 'You travel alone. Invite someone below, or step into a dungeon: its gate gathers a party for you.'));
     const near = G.actors.filter((a) => a.kind === 'hero' && a.fake && !a.inParty && !a.dead && a.team !== 2).sort((a, b) => Math.abs(a.x - P.x) - Math.abs(b.x - P.x)).slice(0, 14);
     clear(ps.near);
-    if (!near.length) ps.near.append(h('p.note', 'Nobody about.'));
-    for (const a of near) ps.near.append(personRow(a, [btn('Inspect', () => playerMenu(a), 'sm'), btn('Invite', () => g.invite(a), 'sm'), G.char.guild ? btn('Recruit', () => g.recruit(a), 'sm') : null]));
+    if (!near.length) ps.near.put(h('p.note', 'Nobody about.'));
+    for (const a of near) ps.near.put(personRow(a, [btn('Inspect', () => playerMenu(a), 'sm'), btn('Invite', () => g.invite(a), 'sm'), G.char.guild ? btn('Recruit', () => g.recruit(a), 'sm') : null]));
   },
 });
 /** The menu over another player: gear, invite, recruit. */
 export function playerMenu(hero, infoIn) {
   const g = G.game; let info = infoIn || g.inspect(hero), close; const C = CLASSES[info.cls] || {};
   const gear = h('div.pm-gear');
-  for (const s of SLOTS) { const it = info.equip && info.equip[s]; const row = h('div.pm-item', it ? itemIcon(it, info.cls) : h('div.iticon.none'), h('div', h('small', SLOT_NAME[s]), it ? h('b', { style: { color: rarityColor(it.rarity) } }, it.name + (it.plus ? ' +' + it.plus : '')) : h('b.none', 'Empty'))); if (it) U.tip(row, () => itemTip(it, { compare: false })); gear.append(row); }
+  for (const s of SLOTS) { const it = info.equip && info.equip[s]; const row = h('div.pm-item', it ? itemIcon(it, info.cls) : h('div.iticon.none'), h('div', h('small', SLOT_NAME[s]), it ? h('b', { style: { color: rarityColor(it.rarity) } }, it.name + (it.plus ? ' +' + it.plus : '')) : h('b.none', 'Empty'))); if (it) U.tip(row, () => itemTip(it, { compare: false })); gear.put(row); }
   const acts = h('div.row.wrap.end');
   if (!hero.isPlayer) {
-    if (info.inParty) acts.append(btn('Remove from party', () => { close(); g.kick(hero); }, 'danger'));
-    else acts.append(btn('Invite to party', () => { close(); g.invite(hero); }, 'primary'));
-    if (info.canRecruit) acts.append(btn('Recruit to guild', () => { close(); g.recruit(hero); }));
+    if (info.inParty) acts.put(btn('Remove from party', () => { close(); g.kick(hero); }, 'danger'));
+    else acts.put(btn('Invite to party', () => { close(); g.invite(hero); }, 'primary'));
+    if (info.canRecruit) acts.put(btn('Recruit to guild', () => { close(); g.recruit(hero); }));
   }
-  acts.append(btn('Close', () => close()));
+  acts.put(btn('Close', () => close()));
   close = U.modal(h('div.panel.pmenu', h('div.pm-head', h('img', { src: new URL(`../../assets/sprites/select/${info.cls}.webp`, import.meta.url).href, draggable: false }),
     h('div', h('h3', info.name), guildTag(info.guild), h('div', { style: { color: C.color } }, `Level ${info.lvl} ${C.name || ''}`), h('small.note', info.companion ? 'Your sworn companion' : info.inParty ? 'In your party' : info.friend >= 2 ? 'Thinks well of you' : info.bad ? 'Has a sour look' : 'A stranger'))),
     h('div.sec-h', 'Gear'), gear, acts), { cls: 'light', id: 'pmenu', block: false });
@@ -159,7 +159,7 @@ defineWin('guild', {
   refresh() {
     const c = G.char, g = G.game, gu = c.guild, b = clear(gd.body);
     if (!gu) {
-      b.append(h('div.guild', h('h4', 'You answer to no banner'), h('p', 'A guild is a charter, a hall and a handful of sworn companions who walk with you. The registrar on Chapel Row, in Herrington Hollow, will write one for a hero of standing.'),
+      b.put(h('div.guild', h('h4', 'You answer to no banner'), h('p', 'A guild is a charter, a hall and a handful of sworn companions who walk with you. The registrar on Chapel Row, in Herrington Hollow, will write one for a hero of standing.'),
         h('ul.q-steps', h('li' + (c.lvl >= 10 ? '.done' : '.cur'), `Reach level 10 (you are ${c.lvl})`), h('li' + (c.gold >= 5000 ? '.done' : '.cur'), `Bring 5,000 gold (you carry ${fmt(c.gold)})`), h('li.cur', 'Speak with the registrar and name your guild')),
         h('p.note', 'A chartered guild opens the Charterhouse, lets you recruit up to four companions, and its hall can be improved for lasting boons.')));
       return;
@@ -167,8 +167,8 @@ defineWin('guild', {
     const inHall = G.map.def.kind === 'hall', comps = G.roster.filter((f) => f.companion);
     const up = h('div.hall-ups');
     for (const k in g.HALL_UP) { const U2 = g.HALL_UP[k], r = gu.up[k] || 0, cost = g.hallCost(k), bb = btn(r >= 5 ? 'Complete' : `${fmt(cost)} gold`, () => g.hallUpgrade(k), 'sm primary'); bb.disabled = !inHall || r >= 5 || c.gold < cost;
-      up.append(h('div.hall-up', h('div', h('b', U2.name), h('small', U2.desc)), h('span.pips', Array.from({ length: 5 }, (_, i) => h('i' + (i < r ? '.on' : '')))), bb)); }
-    b.append(h('div.guild',
+      up.put(h('div.hall-up', h('div', h('b', U2.name), h('small', U2.desc)), h('span.pips', Array.from({ length: 5 }, (_, i) => h('i' + (i < r ? '.on' : '')))), bb)); }
+    b.put(h('div.guild',
       h('div.g-banner', h('div.g-crest', gu.name.slice(0, 1).toUpperCase()), h('div', h('h4', `<${gu.name}>`), h('div.g-stats', h('span', 'Level ', h('b', String(gu.level))), h('span', 'Renown ', h('b', fmt(gu.renown || 0))), h('span', 'Companions ', h('b', `${comps.length} / 4`))))),
       h('div.sec-h', 'Sworn companions'),
       comps.length ? comps.map((f) => { const a = G.actors.find((x) => x.fake === f); return h('div.person', h('span.p-lv', String(a ? a.lvl : f.lvl)), h('div.p-t', h('b', f.name), h('small', { style: { color: CLASSES[f.cls]?.color } }, CLASSES[f.cls]?.name || '')), h('div.p-acts', a ? btn('Dismiss', () => U.confirm({ title: 'Dismiss ' + f.name + '?', text: 'They will leave your guild and your party.', yes: 'Dismiss', danger: true }, () => g.kick(a)), 'sm danger') : h('span.note', 'away'))); })

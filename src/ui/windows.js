@@ -9,7 +9,7 @@ let layerEl, tipEl, z = 20, dirty = new Set(), tickT = 0;
 export function defineWin(id, def) { defs[id] = def; }
 
 export function initWindows(root) {
-  layerEl = h('div#wins'); tipEl = h('div#tip.hide'); root.append(layerEl, tipEl);
+  layerEl = h('div#wins'); tipEl = h('div#tip.hide'); root.put(layerEl, tipEl);
   Object.assign(U, { openWin, closeWin, toggleWin, closeTop, isOpen: (id) => !!wins[id]?.open, refreshWin: (id) => dirty.add(id), tip, hideTip, modal, confirm, pushLayer, popLayer,
     blocking: () => layers.some((l) => l.block), anyOpen: () => layers.length > 0, closeAll });
 }
@@ -30,10 +30,10 @@ function openWin(id, arg) {
     drag(w);
     def.build && def.build(body, w);
   }
-  if (!w.open) { layerEl.append(w.el); w.open = true; sfx('ui_open'); }
-  if (!w.placed) { w.placed = true; place(w, def); }
+  if (!w.open) { layerEl.put(w.el); w.open = true; sfx('ui_open'); }
   front(w); pushLayer({ id: 'win:' + id, close: () => closeWin(id) });
   def.open && def.open(arg); def.refresh && def.refresh();
+  if (!w.placed) { w.placed = true; place(w, def); }
   if (def.pause) G.paused = true;
 }
 function place(w, def) {
@@ -68,7 +68,7 @@ export function winFrame(dt) {
 // ------------------------------------------------------------------ tooltip
 let tipOwner = null;
 function tip(el, fn) {
-  el.addEventListener('pointerenter', (e) => { if (e.pointerType !== 'mouse') return; const c = fn(); if (!c) return; tipOwner = el; clear(tipEl); if (typeof c === 'string') tipEl.innerHTML = c; else tipEl.append(c); tipEl.classList.remove('hide'); moveTip(e); });
+  el.addEventListener('pointerenter', (e) => { if (e.pointerType !== 'mouse') return; const c = fn(); if (!c) return; tipOwner = el; clear(tipEl); if (typeof c === 'string') tipEl.innerHTML = c; else tipEl.put(c); tipEl.classList.remove('hide'); moveTip(e); });
   el.addEventListener('pointermove', (e) => { if (tipOwner === el) moveTip(e); });
   el.addEventListener('pointerleave', () => { if (tipOwner === el) hideTip(); });
   return el;
@@ -87,7 +87,7 @@ function modal(node, opts = {}) {
   const id = 'modal:' + (opts.id || ++mid), back = h('div.modal-back' + (opts.cls ? '.' + opts.cls : ''), node);
   const close = () => { if (!back.isConnected) return; back.remove(); popLayer(id); opts.onClose && opts.onClose(); };
   if (opts.backdropClose !== false && !opts.locked) back.addEventListener('pointerdown', (e) => { if (e.target === back) close(); });
-  popLayer(id); document.getElementById('ui').append(back); back.style.zIndex = opts.z || 400;
+  popLayer(id); document.getElementById('ui').put(back); back.style.zIndex = opts.z || 400;
   pushLayer({ id, close, block: opts.block !== false, locked: !!opts.locked });
   hideTip();
   return close;

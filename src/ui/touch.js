@@ -32,21 +32,21 @@ export function initTouch(root) {
   const pad = h('div#pad', atk.el, b('t-jump', 'jump', [h('img', { src: ICON('jump'), draggable: false }), h('span', 'Jump')]));
   el.sk = [];
   for (let i = 0; i < 4; i++) {
-    const s = makeSlot(() => page * 4 + i, '', 'tb.t-sk.k' + i), num = h('span.key', String(i + 1)); s.el.append(num); s.num = num; s.i = i;
+    const s = makeSlot(() => page * 4 + i, '', 'tb.t-sk.k' + i), num = h('span.key', String(i + 1)); s.el.put(num); s.num = num; s.i = i;
     const up = () => { if (s.el._a) { release(s.el._a); s.el._a = null; s.el.classList.remove('held'); } };
     s.el.addEventListener('pointerdown', (e) => { e.preventDefault(); try { s.el.setPointerCapture(e.pointerId); } catch {} s.el._a = 's' + (page * 4 + i + 1); press(s.el._a); s.el.classList.add('held'); });
     s.el.addEventListener('pointerup', up); s.el.addEventListener('pointercancel', up); s.el.addEventListener('lostpointercapture', up); s.el.addEventListener('contextmenu', (e) => e.preventDefault());
-    el.sk.push(s); pad.append(s.el);
+    el.sk.push(s); pad.put(s.el);
   }
   el.hpN = h('span.cnt'); el.mpN = h('span.cnt'); el.pageN = h('b', '1–4');
   el.hpB = b('t-o.o1', 'potion', [h('img', { src: A('ui/potion_red.png'), draggable: false }), el.hpN]);
   el.mpB = b('t-o.o2', 'mpotion', [h('img', { src: A('ui/potion_blue.png'), draggable: false }), el.mpN]);
   el.auto = b('t-o.o5.t-auto', 'auto', [h('b', 'AUTO')]);
-  pad.append(b('t-o.o0', 'interact', [h('img', { src: ICON('take'), draggable: false })], 'loot'), el.hpB, el.mpB,
+  pad.put(b('t-o.o0', 'interact', [h('img', { src: ICON('take'), draggable: false })], 'loot'), el.hpB, el.mpB,
     h('button.tb.t-o.o3.t-page', { type: 'button', 'aria-label': 'Next skills', onclick: () => { page = 1 - page; setText(el.pageN, page ? '5–8' : '1–4'); for (const s of el.sk) setText(s.num, String(page * 4 + s.i + 1)); sfx('ui_click'); } }, h('span', '⟳'), el.pageN),
     el.auto);
   el.pad = pad;
-  root.append(el.stick, pad);
+  root.put(el.stick, pad);
 
   // ---- when to show
   const show = (v) => { if (on === v) return; on = v; document.body.classList.toggle('touch', v); if (!v) set({}); dispatchEvent(new Event('resize')); };

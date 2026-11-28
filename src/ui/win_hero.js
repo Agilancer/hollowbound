@@ -35,10 +35,10 @@ export function itemTip(it, opts = {}) {
 /** A square slot holding an item. onUse(it, e) on click, onMore(it, el) on right-click / touch tap. */
 export function itemSlot(it, o = {}) {
   const el = h('button.islot' + (it ? '' : '.empty'), { type: 'button' });
-  if (!it) { if (o.ph) el.append(h('img.ph', { src: ICON(o.ph), draggable: false })); if (o.label) el.title = o.label; return el; }
-  el.append(itemIcon(it, o.cls));
+  if (!it) { if (o.ph) el.put(h('img.ph', { src: ICON(o.ph), draggable: false })); if (o.label) el.title = o.label; return el; }
+  el.put(itemIcon(it, o.cls));
   el.style.setProperty('--rc', rarityColor(it.rarity));
-  if (o.mark && G.char) { const c = G.char; if (!canEquip(it, c.cls)) el.append(h('span.mark.no', '✕')); else if (itemScore(it) > itemScore(c.equip[it.slot]) * 1.02) el.append(h('span.mark.up', '▲')); }
+  if (o.mark && G.char) { const c = G.char; if (!canEquip(it, c.cls)) el.put(h('span.mark.no', '✕')); else if (itemScore(it) > itemScore(c.equip[it.slot]) * 1.02) el.put(h('span.mark.up', '▲')); }
   U.tip(el, () => itemTip(it, { hint: o.hint, compare: o.compare }));
   let touch = false;
   el.addEventListener('pointerdown', (e) => { touch = e.pointerType !== 'mouse'; });
@@ -52,13 +52,13 @@ export function itemCard(it, where) {
   const act = (label, fn, cls) => btn(label, () => { close(); fn(); }, cls);
   const acts = h('div.row.wrap.end');
   if (where === 'bag') {
-    if (canEquip(it, c.cls)) acts.append(act('Equip', () => g.equip(it.id), 'primary'));
-    if (U.shop) acts.append(act(`Sell (${fmt(it.value)}g)`, () => g.sell(it.id)));
-    if (U.storage) acts.append(act('Stash', () => g.stash(it.id)));
-    acts.append(act('Drop', () => { const go = () => { g.dropItem(it.id); sfx('ui_close'); }; if (it.rarity >= 2) U.confirm({ title: 'Destroy ' + it.name + '?', text: 'It will be gone for good.', yes: 'Destroy', danger: true }, go); else go(); }, 'danger'));
-  } else if (where === 'equip') acts.append(act('Unequip', () => { if (c.bag.length >= c.bagMax) U.toast('Your bag is full.'); else g.unequip(it.slot); }));
-  else if (where === 'stash') acts.append(act('Take', () => g.unstash(it.id), 'primary'));
-  acts.append(act('Close', () => {}));
+    if (canEquip(it, c.cls)) acts.put(act('Equip', () => g.equip(it.id), 'primary'));
+    if (U.shop) acts.put(act(`Sell (${fmt(it.value)}g)`, () => g.sell(it.id)));
+    if (U.storage) acts.put(act('Stash', () => g.stash(it.id)));
+    acts.put(act('Drop', () => { const go = () => { g.dropItem(it.id); sfx('ui_close'); }; if (it.rarity >= 2) U.confirm({ title: 'Destroy ' + it.name + '?', text: 'It will be gone for good.', yes: 'Destroy', danger: true }, go); else go(); }, 'danger'));
+  } else if (where === 'equip') acts.put(act('Unequip', () => { if (c.bag.length >= c.bagMax) U.toast('Your bag is full.'); else g.unequip(it.slot); }));
+  else if (where === 'stash') acts.put(act('Take', () => g.unstash(it.id), 'primary'));
+  acts.put(act('Close', () => {}));
   close = U.modal(h('div.panel.itemcard', h('div.ic-top', itemIcon(it), h('div', { html: itemTip(it) })), acts), { cls: 'light', block: false });
 }
 
@@ -69,7 +69,7 @@ defineWin('inv', {
   title: 'Bag & Equipment', icon: 'pack', pos: [0.74, 0.42], on: ['bag', 'gotItem', 'started'],
   build(body) {
     bag.doll = h('div.doll'); bag.grid = h('div.bag-grid'); bag.count = h('span'); bag.gold = h('b'); bag.etc = h('div.etc'); bag.pots = h('div.bag-pots'); bag.sum = h('div.doll-sum'); bag.ctx = h('div.bag-ctx');
-    body.append(h('div.inv',
+    body.put(h('div.inv',
       h('div.inv-l', bag.doll, bag.sum),
       h('div.inv-r',
         h('div.sec-h', 'Bag ', bag.count, h('span.grow'), h('span.goldline', h('img', { src: ICON('gold') }), bag.gold)),
@@ -79,26 +79,26 @@ defineWin('inv', {
   },
   refresh() {
     const c = G.char, g = G.game, P = G.player;
-    clear(bag.doll).append(h('img.doll-art', { src: A('sprites/select/' + c.cls + '.webp'), draggable: false }));
+    clear(bag.doll).put(h('img.doll-art', { src: A('sprites/select/' + c.cls + '.webp'), draggable: false }));
     for (const s of SLOTS) {
       const it = c.equip[s], el = itemSlot(it, { ph: PH[s], label: SLOT_NAME[s], compare: false, hint: 'Click: unequip', onUse: (x) => { if (c.bag.length >= c.bagMax) U.toast('Your bag is full.'); else g.unequip(s); }, onMore: (x) => itemCard(x, 'equip') });
-      bag.doll.append(h('div.doll-slot.s-' + s, el, h('small', SLOT_NAME[s])));
+      bag.doll.put(h('div.doll-slot.s-' + s, el, h('small', SLOT_NAME[s])));
     }
-    clear(bag.sum).append(stat('Power', Math.round(SLOTS.reduce((a, s) => a + itemScore(c.equip[s]), 0))), stat('Life', P.maxHp), stat('Armor', Math.round(P.stats.armor)), stat('Damage', '×' + P.stats.dmgMul.toFixed(2)));
+    clear(bag.sum).put(stat('Power', Math.round(SLOTS.reduce((a, s) => a + itemScore(c.equip[s]), 0))), stat('Life', P.maxHp), stat('Armor', Math.round(P.stats.armor)), stat('Damage', '×' + P.stats.dmgMul.toFixed(2)));
     clear(bag.grid);
     const n = Math.max(c.bagMax, c.bag.length);
     for (let i = 0; i < n; i++) {
       const it = c.bag[i];
-      bag.grid.append(itemSlot(it, { mark: true, hint: U.shop ? 'Click: equip · Right-click: sell, drop' : 'Click: equip · Right-click: more', onUse: (x) => { if (canEquip(x, c.cls)) g.equip(x.id); else itemCard(x, 'bag'); }, onMore: (x) => itemCard(x, 'bag') }));
+      bag.grid.put(itemSlot(it, { mark: true, hint: U.shop ? 'Click: equip · Right-click: sell, drop' : 'Click: equip · Right-click: more', onUse: (x) => { if (canEquip(x, c.cls)) g.equip(x.id); else itemCard(x, 'bag'); }, onMore: (x) => itemCard(x, 'bag') }));
     }
     bag.count.textContent = `${c.bag.length} / ${c.bagMax}`; bag.gold.textContent = fmt(c.gold);
     clear(bag.ctx);
-    if (U.shop) bag.ctx.append(h('span.note', 'Trading: right-click or tap an item to sell it.'), btn('Sell junk', () => { if (!g.sellJunk()) U.toast('Nothing worth less than what you wear.'); }));
-    else if (U.storage) bag.ctx.append(h('span.note', 'Storage open: right-click or tap an item to stash it.'));
-    clear(bag.pots).append(h('span.potline', h('img', { src: A('ui/potion_red.png') }), `Blood Draught ×${c.potions.hp || 0}`), h('span.potline', h('img', { src: A('ui/potion_blue.png') }), `Wit Tincture ×${c.potions.mp || 0}`));
+    if (U.shop) bag.ctx.put(h('span.note', 'Trading: right-click or tap an item to sell it.'), btn('Sell junk', () => { if (!g.sellJunk()) U.toast('Nothing worth less than what you wear.'); }));
+    else if (U.storage) bag.ctx.put(h('span.note', 'Storage open: right-click or tap an item to stash it.'));
+    clear(bag.pots).put(h('span.potline', h('img', { src: A('ui/potion_red.png') }), `Blood Draught ×${c.potions.hp || 0}`), h('span.potline', h('img', { src: A('ui/potion_blue.png') }), `Wit Tincture ×${c.potions.mp || 0}`));
     clear(bag.etc); const names = Object.keys(c.etc || {});
-    if (!names.length) bag.etc.append(h('span.note', 'Nothing. Quest spoils gather here.'));
-    for (const k of names) bag.etc.append(h('span.etc-i', k, h('b', '×' + c.etc[k])));
+    if (!names.length) bag.etc.put(h('span.note', 'Nothing. Quest spoils gather here.'));
+    for (const k of names) bag.etc.put(h('span.etc-i', k, h('b', '×' + c.etc[k])));
   },
 });
 const stat = (k, v, cls) => h('div.stat' + (cls ? '.' + cls : ''), h('span', k), h('b', String(v)));
@@ -113,7 +113,7 @@ defineWin('char', {
     const c = G.char, P = G.player, C = CLASSES[c.cls], st = P.stats, a = P.attr, rage = c.cls === 'barbarian';
     const need = xpToNext(c.lvl), t = Math.round((c.playT || 0) + (G.time - (c._t0 || G.time)));
     const AT = { str: ['Strength', 'Armour, and the weight behind a blow'], dex: ['Dexterity', 'Attack speed and critical strikes'], vit: ['Vitality', '+6 life a point, and life regeneration'], int: ['Intellect', '+2 mana a point'] };
-    clear(hero.body).append(h('div.sheet',
+    clear(hero.body).put(h('div.sheet',
       h('div.sheet-top', h('img.sheet-art', { src: A('sprites/select/' + c.cls + '.webp'), draggable: false }),
         h('div', h('div.sheet-name', c.name), h('div.sheet-cls', { style: { color: C.color } }, `Level ${c.lvl} ${C.name}`), c.guild ? h('div.sheet-guild', `<${c.guild.name}>`) : null,
           h('div.gbar.xpb', h('i', { style: { '--w': Math.min(100, c.xp / need * 100) + '%' } }), h('span.bt', `${fmt(c.xp)} / ${fmt(need)} xp`)),
@@ -149,7 +149,7 @@ defineWin('skills', {
   title: 'Skills', icon: 'book', pos: [0.5, 0.42], on: ['skills', 'levelUp', 'started', 'bag'],
   build(body) {
     sk.pts = h('b.pts'); sk.tabs = h('div.tabs'); sk.grid = h('div.sk-grid'); sk.det = h('div.sk-det'); sk.strip = h('div.sk-strip');
-    body.append(h('div.skills',
+    body.put(h('div.skills',
       h('div.row.wrap', h('span.sp', 'Skill points: ', sk.pts), h('span.grow'), toggle('Auto-spend points', () => G.char.autoSkills, (v) => { G.char.autoSkills = v; })),
       sk.tabs, h('div.sk-main', sk.grid, sk.det),
       h('div.sec-h', 'Quick slots', h('small', '  select a learned skill, then tap a slot (or drag it there)')), sk.strip));
@@ -158,24 +158,24 @@ defineWin('skills', {
   refresh() {
     const c = G.char, g = G.game, C = CLASSES[c.cls], all = g.skillTree();
     sk.pts.textContent = String(c.sp || 0); sk.pts.classList.toggle('have', c.sp > 0);
-    clear(sk.tabs); C.trees.forEach((name, t) => { const pts = all.filter((s) => s.tree === t).reduce((a, s) => a + (c.ranks[s.id] || 0), 0); sk.tabs.append(h('button.tab' + (t === sk.tree ? '.on' : ''), { type: 'button', onclick: () => { sk.tree = t; sk.sel = null; sfx('ui_click'); this.refresh(); } }, name, h('small', pts ? ' ' + pts : ''))); });
+    clear(sk.tabs); C.trees.forEach((name, t) => { const pts = all.filter((s) => s.tree === t).reduce((a, s) => a + (c.ranks[s.id] || 0), 0); sk.tabs.put(h('button.tab' + (t === sk.tree ? '.on' : ''), { type: 'button', onclick: () => { sk.tree = t; sk.sel = null; sfx('ui_click'); this.refresh(); } }, name, h('small', pts ? ' ' + pts : ''))); });
     clear(sk.grid);
     const list = all.filter((s) => s.tree === sk.tree);
     if (!sk.sel || SKILLS[sk.sel]?.tree !== sk.tree) sk.sel = (list.find((s) => c.ranks[s.id] > 0) || list[0]).id;
     for (let row = 0; row < 3; row++) {
-      sk.grid.append(h('div.sk-rowl' + (c.lvl >= ROW_LEVELS[row] ? '' : '.locked'), 'Lv ' + ROW_LEVELS[row]));
+      sk.grid.put(h('div.sk-rowl' + (c.lvl >= ROW_LEVELS[row] ? '' : '.locked'), 'Lv ' + ROW_LEVELS[row]));
       for (const s of list.filter((x) => x.row === row)) {
         const r = c.ranks[s.id] || 0, can = g.canLearn(s), locked = c.lvl < s.reqLevel || (s.prereq && !(c.ranks[s.prereq] > 0));
         const cell = h('div.sk-cell' + (r ? '.known' : '') + (locked ? '.locked' : '') + (s.id === sk.sel ? '.sel' : ''), { draggable: r > 0, onclick: () => { sk.sel = s.id; sfx('ui_click'); this.refresh(); } },
           skillIcon(s), h('span.sk-rank', `${r}/${MAX_SKILL_LEVEL}`), h('span.sk-name', s.name),
           can ? h('button.plus', { type: 'button', title: 'Learn', onclick: (e) => { e.stopPropagation(); sk.sel = s.id; g.learn(s.id); } }, '+') : null);
         if (r > 0) cell.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', s.id); e.dataTransfer.effectAllowed = 'copy'; U.hideTip(); });
-        sk.grid.append(cell);
+        sk.grid.put(cell);
       }
     }
     // detail
     const s = SKILLS[sk.sel], r = c.ranks[s.id] || 0, cd = cooldown(s), cost = skillCost(s), pre = s.prereq ? SKILLS[s.prereq] : null;
-    clear(sk.det).append(
+    clear(sk.det).put(
       h('div.sk-dh', skillIcon(s, 'big'), h('div', h('div.sk-dn', s.name), h('div.sk-ds', `${C.trees[s.tree]} · ${(ELEM[s.el] || ELEM.phys).name} · ${titleCase(s.kind)}`), h('div.sk-dr', `Rank ${r} / ${MAX_SKILL_LEVEL}`))),
       h('p.sk-desc', { html: descOf(s, Math.max(1, r)) }),
       r > 0 && r < MAX_SKILL_LEVEL ? h('p.sk-next', { html: '<b>Next rank:</b> ' + descOf(s, r + 1) }) : null,
@@ -189,6 +189,6 @@ defineWin('skills', {
     const mk = (i, key) => { const id = i < 0 ? c.basic : c.bar[i], q = SKILLS[id]; const b = h('button.slot.mini' + (i < 0 ? '.atk' : '') + (q ? '' : '.empty'), { type: 'button', onclick: () => { const cur = SKILLS[sk.sel]; if (!cur || !(c.ranks[cur.id] > 0)) return U.toast('Learn the skill first.'); if (i < 0) g.setBasic(cur.id); else g.setBar(i, cur.id); sfx('equip'); } }, skillIcon(q, 'ic'), h('span.key', key));
       b.addEventListener('dragover', (e) => e.preventDefault()); b.addEventListener('drop', (e) => { e.preventDefault(); const id2 = e.dataTransfer.getData('text/plain'); if (!SKILLS[id2]) return; if (i < 0) g.setBasic(id2); else g.setBar(i, id2); sfx('equip'); });
       if (q) U.tip(b, () => skillTip(q)); return b; };
-    sk.strip.append(mk(-1, 'X')); for (let i = 0; i < 8; i++) sk.strip.append(mk(i, String(i + 1)));
+    sk.strip.put(mk(-1, 'X')); for (let i = 0; i < 8; i++) sk.strip.put(mk(i, String(i + 1)));
   },
 });

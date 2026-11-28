@@ -84,12 +84,12 @@ export function atlasIcon(key, size = 48) { const c = h('canvas', { width: size 
 export function itemIcon(it, cls) {
   const el = h('div.iticon');
   if (!it) return el;
-  if (it.type === 'potion') { el.append(h('img', { src: A(it.pot === 'hp' ? 'ui/potion_red.png' : 'ui/potion_blue.png'), draggable: false })); return el; }
+  if (it.type === 'potion') { el.put(h('img', { src: A(it.pot === 'hp' ? 'ui/potion_red.png' : 'ui/potion_blue.png'), draggable: false })); return el; }
   el.style.setProperty('--rc', rarityColor(it.rarity));
-  if (it.mystery) { el.classList.add('mystery'); el.append(h('span.q', '?')); return el; }
-  const c = h('canvas', { width: 96, height: 96 }); el.append(c);
+  if (it.mystery) { el.classList.add('mystery'); el.put(h('span.q', '?')); return el; }
+  const c = h('canvas', { width: 96, height: 96 }); el.put(c);
   if (it.slot === 'weapon' || it.slot === 'offhand') drawHeld(c, it, cls || G.char?.cls);
   else drawAtlas(c, it.slot === 'body' ? 'item_armor' : it.slot === 'head' ? 'item_helm' : it.slot === 'ring' ? 'ring_' + (it.id % 3) : GEMS[it.id % GEMS.length]);
-  if (it.plus) el.append(h('span.plus', '+' + it.plus));
+  if (it.plus) el.put(h('span.plus', '+' + it.plus));
   return el;
 }

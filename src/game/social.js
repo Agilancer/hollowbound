@@ -50,7 +50,7 @@ export const guildOf = (name) => GUILDS.find(g => g.name === name);
 export function spawnFake(f, x, y, lvl) {
   if (!f.data || (lvl && f.data.lvl !== lvl) || f.data.lvl !== (lvl || f.lvl)) { const L = lvl || f.lvl; f.data = { name: f.name, cls: f.cls, lvl: L, equip: kitFor(f.cls, L, f.bad ? 0 : chance(0.2) ? 1 : 0), ranks: {}, bar: [], guild: f.guild, sp: Math.max(0, L - 1) }; const h0 = new Hero(f.data, 0, 0); autoSpend(f.data); }
   const h = new Hero(f.data, x, y); h.fake = f; h.guild = f.guild; h.guildColor = guildOf(f.guild)?.color; h.brain = new Bot(h); h.chatT = rnd(3, 30); h.spawnT = 0.3;
-  h.body.place(G.map.geo, x, y);
+  h.body.place(G.map.geo, x, y); f.live = h;
   return h;
 }
 /** Fill a map with the players who are "there". */
@@ -62,6 +62,7 @@ export function populate(M) {
   while (here.length < want) { const pool = G.roster.filter(f => f.map !== def.id && !f.inParty && !f.companion && (def.kind === 'town' || Math.abs(f.lvl - (def.level || P.lvl)) <= 5)); if (!pool.length) break; const f = pick(pool); f.map = def.id; here.push(f); }
   here.length = Math.min(here.length, want + 3);
   for (const f of here) {
+    if (f.live && G.actors.includes(f.live)) continue;
     const p = pick(M.geo.plats.filter(q => !q.small)), x = rnd(p.x1 + 80, p.x2 - 80);
     const h = spawnFake(f, x, p.y - 10);
     h.brain.goal = def.kind === 'town' || def.kind === 'arena' ? { type: 'town' } : { type: 'grind', range: 1500 };

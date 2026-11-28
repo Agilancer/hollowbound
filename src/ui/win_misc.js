@@ -24,23 +24,23 @@ defineWin('bestiary', {
   build(body) {
     be.groups = h('div.be-groups.scroll'); be.grid = h('div.be-grid.scroll'); be.pager = h('div.be-pager');
     be.search = h('input.inp', { type: 'search', placeholder: 'Search every creature…', maxLength: 30, oninput: () => { be.q = be.search.value.trim().toLowerCase(); be.page = 0; this.refresh(); } });
-    body.append(h('div.bestiary', h('div.be-top', be.search, be.pager), be.groups, be.grid));
+    body.put(h('div.bestiary', h('div.be-top', be.search, be.pager), be.groups, be.grid));
   },
   refresh() {
     const keys = Object.keys(BEST.groups).sort((a, b) => (Object.keys(GROUP).indexOf(a) + 99) % 99 - (Object.keys(GROUP).indexOf(b) + 99) % 99);
     if (!be.grp || !BEST.groups[be.grp]) be.grp = keys.includes('slimes') ? 'slimes' : keys[0];
     clear(be.groups);
-    for (const k of keys) be.groups.append(h('button.chip' + (k === be.grp && !be.q ? '.on' : ''), { type: 'button', onclick: () => { be.grp = k; be.page = 0; be.q = ''; be.search.value = ''; sfx('ui_click'); this.refresh(); } }, GROUP[k] || titleCase(k), h('small', String(BEST.groups[k].length))));
+    for (const k of keys) be.groups.put(h('button.chip' + (k === be.grp && !be.q ? '.on' : ''), { type: 'button', onclick: () => { be.grp = k; be.page = 0; be.q = ''; be.search.value = ''; sfx('ui_click'); this.refresh(); } }, GROUP[k] || titleCase(k), h('small', String(BEST.groups[k].length))));
     const list = be.q ? BEST.list.filter((d) => d.name.toLowerCase().includes(be.q)) : BEST.groups[be.grp] || [];
     const pages = Math.max(1, Math.ceil(list.length / PER)); be.page = Math.max(0, Math.min(pages - 1, be.page));
     const go = (d) => { be.page += d; sfx('ui_click'); this.refresh(); be.grid.scrollTop = 0; };
     const prev = btn('‹', () => go(-1), 'sm'), next = btn('›', () => go(1), 'sm'); prev.disabled = be.page <= 0; next.disabled = be.page >= pages - 1;
-    clear(be.pager).append(prev, h('span', `${be.page + 1} / ${pages}`), next, h('small', `${list.length.toLocaleString('en-US')} of ${BEST.list.length.toLocaleString('en-US')}`));
+    clear(be.pager).put(prev, h('span', `${be.page + 1} / ${pages}`), next, h('small', `${list.length.toLocaleString('en-US')} of ${BEST.list.length.toLocaleString('en-US')}`));
     clear(be.grid);
-    if (!list.length) be.grid.append(h('p.note', 'No creature answers to that name.'));
+    if (!list.length) be.grid.put(h('p.note', 'No creature answers to that name.'));
     for (const d of list.slice(be.page * PER, be.page * PER + PER)) {
       const E = ELEM[d.el] || ELEM.phys, tags = [d.boss && ['Boss', 'boss'], d.undead && ['Undead'], d.demon && ['Demon'], d.fly && ['Flying'], d.lone && ['Solitary'], d.arch && [titleCase(d.arch)]].filter(Boolean).slice(0, 3);
-      be.grid.append(h('div.be-card' + (d.boss ? '.boss' : ''), thumb(d), h('b', d.name), h('div.be-tags', h('span.tg', { style: { color: E.glow, borderColor: E.dark } }, E.name), tags.map(([t, c]) => h('span.tg' + (c ? '.' + c : ''), t)))));
+      be.grid.put(h('div.be-card' + (d.boss ? '.boss' : ''), thumb(d), h('b', d.name), h('div.be-tags', h('span.tg', { style: { color: E.glow, borderColor: E.dark } }, E.name), tags.map(([t, c]) => h('span.tg' + (c ? '.' + c : ''), t)))));
     }
   },
 });
@@ -55,7 +55,7 @@ defineWin('menu', {
   refresh() {
     const S = G.settings, g = G.game, keep = () => { if (G.char) G.char.settings = { ...S }; };
     const slider = (label, k) => { const out = h('output', Math.round(S[k] * 100) + '%'); return h('label.slider', h('span', label), h('input', { type: 'range', min: 0, max: 100, step: 5, value: Math.round(S[k] * 100), oninput: (e) => { S[k] = e.target.value / 100; out.textContent = e.target.value + '%'; try { audio.setVolume(k, S[k]); } catch {} keep(); }, onchange: () => { if (k === 'sfx') sfx('coin'); } }), out); };
-    clear(se.body).append(h('div.settings',
+    clear(se.body).put(h('div.settings',
       h('div.set-col',
         h('div.sec-h', 'Sound'), slider('Music', 'music'), slider('Effects', 'sfx'), slider('Ambience', 'amb'),
         h('div.sec-h', 'Display'),

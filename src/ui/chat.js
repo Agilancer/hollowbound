@@ -10,9 +10,9 @@ let el = {}, lines = [], tab = 'all', idle = 0, stick = true;
 export function initChat(root) {
   el.log = h('div.chat-log.scroll'); el.tabs = h('div.chat-tabs');
   el.input = h('input.chat-in', { type: 'text', maxLength: 120, placeholder: 'Press Enter to speak…', autocomplete: 'off', spellcheck: false, enterKeyHint: 'send' });
-  for (const [k, l] of TABS) el.tabs.append(h('button' + (k === tab ? '.on' : ''), { type: 'button', data: { k }, onclick: () => { tab = k; for (const b of el.tabs.children) b.classList.toggle('on', b.dataset.k === k); rebuild(); wake(); sfx('ui_click'); } }, l));
+  for (const [k, l] of TABS) el.tabs.put(h('button' + (k === tab ? '.on' : ''), { type: 'button', data: { k }, onclick: () => { tab = k; for (const b of el.tabs.children) b.classList.toggle('on', b.dataset.k === k); rebuild(); wake(); sfx('ui_click'); } }, l));
   el.root = h('div#chat.hide', el.tabs, el.log, h('div.chat-row', el.input, h('button.chat-send', { type: 'button', 'aria-label': 'Send', onclick: send }, '➤')));
-  root.append(el.root);
+  root.put(el.root);
   el.input.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Enter') { send(); el.input.blur(); } else if (e.key === 'Escape') { el.input.value = ''; el.input.blur(); } });
   el.input.addEventListener('focus', () => { el.root.classList.add('open'); wake(); });
   el.input.addEventListener('blur', () => { el.root.classList.remove('open'); });
@@ -27,15 +27,15 @@ function wake() { idle = 0; el.root.classList.remove('idle'); }
 const shows = (l) => tab === 'all' || l.chan === tab;
 function lineEl(l) {
   const d = h('div.cl.c-' + l.chan);
-  if (l.from) { const tag = { shout: '[World] ', party: '[Party] ', guild: '[Guild] ' }[l.chan]; if (tag) d.append(h('span.ch', tag)); if (l.guild) d.append(h('span.g', { style: { color: guildOf(l.guild)?.color || '#7ae0a0' } }, `<${l.guild}> `)); d.append(h('b', l.from + ': ')); }
-  d.append(l.text); return d;
+  if (l.from) { const tag = { shout: '[World] ', party: '[Party] ', guild: '[Guild] ' }[l.chan]; if (tag) d.put(h('span.ch', tag)); if (l.guild) d.put(h('span.g', { style: { color: guildOf(l.guild)?.color || '#7ae0a0' } }, `<${l.guild}> `)); d.put(h('b', l.from + ': ')); }
+  d.put(l.text); return d;
 }
 function push(l) {
   lines.push(l); if (lines.length > MAX) lines.shift();
-  if (shows(l)) { el.log.append(lineEl(l)); while (el.log.children.length > MAX) el.log.firstChild.remove(); if (stick) el.log.scrollTop = el.log.scrollHeight; }
+  if (shows(l)) { el.log.put(lineEl(l)); while (el.log.children.length > MAX) el.log.firstChild.remove(); if (stick) el.log.scrollTop = el.log.scrollHeight; }
   wake();
 }
-function rebuild() { clear(el.log); for (const l of lines) if (shows(l)) el.log.append(lineEl(l)); el.log.scrollTop = el.log.scrollHeight; stick = true; }
+function rebuild() { clear(el.log); for (const l of lines) if (shows(l)) el.log.put(lineEl(l)); el.log.scrollTop = el.log.scrollHeight; stick = true; }
 export function chatEvent(e) {
   switch (e.type) {
     case 'started': lines = []; rebuild(); el.root.classList.remove('hide'); push({ chan: 'sys', text: 'You wake in Velscour. Press Enter to speak.' }); break;

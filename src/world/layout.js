@@ -53,8 +53,9 @@ export function build(desc) {
     if (!made.length) { const p = { x1: w / 2 - 400, x2: w / 2 + 400, y: ty, tier: t }; plats.push(p); made.push(p); }
     for (const p of made) {
       // rope down from somewhere along the ledge; retry until it lands on something
-      for (let k = 0; k < 8; k++) {
-        const rx = Math.round(p.x1 + 60 + r() * (p.x2 - p.x1 - 120));
+      for (let k = 0; k < 14; k++) {
+        // a few random tries, then walk along the ledge until something lies beneath
+        const rx = Math.round(k < 6 ? p.x1 + 60 + r() * (p.x2 - p.x1 - 120) : p.x1 + 40 + (k - 6) * (p.x2 - p.x1 - 80) / 7);
         const below = surfaceBelow(rx, p.y);
         if (!below) continue;
         ropes.push({ x: rx, y1: p.y, y2: below.y - 14, ladder: r.chance(0.4) });
@@ -64,7 +65,8 @@ export function build(desc) {
       // a stepping ledge half-way up beside some ledges (jump route as well as the rope)
       if (shape !== 'tower' && r.chance(0.45)) {
         const sx = p.x1 - r.int(240, 320), below = surfaceBelow(sx + 80, p.y);
-        if (below && sx > 100 && below.y - p.y > STEP + 40) plats.push({ x1: sx, x2: sx + 170, y: Math.round((below.y + p.y) / 2) + 6, tier: t - 0.5, small: true });
+        const gap = below ? below.y - p.y : 0;
+        if (below && sx > 100 && gap > 150 && gap < 200) plats.push({ x1: sx, x2: sx + 170, y: below.y - Math.round(gap / 2), tier: t - 0.5, small: true });
       }
     }
   }

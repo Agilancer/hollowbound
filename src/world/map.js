@@ -88,7 +88,7 @@ export function spawnAt(M, s) {
   let def = s.mob ? mobDef(s.mob) : null, lvl = M.level, opts = { spawn: s, elite: !!s.elite, boss: !!s.boss, name: s.name };
   if (s.breach) { def = pick(M.breachPool); lvl = Math.max(1, G.player.lvl + ri(-1, 1)); if (chance(0.06)) opts.elite = true; }
   if (!def) return null;
-  if (M.instance) { opts.dungeon = !M.instance.raid; opts.raid = !!M.instance.raid; opts.hpMul = s.boss ? 1 : (M.instance.raid ? 4.2 : 1.9); lvl = M.instance.level || lvl; }
+  if (M.instance) { opts.dungeon = !M.instance.raid; opts.raid = !!M.instance.raid; opts.hpMul = s.boss ? 1 : (M.instance.raid ? 13 : 3.6); lvl = M.instance.level || lvl; }
   opts.lvl = lvl + (opts.elite ? 1 : 0) + (opts.boss && !M.instance ? 2 : 0);
   const m = new Mob(def, s.x + rnd(-20, 20), s.y, opts);
   m.sprite = mobSprite(def, 'map'); m.body.plat = s.plat; m.body.y = s.y; if (m.body.fly) { m.body.plat = null; m.body.y = s.y - rnd(90, 170); }

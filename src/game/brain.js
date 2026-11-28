@@ -19,7 +19,7 @@ export function tickMob(m, dt) {
   if (m.aggro) { m.aggroT -= dt; if (m.aggroT <= 0 && !m.boss) { m.aggro = null; m.threat.clear(); } }
   if (!m.aggro && (m.boss || m.elite || AGGRESSIVE.has(m.ai) || G.map.instance)) {
     m.lookT = (m.lookT || 0) - dt;
-    if (m.lookT <= 0) { m.lookT = 0.5; const r = m.boss || G.map.instance ? 900 : 300; const t = nearestFoe(m, m.x, m.cy, r, null, m.boss || b.fly || G.map.instance ? 500 : 110); if (t) { m.aggro = t; m.aggroT = 10; } }
+    if (m.lookT <= 0) { m.lookT = 0.5; const r = G.map.instance ? 2600 : m.boss ? 900 : 300; const t = nearestFoe(m, m.x, m.cy, r, null, G.map.instance ? 2000 : m.boss || b.fly ? 500 : 110); if (t) { m.aggro = t; m.aggroT = 10; } }
   }
   let move = 0; const want = {};
   const tg = m.aggro;
@@ -41,6 +41,8 @@ export function tickMob(m, dt) {
       } else m.edgeT = 0;
     }
     attack(m, tg, dt, adx, dy);
+    // out of reach on another foothold for a while: it leaps to where its quarry stands
+    if (!b.fly && tg.body.plat && b.plat && tg.body.plat !== b.plat && Math.abs(tg.y - m.y) > 60 && !m.rangedAtk || (G.map.instance && adx > 1200)) { m.unreach = (m.unreach || 0) + dt; if (m.unreach > (G.map.instance ? 5 : 9) && tg.body.plat) { m.unreach = 0; const p = tg.body.plat, nx = clamp(tg.x + (m.x > tg.x ? 1 : -1) * rnd(110, 200), p.x1 + 20, p.x2 - 20); G.parts.burst(m.x, m.cy, 10, { shape: 'smoke', speed: 80, life: 0.6, size: 40, size2: 80, col: [0.2, 0.15, 0.2], add: 0, a: 0.6 }); b.x = nx; b.y = p.y; b.plat = p; b.vx = b.vy = 0; m.spawnT = 0.3; m.atkT = Math.max(m.atkT, 0.8); } } else m.unreach = 0;
   } else {
     // idle wander: every ~1.6s pick stand / left / right; turn at the edge of the foothold
     m.thinkT -= dt;
@@ -120,7 +122,7 @@ export function buildNav(geo) {
     for (const x of [p.x1 - 24, p.x2 + 24]) { const q = dropTo(geo, clamp(x, 40, geo.w - 40), p.y + 6); if (q) add(i, ix.get(q), { type: 'walkoff', x, dir: x < p.x1 ? -1 : 1 }); }
     for (const f of [0.25, 0.5, 0.75]) { const x = p.x1 + (p.x2 - p.x1) * f; let q = null; for (const o of P) if (o !== p && x >= o.x1 && x <= o.x2 && o.y > p.y + 10 && (!q || o.y < q.y)) q = o; if (q) add(i, ix.get(q), { type: 'drop', x }); }
     // hop up onto this ledge from something just below it
-    for (const o of P) { if (o === p || o.y <= p.y || o.y - p.y > 104) continue; const lo = Math.max(o.x1, p.x1 - 70), hi = Math.min(o.x2, p.x2 + 70); if (lo < hi) { const x = clamp((p.x1 + p.x2) / 2, lo, hi); add(ix.get(o), i, { type: 'jump', x, tx: clamp(x, p.x1 + 16, p.x2 - 16) }); } }
+    for (const o of P) { if (o === p || o.y <= p.y || o.y - p.y > 108) continue; const lo = Math.max(o.x1, p.x1 - 70), hi = Math.min(o.x2, p.x2 + 70); if (lo < hi) { const x = clamp((p.x1 + p.x2) / 2, lo, hi); add(ix.get(o), i, { type: 'jump', x, tx: clamp(x, p.x1 + 16, p.x2 - 16) }); } }
   });
   return { links, ix, P, cache: new Map() };
 }
@@ -141,7 +143,7 @@ export class Bot {
     const h = this.h, b = h.body, nav = G.map.nav, w = this.want;
     if (b.rope) {                       // on a rope: keep climbing the way the route wants
       const l = this.link;
-      if (l && l.type === 'rope') { if (l.up) w.up = true; else w.down = true; } else w.up = true;
+      if (l && l.type === 'rope' && l.rope === b.rope) { if (l.up) w.up = true; else w.down = true; } else if (plat && plat.y > h.y) w.down = true; else w.up = true;
       return false;
     }
     const cur = b.plat; if (!cur) { this.move = Math.sign(x - h.x) * (Math.abs(x - h.x) > 20 ? 1 : 0); return false; }
@@ -194,7 +196,8 @@ export class Bot {
     const h = this.h, dx = tg.x - h.x, adx = Math.abs(dx), dy = Math.abs(tg.y - h.y), basic = SKILLS[h.data.basic];
     const want = h.ranged ? Math.min(380, reach(basic) * 0.75) : Math.max(60, reach(basic) - 34 + tg.w * 0.35);
     h.target = tg;
-    if (tg.body.plat && h.body.plat && tg.body.plat !== h.body.plat && dy > 50 && !tg.body.fly) { this.go(tg.x, tg.body.plat, want); if (!(h.ranged && adx < 460 && dy < 150)) return; }
+    if (h.body.rope) { if (dy > 50 && tg.body.plat) { this.go(tg.x, tg.body.plat, want); return; } }      // mid-climb: finish it (or let go if the quarry came to us)
+    else if (tg.body.plat && h.body.plat && tg.body.plat !== h.body.plat && dy > 50 && !tg.body.fly) { this.go(tg.x, tg.body.plat, want); if (!(h.ranged && adx < 460 && dy < 150)) return; }
     else if (adx > want) this.move = Math.sign(dx);
     else if (h.ranged && adx < 130 && !tg.boss && this.t > 0) this.move = -Math.sign(dx);
     else { this.move = 0; }
