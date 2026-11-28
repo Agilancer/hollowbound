@@ -164,11 +164,22 @@ export class Bot {
   pickTarget(range = 900) {
     const h = this.h, f = this.goal.filter; let best = null, bs = 1e9;
     for (const o of G.actors) {
-      if (!h.enemyOf(o)) continue; if (f && !f(o)) continue;
+      if (!h.enemyOf(o)) continue; if (f && !f(o) && !(o.aggro === h && Math.abs(o.x - h.x) < 320 && Math.abs(o.y - h.y) < 90)) continue;
       const dx = Math.abs(o.x - h.x), dy = Math.abs(o.y - h.y); if (dx > range) continue;
       let s = dx + dy * 2.2; if (o.body.plat === h.body.plat) s -= 260; if (o.aggro === h) s -= 300; if (o.boss && !G.map.instance) s += 400;
       if (h.fake && o.tagged && o.tagged !== h && o.tagged.kind === 'hero' && !h.fake.bad && !h.inParty) s += 500;   // polite players leave your kills alone
       if (s < bs) { bs = s; best = o; }
+    }
+    return best;
+  }
+  /** Something hostile standing in the way (or already on us): it gets fought, not walked through. */
+  blocker() {
+    const h = this.h, dir = this.lastMove || h.face; let best = null, bd = 1e9;
+    for (const o of G.actors) {
+      if (!h.enemyOf(o) || o.kind !== 'mob' && o.team !== 2) continue;
+      const dx = o.x - h.x, adx = Math.abs(dx), dy = Math.abs(o.y - h.y); if (dy > 85) continue;
+      const ahead = dx * dir > -20 && adx < 150 + o.w * 0.5, onUs = o.aggro === h && adx < 300;
+      if ((ahead || onUs) && adx < bd) { bd = adx; best = o; }
     }
     return best;
   }
@@ -193,9 +204,10 @@ export class Bot {
   }
   /** Fight tg: close in, keep range if ranged, throw skills. */
   fight(tg) {
-    const h = this.h, dx = tg.x - h.x, adx = Math.abs(dx), dy = Math.abs(tg.y - h.y), basic = SKILLS[h.data.basic];
+    const h = this.h; let dx = tg.x - h.x, adx = Math.abs(dx), dy = Math.abs(tg.y - h.y), basic = SKILLS[h.data.basic];
     const want = h.ranged ? Math.min(380, reach(basic) * 0.75) : Math.max(60, reach(basic) - 34 + tg.w * 0.35);
     h.target = tg;
+    if (!h.body.rope && h.body.plat && (adx > want + 80 || dy > 50)) { const b = this.blocker(); if (b && b !== tg) { tg = b; h.target = b; return this.fight(b); } }
     if (h.body.rope) { if (dy > 50 && tg.body.plat) { this.go(tg.x, tg.body.plat, want); return; } }      // mid-climb: finish it (or let go if the quarry came to us)
     else if (tg.body.plat && h.body.plat && tg.body.plat !== h.body.plat && dy > 50 && !tg.body.fly) { this.go(tg.x, tg.body.plat, want); if (!(h.ranged && adx < 460 && dy < 150)) return; }
     else if (adx > want) this.move = Math.sign(dx);
@@ -232,13 +244,18 @@ export class Bot {
       const far = Math.abs(L.x - h.x) > (tg ? 900 : 190 + (g.slot || 0) * 46) || Math.abs(L.y - h.y) > 150;
       if (tg && Math.abs(L.x - h.x) < 1100) this.fight(tg);
       else if (far && !L.dead) { if (Math.abs(L.x - h.x) > 1500 || (Math.abs(L.y - h.y) > 520 && L.body.plat)) { h.body.place(G.map.geo, L.x - L.face * 40, L.y - 10); h.spawnT = 0.25; } else this.go(L.x - L.face * (60 + (g.slot || 0) * 40), L.body.plat || h.body.plat, 50); }
-    } else if (g.type === 'goto') { if (this.go(g.x, g.plat, g.tol || 24)) { const f = g.then; this.goal = { type: 'idle' }; if (f) f(); } }
+    } else if (g.type === 'goto') {
+      const b = !h.body.rope && h.body.plat ? this.blocker() : null;
+      if (b) this.fight(b);
+      else if (this.go(g.x, g.plat, g.tol || 24)) { const f = g.then; this.goal = { type: 'idle' }; if (f) f(); }
+    }
     else if (g.type === 'town') {
       // loiter: drift to a spot, stand a while, maybe hop for no reason
       if (!g.to) { g.to = this.roam(true); g.stay = rnd(4, 22); }
       if (this.go(g.to.x, g.to.plat, 30)) { g.stay -= dt; if (chance(0.004)) this.want.jump = true; if (g.stay <= 0) g.to = null; h.body.face = g.faceTo ? Math.sign(g.faceTo.x - h.x) || 1 : h.body.face; }
     }
     if (h.body.rope && !this.want.up && !this.want.down) { this.want.jump = true; if (!this.move) this.move = h.face; }   // nothing to climb for: let go
+    if (this.move) this.lastMove = this.move;
     if (h.status.stun > 0 || h.status.freeze > 0) { this.move = 0; this.want = {}; }
     if (h.useT > 0 && !h.whirl) this.move *= h.ranged ? 0.25 : 0.4;
     const ev = h.body.step(G.map.geo, dt, this.move, this.want);
