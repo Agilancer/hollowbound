@@ -2,7 +2,7 @@
 // behind a shader sky, props from Velscour's packs, town facades, ropes and portals.
 // Everything is baked once on canvases when the map loads and lives in 'map' atlas pages.
 import { G, clamp } from '../state.js';
-import { THEMES, PORTAL_FX } from '../data/themes.js';
+import { THEMES } from '../data/themes.js';
 import { rng, hashStr } from '../world/layout.js';
 import { asset } from '../core/paths.js';
 import { SHAPES } from './fx.js';
@@ -12,7 +12,16 @@ const GROUND_H = 210;
 const mk = (w, h) => { const c = new OffscreenCanvas(Math.max(1, Math.ceil(w)), Math.max(1, Math.ceil(h))); return [c, c.getContext('2d')]; };
 const rgb = (c, a = 1) => `rgba(${(c[0] * 255) | 0},${(c[1] * 255) | 0},${(c[2] * 255) | 0},${a})`;
 const bmCache = new Map();
-const bitmap = (path) => { let p = bmCache.get(path); if (!p) { p = fetch(asset(path)).then(r => { if (!r.ok) throw new Error(path); return r.blob(); }).then(b => createImageBitmap(b)).catch(() => null); bmCache.set(path, p); if (bmCache.size > 60) bmCache.delete(bmCache.keys().next().value); } return p; };
+const texKey = (t) => (typeof t === 'string' ? t : t.src + '#' + (t.rect || []).join(','));
+/** A texture source: a path, or { src, rect } (one tile cut from a sheet). */
+const bitmap = (tex) => {
+  if (!tex) return Promise.resolve(null);
+  if (typeof tex === 'string') return bitmapFile(tex);
+  const k = texKey(tex); let p = bmCache.get(k);
+  if (!p) { p = bitmapFile(tex.src).then(bm => (bm && tex.rect ? createImageBitmap(bm, tex.rect[0], tex.rect[1], tex.rect[2], tex.rect[3]) : bm)).catch(() => null); bmCache.set(k, p); }
+  return p;
+};
+const bitmapFile = (path) => { let p = bmCache.get(path); if (!p) { p = fetch(asset(path)).then(r => { if (!r.ok) throw new Error(path); return r.blob(); }).then(b => createImageBitmap(b)).catch(() => null); bmCache.set(path, p); if (bmCache.size > 90) bmCache.delete(bmCache.keys().next().value); } return p; };
 function tile(g, bm, x, y, w, h, scale = 1, ox = 0) {
   if (!bm) { g.fillStyle = '#2a2622'; g.fillRect(x, y, w, h); return; }
   g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip(); g.imageSmoothingEnabled = false;
@@ -23,7 +32,7 @@ function tile(g, bm, x, y, w, h, scale = 1, ox = 0) {
 
 export async function buildScene(M) {
   const at = G.rd.atlas, geo = M.geo, th = THEMES[M.area.theme] || THEMES.wilds, r = rng(hashStr(M.def.id) ^ 0x9e3779b9);
-  const S = { theme: th, chunks: [], far: [], props: { back: [], mid: [], front: [] }, buildings: [], lights: [], ropes: [], deep: null, wall: null, light: th.light || [1, 1, 1] };
+  const S = { theme: th, platSprites: [], stairs: [], chunks: [], far: [], props: { back: [], mid: [], front: [] }, buildings: [], lights: [], ropes: [], deep: null, wall: null, light: th.light || [1, 1, 1] };
   Object.assign(G.rd.sky, { top: th.sky.top, mid: th.sky.mid, bot: th.sky.bot, fog: th.sky.fog, orb: th.sky.orb, orbCol: th.sky.orbCol, stars: th.sky.stars, vignette: th.sky.vignette, dark: 0 });
   const [top, fill, ledge, wall] = await Promise.all([bitmap(th.ground.top), bitmap(th.ground.fill), bitmap(th.ledge.tex), th.backwall ? bitmap(th.backwall.tex) : null]);
   const town = M.def.kind === 'town';
@@ -48,12 +57,16 @@ export async function buildScene(M) {
       S.chunks.push({ r: at.addCanvas(c, 'map'), x, y: p.y - 5, w, h: GROUND_H, x2: x + w });
     }
   }
+  if (th.stairs && th.stairs.rect) { const st = propSprite({ src: th.stairs.src, rect: th.stairs.rect, h: 80 }); for (let gi = 0; gi < grounds.length - 1; gi++) { const a = grounds[gi], b = grounds[gi + 1]; if (a.y === b.y) continue; const up = b.y < a.y; S.stairs.push({ s: st, x: a.x2, y: Math.max(a.y, b.y), up, h: Math.abs(a.y - b.y) }); } }
   { const [c, g] = mk(512, 512); tile(g, fill, 0, 0, 512, 512, 1, 0); g.fillStyle = 'rgba(0,0,0,0.86)'; g.fillRect(0, 0, 512, 512); S.deep = { r: at.sub(at.addCanvas(c, 'map'), 1, 1, 510, 510), grounds }; }
 
   // ---- ledges
   for (const p of geo.plats) {
     if (p.ground) continue;
     if (town && !p.small) { p.roof = true; continue; }               // town ledges are rooftops (drawn with the building)
+    const len = p.x2 - p.x1, LS = th.ledgeSprites || [], BR = th.bridges || [];
+    const pick = p.small && LS.length ? LS[Math.floor(r() * LS.length)] : !p.small && BR.length && len <= 760 && r() < 0.55 ? BR[Math.floor(r() * BR.length)] : !p.small && LS.length && len <= 420 ? LS[Math.floor(r() * LS.length)] : null;
+    if (pick && pick.rect) { const sp = propSprite({ ...pick, h: 100 }), k = (len + 16) / pick.rect[2]; sp.k = k; S.platSprites.push({ s: sp, x: (p.x1 + p.x2) / 2, y: p.y, k, ax: pick.anchor ? pick.anchor[0] : pick.rect[2] / 2, ay: pick.anchor ? pick.anchor[1] : 8 }); continue; }
     for (let x = p.x1; x < p.x2; x += CH) {
       const w = Math.min(CH, p.x2 - x), H = 78, [c, g] = mk(w, H);
       ledgeArt(g, ledge, th.ledge.style, w, H, x === p.x1, x + w >= p.x2, r, x);
@@ -66,14 +79,14 @@ export async function buildScene(M) {
   for (const f of th.far || []) { const [c, g] = mk(1016, 420); silhouette(g, f.kind, 1016, 420, r); S.far.push({ r: at.addCanvas(c, 'map'), color: f.color, parallax: f.parallax, height: f.height }); }
   // ---- ropes
   S.ropeTex = at.addCanvas(ropeArt(th.rope), 'map'); S.ropeKind = th.rope;
+  S.ladder = th.ladders && th.ladders.length ? propSprite({ ...th.ladders[0], h: 100 }) : null;
   // ---- town facades under the rooftops
   if (town && th.facade) await facades(S, M, th, r);
   // ---- props
   placeProps(S, M, th, r);
   // ---- portal frames + rune disc
   const doors = th.doors || [];
-  for (const po of M.portals) { const d = doors.length ? doors[hashStr(po.to || po.dungeon || 'x') % doors.length] : null; po.door = d ? propSprite(d) : null; po.doorH = d ? d.h : 0; po.doorDef = d; }
-  if (!S.runeMade) { S.rune = await runeDisc(); }
+  for (const po of M.portals) { po.door = null; po.doorH = 0; }
   M.scene = S;
   return S;
 }
@@ -207,13 +220,6 @@ async function facades(S, M, th, r) {
     S.buildings[S.buildings.length - 1].h = g0.y - (p.y - 7) + 2;
   }
 }
-async function runeDisc() {
-  const bm = await bitmap(PORTAL_FX.src); const [c, g] = mk(256, 256);
-  if (bm) { g.beginPath(); g.arc(128, 128, 126, 0, 7); g.clip(); g.drawImage(bm, 0, 0, 256, 256); }
-  else { g.strokeStyle = '#fff'; g.lineWidth = 6; g.beginPath(); g.arc(128, 128, 110, 0, 7); g.stroke(); }
-  return G.rd.atlas.addCanvas(c, 'map');
-}
-
 // ------------------------------------------------------------------ drawing
 const T4 = [1, 1, 1, 1];
 export function drawBack(rd, M) {
@@ -239,21 +245,41 @@ export function drawTerrain(rd, M) {
   const vx0 = cam.x, vx1 = cam.x + cam.viewW, vy1 = cam.y + cam.viewH;
   for (const p of S.deep.grounds) { if (p.x2 < vx0 || p.x1 > vx1) continue; const y0 = p.y - 5 + GROUND_H - 1; if (y0 > vy1) continue; for (let x = Math.max(p.x1, Math.floor(vx0 / 510) * 510); x < Math.min(p.x2, vx1); x += 510) { const x0 = Math.max(x, p.x1), w = Math.min(x + 510, p.x2) - x0; for (let y = y0; y < vy1; y += 510) rd.quad(S.deep.r, x0, y, w + 0.5, 510.5); } }
   for (const c of S.chunks) if (c.x < vx1 && c.x2 > vx0 && c.y < vy1 && c.r.layer >= 0) rd.quad(c.r, c.x, c.y, c.w, c.h);
+  const LT = [S.light[0], S.light[1], S.light[2], 1];
+  for (const q of S.platSprites) { const r = q.s.r; if (!r || r.layer < 0 || q.x < vx0 - 500 || q.x > vx1 + 500) continue; rd.affine(r, [q.k, 0, 0, q.k, q.x, q.y], -q.ax, -q.ay, q.s.w, q.s.h, LT); }
+  for (const q of S.stairs) { const r = q.s.r; if (!r || r.layer < 0 || q.x < vx0 - 300 || q.x > vx1 + 300) continue; const k = q.h / 80, hw = 128;       // half of the stepped piece, rising toward the higher ground
+    const half = { layer: r.layer, u0: q.up ? r.u0 : (r.u0 + r.u1) / 2, u1: q.up ? (r.u0 + r.u1) / 2 : r.u1, v0: r.v0, v1: r.v1 };
+    rd.quad(half, q.up ? q.x - hw * k : q.x, q.y - q.h, hw * k, 80 * k, LT); }
   // ropes
   const rt = S.ropeTex, lad = S.ropeKind.startsWith('ladder');
-  for (const r of M.geo.ropes) { if (r.x < vx0 - 30 || r.x > vx1 + 30) continue; const w = lad ? 34 : 22; for (let y = r.y1 - 4; y < r.y2; y += 64) { const h = Math.min(64, r.y2 - y); rd.quad({ layer: rt.layer, u0: rt.u0, v0: rt.v0, u1: rt.u1, v1: rt.v0 + (rt.v1 - rt.v0) * h / 64 }, r.x - w / 2, y, w, h, [S.light[0], S.light[1], S.light[2], 1]); } }
+  for (const r of M.geo.ropes) { if (r.x < vx0 - 30 || r.x > vx1 + 30) continue; const w = lad ? 34 : 22;
+    if (r.ladder && S.ladder && S.ladder.r.layer >= 0) { const L = S.ladder, lw = 46, k = lw / L.w, seg = L.h * k; for (let y = r.y1 - 6; y < r.y2; y += seg - 2) { const hgt = Math.min(seg, r.y2 - y), rr = L.r; rd.quad({ layer: rr.layer, u0: rr.u0, v0: rr.v0, u1: rr.u1, v1: rr.v0 + (rr.v1 - rr.v0) * hgt / seg }, r.x - lw / 2, y, lw, hgt, LT); } continue; } for (let y = r.y1 - 4; y < r.y2; y += 64) { const h = Math.min(64, r.y2 - y); rd.quad({ layer: rt.layer, u0: rt.u0, v0: rt.v0, u1: rt.u1, v1: rt.v0 + (rt.v1 - rt.v0) * h / 64 }, r.x - w / 2, y, w, h, [S.light[0], S.light[1], S.light[2], 1]); } }
   drawProps(rd, S.props.mid, S, 1, vx0, vx1);
-  // portals: the frame, a turning rune disc and its glow
+  // portals: Velscour's free-standing vortex — rune rings on the ground, nested arcs of light sweeping
+  // round a tall ellipse, a bright heart, motes rising
   for (const po of M.portals) {
     if (po.x < vx0 - 300 || po.x > vx1 + 300 || po.hidden && !po.found) continue;
-    const col = po.color || [0.45, 0.6, 1], pulse = 0.8 + 0.2 * Math.sin(G.time * 3 + po.x);
-    if (po.door) drawProp(rd, po.door, po.x, po.y + 2, false, [S.light[0], S.light[1], S.light[2], 1]);
-    const cy = po.y - 74, ang = G.time * 0.8, c = Math.cos(ang), s = Math.sin(ang), R = 50;
-    rd.quad(SHAPES.glow, po.x - 120, cy - 120, 240, 240, [col[0], col[1], col[2], 0.55 * pulse], null, 1);
-    if (S.rune && S.rune.layer >= 0) rd.affine(S.rune, [c * 0.62, s, -s * 0.62, c, po.x, cy], -R, -R * 1.45, R * 2, R * 2.9, [col[0] * 1.3, col[1] * 1.3, col[2] * 1.3, 0.95], null, 0.75);
-    if (G.frame % 5 === 0) G.parts.add({ shape: 'star', x: po.x + (Math.random() - 0.5) * 60, y: po.y - Math.random() * 20, vy: -60 - Math.random() * 90, life: 1.2, size: 9, size2: 1, col, front: false });
-    const e = G.text.word(po.label, po.dungeon ? '#ffb86a' : '#cfe0ff', 12.5); G.text.draw(rd, e, po.x, po.y - 176 - (po.door ? Math.max(0, po.doorH - 180) : 0));
+    drawPortal(rd, po.x, po.y, po.color || [1, 0.31, 0.12], po.kind === 'breach' || po.kind === 'raid');
+    const e = G.text.word(po.label, po.dungeon ? '#ffb86a' : '#e8dcc0', 12.5); G.text.draw(rd, e, po.x, po.y - 214);
   }
+}
+export function drawPortal(rd, x, y, col, rift) {
+  const t = G.time, S2 = 2.9, cy = y - 34 * S2, pulse = 0.85 + 0.15 * Math.sin(t * 3 + x);
+  const ell = (shape, rx, ry, ang, tint, add = 1, oy = 0) => { const c = Math.cos(ang), s = Math.sin(ang); rd.affine(SHAPES[shape], [rx * c / 64, ry * s / 64, -rx * s / 64, ry * c / 64, x, cy + oy], -64, -64, 128, 128, tint, null, add); };
+  // ground: a soft pool of light and two rune rings turning against each other
+  rd.quad(SHAPES.glow, x - 130, y - 34, 260, 62, [col[0], col[1], col[2], 0.5 * pulse], null, 1);
+  ell('ring', 104, 30, t * 0.9, [col[0], col[1], col[2], 0.75], 1, 34 * S2 - 3);
+  ell('rune', 150, 40, -t * 0.5, [col[0], col[1], col[2], 0.5], 1, 34 * S2 - 3);
+  // the tear itself: a dark heart (deeper for rifts), then the light
+  ell('glow', rift ? 92 : 70, rift ? 150 : 118, 0, [0, 0, 0, rift ? 0.95 : 0.6], 0);
+  rd.quad(SHAPES.glow, x - 105, cy - 150, 210, 300, [col[0], col[1], col[2], 0.55 * pulse], null, 1);
+  for (let i = 0; i < 7; i++) {
+    const k = 1 - i * 0.12, sp = (2 + i * 0.6) * (i % 2 ? 1 : -0.8), w = i % 2 ? col : [1, 1, 1];
+    ell('arc', 54 * k * S2 / 2.6, 92 * k * S2 / 2.6, t * sp + i * 1.3, [w[0], w[1], w[2], 0.75 - i * 0.07]);
+  }
+  ell('glow', 30, 62, 0, [1, 0.96, 0.9, 0.55 + 0.25 * Math.sin(t * 5 + x)]);
+  if (rift) for (let i = 0; i < 3; i++) { const a = t * (1.3 + i * 0.4) + i * 2.1; rd.quad(SHAPES.shard, x + Math.cos(a) * 92 - 7, cy + Math.sin(a) * 120 - 14, 14, 28, [col[0] * 0.6, col[1] * 0.6, col[2] * 0.6, 1]); }
+  if (G.frame % 4 === 0) G.parts.add({ shape: Math.random() < 0.5 ? 'star' : 'glow', x: x + (Math.random() - 0.5) * 120, y: y - Math.random() * 16, vy: -70 - Math.random() * 130, vx: (Math.random() - 0.5) * 30, life: 1.4, size: 6 + Math.random() * 8, size2: 1, col, front: Math.random() < 0.4 });
 }
 export function drawFront(rd, M) { const S = M.scene; if (S) drawProps(rd, S.props.front, S, 0.5, G.cam.x, G.cam.x + G.cam.viewW); }
 function drawProps(rd, list, S, k, vx0, vx1) { const L = S.light, t = [L[0] * k, L[1] * k, L[2] * k, 1]; for (const p of list) { if (p.x < vx0 - 420 || p.x > vx1 + 420) continue; drawProp(rd, p.s, p.x, p.y, p.flip, p.d.light ? [1, 1, 1, 1] : t); } }

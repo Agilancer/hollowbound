@@ -257,6 +257,8 @@ export class Bot {
       if (this.go(g.to.x, g.to.plat, 30)) { g.stay -= dt; if (chance(0.004)) this.want.jump = true; if (g.stay <= 0) g.to = null; h.body.face = g.faceTo ? Math.sign(g.faceTo.x - h.x) || 1 : h.body.face; }
     }
     if (h.body.rope && !this.want.up && !this.want.down) { this.want.jump = true; if (!this.move) this.move = h.face; }   // nothing to climb for: let go
+    // a marked patch of ground about to erupt under us: get out of it (unless mid-climb)
+    if (!h.body.rope && h.body.plat) for (const e of G.effects) { const d = e.danger; if (!d || Math.abs(d.y - h.cy) > 160) continue; const dx = h.x - d.x; if (Math.abs(dx) < d.r) { this.move = dx >= 0 ? 1 : -1; const p = h.body.plat; if ((this.move > 0 && h.x > p.x2 - 30) || (this.move < 0 && h.x < p.x1 + 30)) this.move = -this.move; this.dodging = 0.25; break; } }
     if (this.move) this.lastMove = this.move;
     if (h.status.stun > 0 || h.status.freeze > 0) { this.move = 0; this.want = {}; }
     if (h.useT > 0 && !h.whirl) this.move *= h.ranged ? 0.25 : 0.4;

@@ -106,7 +106,7 @@ export function kitFor(cls, lvl, quality = 0) {
   eq.weapon = makeGear({ slot: 'weapon', cls, ilvl: lvl, rarity: r(base + quality) });
   if (classOffhand(cls)) eq.offhand = makeGear({ slot: 'offhand', cls, ilvl: lvl, rarity: r(base + quality) });
   eq.body = makeGear({ slot: 'body', cls, ilvl: lvl, rarity: r(base + quality) });
-  if (lvl >= 3 || quality > 0) eq.head = makeGear({ slot: 'head', cls, ilvl: lvl, rarity: r(base + quality) });
+  eq.head = makeGear({ slot: 'head', cls, ilvl: lvl, rarity: r(base + quality) });
   if (lvl >= 8) eq.ring = makeGear({ slot: 'ring', cls, ilvl: lvl, rarity: r(base) });
   if (lvl >= 14) eq.amulet = makeGear({ slot: 'amulet', cls, ilvl: lvl, rarity: r(base) });
   return eq;

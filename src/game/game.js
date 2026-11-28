@@ -63,7 +63,7 @@ export const game = {
     const c = { v: 1, name: name || 'Hero', cls, lvl: 1, xp: 0, sp: 0, equip: {}, ranks: {}, bar: [], autoSkills: true, gold: 60, bag: [], bagMax: 40, potions: { hp: 8, mp: 5 }, etc: {},
       quests: { active: {}, done: {} }, map: 'hh_square', guild: null, kills: 0, deaths: 0, settings: { ...G.settings }, autoGear: true };
     c.pet = 'wf0';
-    const kit = kitFor(cls, 1); c.equip = { weapon: kit.weapon, body: kit.body }; if (kit.offhand) c.equip.offhand = kit.offhand;
+    const kit = kitFor(cls, 1); c.equip = { weapon: kit.weapon, body: kit.body, head: kit.head }; if (kit.offhand) c.equip.offhand = kit.offhand;
     for (const k in c.equip) c.equip[k].rarity = 0;
     await this.begin(c);
   },
