@@ -40,6 +40,7 @@ export async function loadMap(id, from, inst) {
   for (const po of def.portals || []) {
     const pos = portalPos(geo, po.at, po.tier, r), tgt = po.to ? MAP_BY_ID.get(po.to) : null, dg = po.dungeon ? DUNGEON_BY_ID.get(po.dungeon) : null;
     const kind = dg ? (dg.kind === 'raid' ? 'raid' : 'dungeon') : po.style || (tgt && tgt.special === 'breach' ? 'breach' : tgt && tgt.kind === 'hall' ? 'hall' : tgt && tgt.kind === 'arena' ? 'arena' : null);
+    if (def.kind === 'town' && pos.plat.ground) { const roof = geo.plats.find(q => !q.ground && !q.small && pos.x > q.x1 - 60 && pos.x < q.x2 + 60); if (roof) { const lx = roof.x1 - 150, rx = roof.x2 + 150; pos.x = Math.abs(pos.x - lx) < Math.abs(pos.x - rx) && lx > 220 ? lx : Math.min(geo.w - 220, rx); } }      // a town portal stands in the open street, not on a doorstep
     M.portals.push({ ...po, ...pos, label: po.label || (dg ? dg.name : tgt ? (tgt.area !== def.area && AREAS[tgt.area] ? AREAS[tgt.area].name : tgt.name) : '?'), color: PORTAL_COL[kind] || [0.45, 0.62, 1], kind, found: !po.hidden });
   }
   // NPCs

@@ -132,7 +132,7 @@ export function blast(o) {
     return e.t < 0.32;
   };
   e.draw = (rd) => {
-    if (e.t < 0) { const u = 1 + e.t / (o.delay || 1), a = 0.25 + 0.5 * u; spr(rd, SHAPES.ring, o.x, o.y + ry * 0.55, o.r * 2 * (0.5 + 0.5 * u), ry * 0.7, 0, [col[0], col[1], col[2], a], 1); if (o.pillar) spr(rd, SHAPES.pillar, o.x, o.y - 300 + u * 100, 20, 600, 0, [col[0], col[1], col[2], 0.25 * u], 1); return; }
+    if (e.t < 0) { const u = 1 + e.t / (o.delay || 1), a = 0.25 + 0.5 * u; if (e.gy === undefined) { const gp = dropTo(G.map.geo, o.x, o.y - 70); e.gy = gp && gp.y - o.y < 200 ? gp.y : o.y + ry * 0.55; } spr(rd, SHAPES.ring, o.x, e.gy - 5, o.r * 2 * (0.5 + 0.5 * u), Math.min(34, ry * 0.4), 0, [col[0], col[1], col[2], a], 1); if (o.pillar) spr(rd, SHAPES.pillar, o.x, o.y - 300 + u * 100, 20, 600, 0, [col[0], col[1], col[2], 0.25 * u], 1); return; }
     const u = e.t / 0.32, s = o.r * 2 * (0.45 + u * 0.75);
     spr(rd, SHAPES.glow, o.x, o.y, s * 1.2, s * 1.2 * (ry / o.r), 0, [col[0], col[1], col[2], (1 - u) * 0.5 * L], 1);
     spr(rd, SHAPES.ring, o.x, o.y, s * 1.15, s * 1.15 * (ry / o.r), 0, [col[0] * 0.6 + core[0] * 0.4, col[1] * 0.6 + core[1] * 0.4, col[2] * 0.6 + core[2] * 0.4, (1 - u) * 0.7 * L], 1);
@@ -195,9 +195,15 @@ export function beam(o) {
     const a = o.owner, [x0, y0] = org(), f = a.face, fade = Math.min(1, (o.dur - e.t) * 6), fl = 0.85 + 0.15 * Math.sin(e.t * 50);
     spr(rd, SHAPES.glow, x0, y0, 70 * fl, 70 * fl, 0, [core[0], core[1], core[2], fade], 1);
     if (o.breath) return;
-    const th = o.thick * 1.5 * fl, rot = f > 0 ? ang : Math.PI - ang, mx = x0 + Math.cos(ang) * f * o.len / 2, my = y0 + Math.sin(ang) * o.len / 2;
-    spr(rd, SHAPES.thrust, mx, my, o.len, th, rot, [col[0], col[1], col[2], 0.85 * fade], 1);
-    spr(rd, SHAPES.thrust, mx, my, o.len, th / 2.5, rot, [core[0], core[1], core[2], fade], 1);
+    const th = o.thick * 1.5 * fl, rot = f > 0 ? ang : Math.PI - ang, cx = Math.cos(ang) * f, sy = Math.sin(ang), mx = x0 + cx * o.len / 2, my = y0 + sy * o.len / 2, k = KIND_OF(o.el);
+    // a wide soft sheath, the coloured body, and a hot core; then what the element does along it
+    spr(rd, SHAPES.thrust, mx, my, o.len * 1.04, th * 3.4, rot, [col[0], col[1], col[2], 0.3 * fade], 1);
+    spr(rd, SHAPES.thrust, mx, my, o.len, th * 1.6, rot, [col[0], col[1], col[2], 0.9 * fade], 1);
+    spr(rd, SHAPES.thrust, mx, my, o.len * 0.98, th * 0.55, rot, [core[0], core[1], core[2], fade], 1);
+    spr(rd, SHAPES.glow, x0 + cx * o.len, y0 + sy * o.len, th * 4, th * 4, 0, [core[0], core[1], core[2], 0.8 * fade], 1);
+    if (k === 'arc' || k === 'holy') for (let i = 1; i <= 3; i++) { const u = ((e.t * 1.6 + i / 3) % 1); spr(rd, SHAPES.ring, x0 + cx * o.len * u, y0 + sy * o.len * u, th * 0.9, th * 3.2, rot, [core[0], core[1], core[2], 0.8 * fade * (1 - u)], 1); }
+    if (k === 'dark') { const pu = 0.5 + 0.5 * Math.sin(e.t * 14); for (let i = 0; i < 5; i++) { const u = (i + ((e.t * 2) % 1)) / 5; spr(rd, SHAPES.glow, x0 + cx * o.len * (1 - u), y0 + sy * o.len * (1 - u), th * (1.6 + pu), th * (1.6 + pu), 0, [col[0], col[1] * 0.4, col[2] * 0.5, 0.8 * fade], 1); } }
+    if (Math.abs(x0 - G.cam.cx) < G.cam.viewW && G.frame % 2 === 0) { const u = Math.random(); elemTrail(o.el, x0 + cx * o.len * u + rnd(-4, 4), y0 + sy * o.len * u + rnd(-th, th) * 0.6, 0.9, cx * 300, sy * 300); }
     if (o.el === 'light') for (let i = 0; i < 3; i++) spr(rd, SHAPES.zap, x0 + Math.cos(ang) * f * o.len * (0.2 + i * 0.3), y0 + Math.sin(ang) * o.len * (0.2 + i * 0.3) + rnd(-8, 8), o.len * 0.36, 30, rot, [1, 1, 1, fade], 1);
   };
   return add(e);

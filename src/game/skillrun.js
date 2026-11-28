@@ -61,12 +61,13 @@ export function cast(a, sk, target) {
   if (!MELEE_KINDS.has(sk.kind) && Math.abs(a.x - G.cam.cx) < G.cam.viewW && loud(a) === 1) {
     const fromMouth = sk.kind === 'beam' && (a.cls === 'dragoon' || a.cls === 'dragon_knight') && (sk.m.cone || /breath|dragon|flame|fire/.test(sk.fx));
     const c = elemRgb(sk.el), [mx, my] = fromMouth ? mouth(a) : muzzle(a);
-    flashFx({ shape: 'ring', x: mx, y: my, w: 26, h: 26, col: c, dur: 0.22, grow: 2.2 });
-    flashFx({ shape: 'star', x: mx, y: my, w: 54, h: 54, col: elemCore(sk.el), dur: 0.16, grow: 0.6, rot: Math.random() * 3 });
-    for (let i = 0; i < 4; i++) elemTrail(sk.el, mx + rnd(-8, 8), my + rnd(-8, 8), 1);
+    flashFx({ shape: 'ring', x: mx, y: my, w: 16, h: 16, col: c, dur: 0.14, grow: 1.4, a: 0.8 });
+    flashFx({ shape: 'star', x: mx, y: my, w: 22, h: 22, col: c, dur: 0.07, grow: 0.5, rot: Math.random() * 3, a: 0.9 });
+    for (let i = 0; i < 2; i++) elemTrail(sk.el, mx + rnd(-5, 5), my + rnd(-5, 5), 0.7);
   }
   sfxAt(sk.kind === 'melee' ? (m.cleave || m.n > 2 ? 'swing_heavy' : 'swing') : sk.kind === 'proj' && sk.attack ? 'shoot' : sk.kind === 'buff' ? 'buff' : sk.kind === 'heal' ? 'heal' : sk.kind === 'summon' ? 'summon' : sk.kind === 'dash' || sk.kind === 'blink' ? 'dash' : castSfx(sk.el), a, a.isPlayer ? 0.9 : 0.35);
-  if (a.isPlayer && sk.row >= 1 && sk.id !== a.data.basic) G.floaters.push({ x: a.x, y: a.y - a.h - 26, str: null, word: sk.name, color: ELEM[sk.el]?.glow || '#fff', t: 0, scale: 1 });
+  if (a.isPlayer && sk.row >= 1 && sk.id !== a.data.basic) { for (let i = G.floaters.length - 1; i >= 0; i--) if (G.floaters[i].banner) G.floaters.splice(i, 1); }
+  if (a.isPlayer && sk.row >= 1 && sk.id !== a.data.basic) G.floaters.push({ banner: true, x: a.x, y: a.y - a.h - 26, str: null, word: sk.name, color: ELEM[sk.el]?.glow || '#fff', t: 0.45, scale: 1 });
   (KIND[sk.kind] || KIND.proj)(a, sk, rank, m, target);
   return true;
 }

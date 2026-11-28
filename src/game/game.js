@@ -266,7 +266,7 @@ export const game = {
     for (const e of G.effects) if (!e.back) e.draw(rd);
     G.parts.draw(rd, true, vx0, vx1);
     drawFront(rd, M);
-    for (const a of vis) drawOverlay(rd, a);
+    G._tags = []; for (const a of vis) if (a.kind === 'npc') drawOverlay(rd, a); for (const a of vis) if (a.isPlayer) drawOverlay(rd, a); for (const a of vis) if (a.kind !== 'npc' && !a.isPlayer) drawOverlay(rd, a);
     const T = G.text;
     for (const f of G.floaters) { const al = Math.min(1, (f.slow ? 2 : f.word ? 1.2 : 0.95) - f.t) * 2.2, pop = f.t < 0.12 ? 0.6 + f.t / 0.12 * 0.6 : 1.2 - Math.min(0.2, (f.t - 0.12) * 1.2); if (f.word) T.draw(rd, T.word(f.word, f.color || '#fff', 15), f.x, f.y, Math.min(1, al), f.scale || 1); else if (f.str) T.glyphs(rd, f.str, f.style, f.x, f.y, (f.scale || 1) * pop, Math.min(1, al)); }
     // screen finish

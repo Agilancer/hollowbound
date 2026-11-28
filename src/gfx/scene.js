@@ -77,7 +77,7 @@ export async function buildScene(M) {
     }
   }
   // ---- backwall (interiors)
-  if (wall) { const [c, g] = mk(512, 512); tile(g, wall, 0, 0, 512, 512, wall.width < 200 ? 2 : 1, 0); const t = th.backwall.tint; g.globalCompositeOperation = 'multiply'; g.fillStyle = rgb(t); g.fillRect(0, 0, 512, 512); g.globalCompositeOperation = 'source-over'; g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(0, 0, 512, 512); S.wall = { r: at.sub(at.addCanvas(c, 'map'), 1, 1, 510, 510), alpha: th.backwall.alpha ?? 1 }; }
+  if (wall) { const [c, g] = mk(512, 512); tile(g, wall, 0, 0, 512, 512, wall.width < 200 ? 2 : 1, 0); const t = th.backwall.tint; g.globalCompositeOperation = 'multiply'; g.fillStyle = rgb(t); g.fillRect(0, 0, 512, 512); g.globalCompositeOperation = 'source-over'; g.fillStyle = 'rgba(0,0,0,0.42)'; g.fillRect(0, 0, 512, 512); S.wall = { r: at.sub(at.addCanvas(c, 'map'), 1, 1, 510, 510), alpha: th.backwall.alpha ?? 1 }; }
   // ---- far silhouettes
   for (const f of th.far || []) { const [c, g] = mk(1016, 420); silhouette(g, f.kind, 1016, 420, r); S.far.push({ r: at.addCanvas(c, 'map'), color: f.color, parallax: f.parallax, height: f.height }); }
   // ---- ropes
@@ -139,8 +139,20 @@ function silhouette(g, kind, W, H, r) {
   const wrap = (fn) => { for (const dx of [-W, 0, W]) { g.save(); g.translate(dx, 0); fn(); g.restore(); } };
   const base = (y0, amp, step) => { const pts = []; for (let x = 0; x <= W; x += step) pts.push([x, y0 + (r() - 0.5) * amp]); pts[pts.length - 1][1] = pts[0][1]; return pts; };
   const fillPts = (pts) => { g.beginPath(); g.moveTo(0, H); for (const p of pts) g.lineTo(p[0], p[1]); g.lineTo(W, H); g.fill(); };
-  if (kind === 'mountains') { const pts = []; let x = 0, up = true; const y0 = H * 0.75; pts.push([0, y0]); while (x < W - 60) { x += 50 + r() * 120; pts.push([Math.min(x, W - 30), up ? H * (0.08 + r() * 0.4) : H * (0.5 + r() * 0.3)]); up = !up; } pts.push([W, y0]); fillPts(pts); return; }
-  fillPts(base(H * 0.86, 14, 60));
+  // every far layer is hazier toward the horizon: paler at its base, a shade darker at its crown
+  const haze = g.createLinearGradient(0, 0, 0, H); haze.addColorStop(0, 'rgb(150,150,150)'); haze.addColorStop(0.55, 'rgb(205,205,205)'); haze.addColorStop(1, 'rgb(255,255,255)'); g.fillStyle = haze;
+  if (kind === 'mountains') {
+    // a broken ridgeline by midpoint displacement (wraps at the seam), with a second lower range in front
+    const ridge = (base, amp, rough) => { let pts = [base, base - amp * (0.4 + r() * 0.6), base]; for (let it = 0, a = amp; it < 6; it++, a *= rough) { const n = []; for (let i = 0; i < pts.length - 1; i++) { n.push(pts[i]); n.push((pts[i] + pts[i + 1]) / 2 + (r() - 0.5) * a); } n.push(pts[pts.length - 1]); pts = n; } return pts; };
+    for (const [base, amp, rough, shade] of [[H * 0.62, H * 0.5, 0.56, 0.78], [H * 0.8, H * 0.3, 0.6, 1]]) {
+      const pts = ridge(base, amp, rough); g.globalAlpha = 1; g.fillStyle = shade < 1 ? `rgb(${150 * shade | 0},${150 * shade | 0},${150 * shade | 0})` : haze;
+      g.beginPath(); g.moveTo(0, H); pts.forEach((y, i) => g.lineTo(i / (pts.length - 1) * W, Math.max(6, y))); g.lineTo(W, H); g.fill();
+      // scree and snow-less crags: a few darker faces under the peaks
+      g.fillStyle = 'rgba(0,0,0,0.16)'; for (let i = 2; i < pts.length - 2; i += 3) if (pts[i] < pts[i - 2] && pts[i] < pts[i + 2]) { const x = i / (pts.length - 1) * W; g.beginPath(); g.moveTo(x, pts[i]); g.lineTo(x + 26 + r() * 30, pts[i] + 70 + r() * 60); g.lineTo(x - 6, pts[i] + 90 + r() * 40); g.fill(); }
+    }
+    return;
+  }
+  fillPts(base(H * 0.86, 14, 60)); g.fillStyle = haze;
   const items = [];
   const n = { town: 9, ruins: 8, deadtrees: 12, forest: 26, spires: 7, graves: 20, pillars: 7, cave: 16, pipes: 6, castle: 3 }[kind] || 8;
   for (let i = 0; i < n; i++) items.push((i + r() * 0.7) * W / n);
@@ -174,7 +186,13 @@ function placeProps(S, M, th, r) {
   const geo = M.geo, props = th.props || [], cache = new Map();
   const sp = (d) => { let s = cache.get(d); if (!s) { s = propSprite(d); cache.set(d, s); } return s; };
   const by = (layer, on) => props.filter(p => p.layer === layer && (on.includes(p.on) || p.on === 'any'));
-  const put = (layer, d, x, y, flip) => { const s = sp(d); S.props[layer].push({ s, x, y, flip, d }); if (d.light) S.lights.push({ x, y: y - d.h * 0.72, col: d.light, r: Math.max(120, d.h * 1.5), seed: r() * 9 }); };
+  const last = new Map();
+  const roomAbove = (x, y, h) => !geo.plats.some(q => !q.ground && x > q.x1 - 20 && x < q.x2 + 20 && q.y < y - 30 && q.y > y - h - 10);     // nothing may poke up through a ledge
+  const put = (layer, d, x, y, flip) => {
+    if (d.on !== 'hang' && d.on !== 'wall' && !roomAbove(x, y, d.h)) return;
+    if (last.has(d) && Math.abs(last.get(d) - x) < 1000) return; last.set(d, x);          // the same piece twice on one screen reads as a clone
+    if (layer === 'front' && d.h > 40) layer = 'mid';                                     // only low tufts may stand in front of the fighters
+    const s = sp(d); S.props[layer].push({ s, x, y, flip, d }); if (d.light) S.lights.push({ x, y: y - d.h * 0.72, col: d.light, r: Math.max(120, d.h * 1.5), seed: r() * 9 }); };
   const busy = (x) => M.portals.some(p => Math.abs(p.x - x) < 150) || M.npcSpots.some(n => Math.abs(n - x) < 70);
   for (const p of geo.plats) {
     const on = p.ground ? ['ground'] : ['ledge'], len = p.x2 - p.x1;
@@ -187,7 +205,7 @@ function placeProps(S, M, th, r) {
     if (!p.ground && hang.length && len > 300) for (let x = p.x1 + 80 + r() * 200; x < p.x2 - 60; x += 300 + r() * 500) put('back', pickW(hang, r), x, p.y + 30, false);
   }
   const wallP = props.filter(q => q.on === 'wall');
-  if (wallP.length) for (let x = 200 + r() * 300; x < geo.w - 150; x += 380 + r() * 420) { const g0 = geo.plats.find(p => p.ground && x >= p.x1 && x <= p.x2); if (!g0) continue; const d = pickW(wallP, r); put('back', d, x, g0.y - 190 - r() * 160 + d.h * 0.5, false); }
+  if (wallP.length && S.theme.backwall) for (let x = 200 + r() * 300; x < geo.w - 150; x += 380 + r() * 420) { const g0 = geo.plats.find(p => p.ground && x >= p.x1 && x <= p.x2); if (!g0) continue; const d = pickW(wallP, r); put('back', d, x, g0.y - 190 - r() * 160 + d.h * 0.5, false); }
 }
 
 // ---- town facades
@@ -240,7 +258,7 @@ export function drawBack(rd, M) {
   }
   if (S.wall) { const s = 510, a = [1, 1, 1, S.wall.alpha]; for (let x = Math.floor(vx0 / s) * s; x < vx1; x += s) for (let y = Math.floor(cam.y / s) * s; y < vy1; y += s) rd.quad(S.wall.r, x, y, s + 0.5, s + 0.5, a); }
   for (const b of S.buildings) if (b.x < vx1 && b.x + b.w > vx0) rd.quad(b.r, b.x, b.y, b.w, b.h);
-  drawProps(rd, S.props.back, S, 0.72, vx0, vx1);
+  drawProps(rd, S.props.back, S, S.theme.backDim ?? 0.56, vx0, vx1, [0.92, 0.97, 1.08]);
   // light pools behind everything solid
   for (const l of S.lights) { if (l.x < vx0 - l.r || l.x > vx1 + l.r) continue; const fl = l.soft ? 1 : 0.85 + 0.15 * Math.sin(G.time * 9 + l.seed) * Math.sin(G.time * 5.3 + l.seed * 2); rd.quad(SHAPES.glow, l.x - l.r, l.y - l.r, l.r * 2, l.r * 2, [l.col[0], l.col[1], l.col[2], 0.36 * fl], null, 1); }
 }
@@ -285,8 +303,8 @@ export function drawPortal(rd, x, y, col, rift) {
   if (rift) for (let i = 0; i < 3; i++) { const a = t * (1.3 + i * 0.4) + i * 2.1; rd.quad(SHAPES.shard, x + Math.cos(a) * 92 - 7, cy + Math.sin(a) * 120 - 14, 14, 28, [col[0] * 0.6, col[1] * 0.6, col[2] * 0.6, 1]); }
   if (G.frame % 4 === 0) G.parts.add({ shape: Math.random() < 0.5 ? 'star' : 'glow', x: x + (Math.random() - 0.5) * 120, y: y - Math.random() * 16, vy: -70 - Math.random() * 130, vx: (Math.random() - 0.5) * 30, life: 1.4, size: 6 + Math.random() * 8, size2: 1, col, front: Math.random() < 0.4 });
 }
-export function drawFront(rd, M) { const S = M.scene; if (S) drawProps(rd, S.props.front, S, 0.5, G.cam.x, G.cam.x + G.cam.viewW); }
-function drawProps(rd, list, S, k, vx0, vx1) { const L = S.light, t = [L[0] * k, L[1] * k, L[2] * k, 1]; for (const p of list) { if (p.x < vx0 - 420 || p.x > vx1 + 420) continue; drawProp(rd, p.s, p.x, p.y, p.flip, p.d.light ? [1, 1, 1, 1] : t); } }
+export function drawFront(rd, M) { const S = M.scene; if (S) drawProps(rd, S.props.front, S, 0.45, G.cam.x, G.cam.x + G.cam.viewW, null, 0.85); }
+function drawProps(rd, list, S, k, vx0, vx1, cool, alpha = 1) { const L = S.light, c = cool || [1, 1, 1], t = [L[0] * k * c[0], L[1] * k * c[1], L[2] * k * c[2], alpha]; for (const p of list) { if (p.x < vx0 - 420 || p.x > vx1 + 420) continue; drawProp(rd, p.s, p.x, p.y, p.flip, p.d.light && k > 0.5 ? [1, 1, 1, 1] : t); } }
 function drawProp(rd, s, x, y, flip, tint) {
   const r = s.r; if (!r || r.layer < 0) return;
   if (s.full && !s.w) { s.w = r.w; s.h = r.h; s.k = s.def.h / r.h; if (s.ax == null) { s.ax = r.w / 2; s.ay = r.h; } }
