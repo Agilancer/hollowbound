@@ -37,19 +37,20 @@ export function heroSprite(hero) {
   const designs = designsFor(cls);
   const look = lookOf(cls, hero.equip, designs.helms.length || Object.keys(designs.armor).length ? designs : null);
   const key = (big ? 'B' : '') + lookKey(cls, look);
-  if (hero.sprite && hero.sprite.key === key && hero.sprite.ready) { hero.sprite.used = G.frame; return hero.sprite; }
+  if (hero.sprite && hero.sprite.ready && (hero.sprite.key === key || hero.sprite.final === key)) { hero.sprite.used = G.frame; return hero.sprite; }
   let e = looks.get(key);
   if (!e) {
     e = { key, r: null, hd: big ? 4 : HD, ready: false, used: G.frame, w: 128, h: 192, ax: 64, ay: FEET, k: 1, hero: true };
     looks.set(key, e);
-    loadLook(cls, look).then(() => {
+    // always fetch the helmet set when a helm is worn: its designs are not known until it has loaded
+    loadLook(cls, { ...look, helm: look.helm || (hero.equip && hero.equip.head ? [1, 0] : null) }).then(() => {
       // the class art may only now be known: resolve designs again and compose
       const l2 = lookOf(cls, hero.equip, designsFor(cls)), c = composeHero(cls, l2, e.hd);
       if (!c) return;
       pool = pool || new SlotPool(G.rd.atlas, 128 * HD, 192 * HD, 21); bigPool = bigPool || new SlotPool(G.rd.atlas, 512, 768, 3);
       const slot = (big ? bigPool : pool).take(); if (!slot) return;
       G.rd.atlas.update(slot, c.canvas);
-      e.r = slot; e.pool = big ? bigPool : pool; e.tip = c.tip; e.hand = c.hand; e.ready = true; e.key2 = lookKey(cls, l2);
+      e.r = slot; e.pool = big ? bigPool : pool; e.tip = c.tip; e.hand = c.hand; e.ready = true; e.key2 = lookKey(cls, l2); e.final = (big ? 'B' : '') + e.key2;
     }).catch((err) => console.warn('hero look', err.message));
   }
   e.used = G.frame;

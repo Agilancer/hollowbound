@@ -32,10 +32,26 @@ export function bakeShapes(atlas) {
   SHAPES.shadow = mk(64, 24, (g) => { const r = g.createRadialGradient(32, 12, 0, 32, 12, 32); r.addColorStop(0, 'rgba(0,0,0,0.55)'); r.addColorStop(1, 'rgba(0,0,0,0)'); g.setTransform(1, 0, 0, 0.375, 0, 0); g.fillStyle = r; g.fillRect(0, 0, 64, 64); });
   SHAPES.coin = mk(20, 20, (g) => { g.fillStyle = '#b8860b'; g.beginPath(); g.arc(10, 10, 9, 0, TAU); g.fill(); g.fillStyle = '#ffd95a'; g.beginPath(); g.arc(9, 9, 7, 0, TAU); g.fill(); g.fillStyle = '#fff3b0'; g.fillRect(6, 5, 3, 6); });
   SHAPES.skull = mk(40, 44, (g) => { g.fillStyle = '#e8e2d0'; g.beginPath(); g.arc(20, 18, 16, 0, TAU); g.fill(); g.fillRect(11, 26, 18, 14); g.fillStyle = '#18120e'; g.beginPath(); g.arc(13, 18, 5, 0, TAU); g.arc(27, 18, 5, 0, TAU); g.fill(); g.fillRect(18, 25, 4, 6); for (let i = 0; i < 3; i++) g.fillRect(13 + i * 6, 34, 2, 6); });
+  SHAPES.arc = mk(128, 128, (g) => {            // two-thirds of a circle, bright head fading to a thin tail
+    g.lineCap = 'round'; g.shadowColor = '#fff'; g.shadowBlur = 6;
+    for (let i = 0; i < 40; i++) { const u = i / 39, a0 = u * 4.2; g.strokeStyle = `rgba(255,255,255,${0.08 + 0.92 * u * u})`; g.lineWidth = 1.5 + 6 * u; g.beginPath(); g.arc(64, 64, 54, a0, a0 + 0.13); g.stroke(); }
+  });
+  SHAPES.flame = mk(64, 96, (g) => {            // a tongue of fire, hot at the root
+    const gr = g.createRadialGradient(32, 70, 2, 32, 60, 46); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.35, 'rgba(255,255,255,0.75)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr; g.beginPath(); g.moveTo(32, 2); g.bezierCurveTo(58, 34, 60, 62, 46, 84); g.bezierCurveTo(40, 96, 24, 96, 18, 84); g.bezierCurveTo(4, 62, 14, 40, 32, 2); g.fill();
+  });
+  SHAPES.zap = mk(128, 32, (g) => { g.strokeStyle = '#fff'; g.lineJoin = 'miter'; g.shadowColor = '#fff'; g.shadowBlur = 8; g.lineWidth = 4; g.beginPath(); g.moveTo(2, 16); const ys = [6, 24, 10, 27, 5, 20, 12, 16]; ys.forEach((y, i) => g.lineTo(16 + i * 15.5, y)); g.stroke(); g.lineWidth = 1.5; g.beginPath(); g.moveTo(40, 20); g.lineTo(58, 31); g.moveTo(80, 8); g.lineTo(98, 1); g.stroke(); });
   SHAPES.tomb = mk(56, 72, (g) => { g.fillStyle = '#6f6a66'; g.beginPath(); g.roundRect(6, 4, 44, 66, [22, 22, 3, 3]); g.fill(); g.fillStyle = '#8d8781'; g.beginPath(); g.roundRect(9, 7, 34, 60, [17, 17, 2, 2]); g.fill(); g.fillStyle = '#3d3936'; g.fillRect(25, 18, 5, 30); g.fillRect(17, 26, 21, 5); g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(6, 60, 44, 10); });
-  SHAPES.bulb = mk(40, 56, (g) => { g.fillStyle = '#ffd24a'; g.beginPath(); g.arc(20, 20, 16, 0, TAU); g.fill(); g.fillRect(13, 32, 14, 10); g.fillStyle = '#8a6a2a'; g.fillRect(14, 42, 12, 8); g.fillStyle = '#3a2a00'; g.font = '900 26px Georgia'; g.textAlign = 'center'; g.fillText('!', 20, 29); });
-  SHAPES.book = mk(44, 40, (g) => { g.fillStyle = '#5a7ad0'; g.fillRect(2, 6, 40, 30); g.fillStyle = '#f4efe0'; g.fillRect(6, 4, 15, 28); g.fillRect(23, 4, 15, 28); g.fillStyle = '#20305a'; g.font = '900 22px Georgia'; g.textAlign = 'center'; g.fillText('?', 22, 27); });
-  SHAPES.done = mk(44, 44, (g) => { g.fillStyle = '#ffd24a'; g.beginPath(); g.arc(22, 22, 20, 0, TAU); g.fill(); g.strokeStyle = '#3a2a00'; g.lineWidth = 6; g.lineCap = 'round'; g.beginPath(); g.moveTo(11, 23); g.lineTo(19, 31); g.lineTo(33, 14); g.stroke(); });
+  // quest marks over NPC heads: "!" a quest to take, "?" one to hand in (grey while still in progress)
+  const mark = (ch, top, mid, edge) => mk(48, 72, (g) => {
+    g.font = '900 68px Georgia, "Times New Roman", serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
+    g.shadowColor = top; g.shadowBlur = 10; g.lineWidth = 9; g.strokeStyle = edge; g.strokeText(ch, 24, 38); g.shadowBlur = 0;
+    g.lineWidth = 3; g.strokeStyle = '#000'; g.strokeText(ch, 24, 38);
+    const gr = g.createLinearGradient(0, 6, 0, 68); gr.addColorStop(0, '#fff'); gr.addColorStop(0.3, top); gr.addColorStop(1, mid); g.fillStyle = gr; g.fillText(ch, 24, 38);
+  });
+  SHAPES.bulb = mark('!', '#ffe36a', '#d98a08', '#4a2a00');
+  SHAPES.done = mark('?', '#ffe36a', '#d98a08', '#4a2a00');
+  SHAPES.book = mark('?', '#d9d9d9', '#7c7c7c', '#262626');
 }
 
 const MAXP = 5000;

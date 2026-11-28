@@ -61,9 +61,9 @@ export const game = {
   deleteSave() { try { localStorage.removeItem(SAVE_KEY); } catch {} },
   async newGame({ name, cls }) {
     const c = { v: 1, name: name || 'Hero', cls, lvl: 1, xp: 0, sp: 0, equip: {}, ranks: {}, bar: [], autoSkills: true, gold: 60, bag: [], bagMax: 40, potions: { hp: 8, mp: 5 }, etc: {},
-      quests: { active: {}, done: {} }, map: 'hh_square', guild: null, kills: 0, deaths: 0, settings: { ...G.settings }, autoGear: true };
+      quests: { active: {}, done: {} }, map: 'hh_west', guild: null, kills: 0, deaths: 0, settings: { ...G.settings }, autoGear: true };
     c.pet = 'wf0';
-    const kit = kitFor(cls, 1); c.equip = { weapon: kit.weapon, body: kit.body }; if (kit.offhand) c.equip.offhand = kit.offhand;
+    const kit = kitFor(cls, 1); c.equip = { weapon: kit.weapon, body: kit.body, head: kit.head }; if (kit.offhand) c.equip.offhand = kit.offhand;
     for (const k in c.equip) c.equip[k].rarity = 0;
     await this.begin(c);
   },
@@ -142,7 +142,7 @@ export const game = {
   onKill(m) {
     const c = G.char; c.kills++; G.map.kills++; Q.onKill(m);
     if (G.map.def.special === 'breach' && G.map.kills % 40 === 0) { const d = pick(G.map.breachBosses), s = { mob: d.id, x: clamp(G.player.x + 400, 200, G.map.geo.w - 200), y: G.player.y, plat: G.player.body.plat || G.map.geo.plats[0], boss: true, respawn: Infinity }; G.map.spawns.push(s); import('../world/map.js').then(mm => mm.spawnAt(G.map, s)); emit('toast', { text: 'The Breach tears wider. Something vast steps through.', kind: 'boss' }); }
-    if (m.boss) { emit('bossDown', { name: m.name }); S.partyLine('win', {}); if (G.map.instance && G.map.def.id === G.map.instance.rooms.at(-1)) { const id = G.map.instance.id; this.later(1.5, () => { Q.onDungeon(id); emit('dungeonDone', { dungeon: DUNGEON_BY_ID.get(id) }); const P = G.player; G.char.gold += 150 * G.map.instance.level; }); } }
+    if (m.boss) { emit('bossDown', { name: m.name }); S.partyLine('win', {}); if (G.map.instance && G.map.def.id === G.map.instance.rooms.at(-1)) { const id = G.map.instance.id, lv = G.map.instance.level; this.later(1.5, () => { Q.onDungeon(id); emit('dungeonDone', { dungeon: DUNGEON_BY_ID.get(id) }); G.char.gold += 150 * lv; emit('bag'); }); } }
   },
   questDrops: (m) => Q.questDrops(m),
   onCollect: (n) => Q.onCollect(n),
@@ -266,7 +266,7 @@ export const game = {
     for (const e of G.effects) if (!e.back) e.draw(rd);
     G.parts.draw(rd, true, vx0, vx1);
     drawFront(rd, M);
-    for (const a of vis) drawOverlay(rd, a);
+    G._tags = []; for (const a of vis) if (a.kind === 'npc') drawOverlay(rd, a); for (const a of vis) if (a.isPlayer) drawOverlay(rd, a); for (const a of vis) if (a.kind !== 'npc' && !a.isPlayer) drawOverlay(rd, a);
     const T = G.text;
     for (const f of G.floaters) { const al = Math.min(1, (f.slow ? 2 : f.word ? 1.2 : 0.95) - f.t) * 2.2, pop = f.t < 0.12 ? 0.6 + f.t / 0.12 * 0.6 : 1.2 - Math.min(0.2, (f.t - 0.12) * 1.2); if (f.word) T.draw(rd, T.word(f.word, f.color || '#fff', 15), f.x, f.y, Math.min(1, al), f.scale || 1); else if (f.str) T.glyphs(rd, f.str, f.style, f.x, f.y, (f.scale || 1) * pop, Math.min(1, al)); }
     // screen finish

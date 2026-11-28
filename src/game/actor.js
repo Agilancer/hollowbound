@@ -139,12 +139,12 @@ export class Mob extends Actor {
     const A = def.A || { hp: 1, dmg: 1, spd: 2.5, ai: 'melee' };
     this.ai = def.fly ? 'fly' : A.ai || 'melee';
     this.elite = !!opts.elite; this.boss = !!opts.boss;
-    const size = this.boss ? 1 : this.elite ? 1.25 : 1;
+    const size = this.boss ? Math.max(1.15, Math.min(1.9, 215 / def.hw)) : this.elite ? 1.25 : 1;
     this.h = Math.max(36, def.hw * size); this.w = Math.max(34, Math.min(def.ww * size * 0.62, this.h * 1.5));
     this.scale = size;
-    const hpK = (this.boss ? (opts.raid ? 4200 : opts.dungeon ? 260 : 30) : this.elite ? 6 : 1) * (opts.hpMul || 1);
+    const hpK = (this.boss ? (opts.raid ? 4200 : opts.dungeon ? 560 : 30) : this.elite ? 6 : 1) * (opts.hpMul || 1);
     this.maxHp = this.hp = Math.round(mobLife(this.lvl, clamp(A.hp || 1, 0.5, 2.2)) * hpK * (0.9 + Math.min(1.2, def.hw / 220)));
-    this.dmg = mobDamage(this.lvl, clamp(A.dmg || 1, 0.6, 1.6)) * (this.boss ? 1.4 : this.elite ? 1.25 : 1) * (opts.raid ? 1.5 : opts.dungeon ? 1.3 : 1);
+    this.dmg = mobDamage(this.lvl, clamp(A.dmg || 1, 0.6, 1.6)) * (this.boss ? 1.4 : this.elite ? 1.25 : 1) * (opts.raid ? 1.8 : opts.dungeon ? 1.75 : 1);
     this.xp = Math.round(mobXp(this.lvl) * (this.boss ? 30 : this.elite ? 6 : 1) * (0.8 + Math.min(1, def.hw / 240)));
     this.stats.speed = clamp((A.spd || 2.5) / 3.2, 0.45, 1.25) * (this.boss ? 0.9 : 1);
     this.stats.armor = this.lvl * 2;

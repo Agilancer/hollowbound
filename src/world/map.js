@@ -40,12 +40,13 @@ export async function loadMap(id, from, inst) {
   for (const po of def.portals || []) {
     const pos = portalPos(geo, po.at, po.tier, r), tgt = po.to ? MAP_BY_ID.get(po.to) : null, dg = po.dungeon ? DUNGEON_BY_ID.get(po.dungeon) : null;
     const kind = dg ? (dg.kind === 'raid' ? 'raid' : 'dungeon') : po.style || (tgt && tgt.special === 'breach' ? 'breach' : tgt && tgt.kind === 'hall' ? 'hall' : tgt && tgt.kind === 'arena' ? 'arena' : null);
+    if (def.kind === 'town' && pos.plat.ground) { const roof = geo.plats.find(q => !q.ground && !q.small && pos.x > q.x1 - 60 && pos.x < q.x2 + 60); if (roof) { const lx = roof.x1 - 150, rx = roof.x2 + 150; pos.x = Math.abs(pos.x - lx) < Math.abs(pos.x - rx) && lx > 220 ? lx : Math.min(geo.w - 220, rx); } }      // a town portal stands in the open street, not on a doorstep
     M.portals.push({ ...po, ...pos, label: po.label || (dg ? dg.name : tgt ? (tgt.area !== def.area && AREAS[tgt.area] ? AREAS[tgt.area].name : tgt.name) : '?'), color: PORTAL_COL[kind] || [0.45, 0.62, 1], kind, found: !po.hidden });
   }
   // NPCs
   for (const n of def.npcs || []) {
     const N = NPCS[n.id]; if (!N) continue;
-    const pos = portalPos(geo, n.at, n.tier, r); M.npcSpots.push(pos.x);
+    const pos = portalPos(geo, n.at, def.kind === 'town' ? 0 : n.tier, r); M.npcSpots.push(pos.x);
     const a = new Actor('npc', pos.x, pos.y); a.npcId = n.id; a.N = N; a.name = N.name; a.title = N.title || ''; a.body.plat = pos.plat; a.h = 112; a.w = 50;
     a.body.face = pos.x > geo.w / 2 ? -1 : 1; a.spec = N.sprite || {}; a.barkT = rnd(6, 40);
     M.npcs.push(a);
@@ -88,7 +89,7 @@ export function spawnAt(M, s) {
   let def = s.mob ? mobDef(s.mob) : null, lvl = M.level, opts = { spawn: s, elite: !!s.elite, boss: !!s.boss, name: s.name };
   if (s.breach) { def = pick(M.breachPool); lvl = Math.max(1, G.player.lvl + ri(-1, 1)); if (chance(0.06)) opts.elite = true; }
   if (!def) return null;
-  if (M.instance) { opts.dungeon = !M.instance.raid; opts.raid = !!M.instance.raid; opts.hpMul = s.boss ? 1 : (M.instance.raid ? 13 : 3.6); lvl = M.instance.level || lvl; }
+  if (M.instance) { opts.dungeon = !M.instance.raid; opts.raid = !!M.instance.raid; opts.hpMul = s.boss ? 1 : (M.instance.raid ? 13 : 5); lvl = M.instance.level || lvl; }
   opts.lvl = lvl + (opts.elite ? 1 : 0) + (opts.boss && !M.instance ? 2 : 0);
   const m = new Mob(def, s.x + rnd(-20, 20), s.y, opts);
   m.sprite = mobSprite(def, 'map'); m.body.plat = s.plat; m.body.y = s.y; if (m.body.fly) { m.body.plat = null; m.body.y = s.y - rnd(90, 170); }

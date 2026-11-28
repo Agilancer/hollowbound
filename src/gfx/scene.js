@@ -2,7 +2,7 @@
 // behind a shader sky, props from Velscour's packs, town facades, ropes and portals.
 // Everything is baked once on canvases when the map loads and lives in 'map' atlas pages.
 import { G, clamp } from '../state.js';
-import { THEMES, PORTAL_FX } from '../data/themes.js';
+import { THEMES } from '../data/themes.js';
 import { rng, hashStr } from '../world/layout.js';
 import { asset } from '../core/paths.js';
 import { SHAPES } from './fx.js';
@@ -12,7 +12,16 @@ const GROUND_H = 210;
 const mk = (w, h) => { const c = new OffscreenCanvas(Math.max(1, Math.ceil(w)), Math.max(1, Math.ceil(h))); return [c, c.getContext('2d')]; };
 const rgb = (c, a = 1) => `rgba(${(c[0] * 255) | 0},${(c[1] * 255) | 0},${(c[2] * 255) | 0},${a})`;
 const bmCache = new Map();
-const bitmap = (path) => { let p = bmCache.get(path); if (!p) { p = fetch(asset(path)).then(r => { if (!r.ok) throw new Error(path); return r.blob(); }).then(b => createImageBitmap(b)).catch(() => null); bmCache.set(path, p); if (bmCache.size > 60) bmCache.delete(bmCache.keys().next().value); } return p; };
+const texKey = (t) => (typeof t === 'string' ? t : t.src + '#' + (t.rect || []).join(','));
+/** A texture source: a path, or { src, rect } (one tile cut from a sheet). */
+const bitmap = (tex) => {
+  if (!tex) return Promise.resolve(null);
+  if (typeof tex === 'string') return bitmapFile(tex);
+  const k = texKey(tex); let p = bmCache.get(k);
+  if (!p) { p = bitmapFile(tex.src).then(bm => (bm && tex.rect ? createImageBitmap(bm, tex.rect[0], tex.rect[1], tex.rect[2], tex.rect[3]) : bm)).catch(() => null); bmCache.set(k, p); }
+  return p;
+};
+const bitmapFile = (path) => { let p = bmCache.get(path); if (!p) { p = fetch(asset(path)).then(r => { if (!r.ok) throw new Error(path); return r.blob(); }).then(b => createImageBitmap(b)).catch(() => null); bmCache.set(path, p); if (bmCache.size > 90) bmCache.delete(bmCache.keys().next().value); } return p; };
 function tile(g, bm, x, y, w, h, scale = 1, ox = 0) {
   if (!bm) { g.fillStyle = '#2a2622'; g.fillRect(x, y, w, h); return; }
   g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip(); g.imageSmoothingEnabled = false;
@@ -23,7 +32,7 @@ function tile(g, bm, x, y, w, h, scale = 1, ox = 0) {
 
 export async function buildScene(M) {
   const at = G.rd.atlas, geo = M.geo, th = THEMES[M.area.theme] || THEMES.wilds, r = rng(hashStr(M.def.id) ^ 0x9e3779b9);
-  const S = { theme: th, chunks: [], far: [], props: { back: [], mid: [], front: [] }, buildings: [], lights: [], ropes: [], deep: null, wall: null, light: th.light || [1, 1, 1] };
+  const S = { theme: th, platSprites: [], stairs: [], chunks: [], far: [], props: { back: [], mid: [], front: [] }, buildings: [], lights: [], ropes: [], deep: null, wall: null, light: th.light || [1, 1, 1] };
   Object.assign(G.rd.sky, { top: th.sky.top, mid: th.sky.mid, bot: th.sky.bot, fog: th.sky.fog, orb: th.sky.orb, orbCol: th.sky.orbCol, stars: th.sky.stars, vignette: th.sky.vignette, dark: 0 });
   const [top, fill, ledge, wall] = await Promise.all([bitmap(th.ground.top), bitmap(th.ground.fill), bitmap(th.ledge.tex), th.backwall ? bitmap(th.backwall.tex) : null]);
   const town = M.def.kind === 'town';
@@ -48,12 +57,19 @@ export async function buildScene(M) {
       S.chunks.push({ r: at.addCanvas(c, 'map'), x, y: p.y - 5, w, h: GROUND_H, x2: x + w });
     }
   }
+  if (th.stairs && th.stairs.rect) { const st = propSprite({ src: th.stairs.src, rect: th.stairs.rect, h: 80 }); for (let gi = 0; gi < grounds.length - 1; gi++) { const a = grounds[gi], b = grounds[gi + 1]; if (a.y === b.y) continue; const up = b.y < a.y; S.stairs.push({ s: st, x: a.x2, y: Math.max(a.y, b.y), up, h: Math.abs(a.y - b.y) }); } }
   { const [c, g] = mk(512, 512); tile(g, fill, 0, 0, 512, 512, 1, 0); g.fillStyle = 'rgba(0,0,0,0.86)'; g.fillRect(0, 0, 512, 512); S.deep = { r: at.sub(at.addCanvas(c, 'map'), 1, 1, 510, 510), grounds }; }
 
   // ---- ledges
   for (const p of geo.plats) {
     if (p.ground) continue;
     if (town && !p.small) { p.roof = true; continue; }               // town ledges are rooftops (drawn with the building)
+    const len = p.x2 - p.x1, LS = th.ledgeSprites || [], BR = th.bridges || [];
+    // a sprite is only used near its own pixel size (never stretched into mush)
+    const fits = (list) => list.filter(q => q.rect && (len + 16) / q.rect[2] >= 0.6 && (len + 16) / q.rect[2] <= 1.3);
+    const fl = fits(LS), fb = fits(BR);
+    const pick = p.small && fl.length ? fl[Math.floor(r() * fl.length)] : !p.small && fb.length && r() < 0.6 ? fb[Math.floor(r() * fb.length)] : !p.small && fl.length && len <= 420 ? fl[Math.floor(r() * fl.length)] : null;
+    if (pick && pick.rect) { const sp = propSprite({ ...pick, h: 100 }), k = (len + 16) / pick.rect[2]; sp.k = k; S.platSprites.push({ s: sp, x: (p.x1 + p.x2) / 2, y: p.y, k, ax: pick.anchor ? pick.anchor[0] : pick.rect[2] / 2, ay: pick.anchor ? pick.anchor[1] : 8 }); continue; }
     for (let x = p.x1; x < p.x2; x += CH) {
       const w = Math.min(CH, p.x2 - x), H = 78, [c, g] = mk(w, H);
       ledgeArt(g, ledge, th.ledge.style, w, H, x === p.x1, x + w >= p.x2, r, x);
@@ -61,19 +77,19 @@ export async function buildScene(M) {
     }
   }
   // ---- backwall (interiors)
-  if (wall) { const [c, g] = mk(512, 512); tile(g, wall, 0, 0, 512, 512, wall.width < 200 ? 2 : 1, 0); const t = th.backwall.tint; g.globalCompositeOperation = 'multiply'; g.fillStyle = rgb(t); g.fillRect(0, 0, 512, 512); g.globalCompositeOperation = 'source-over'; g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(0, 0, 512, 512); S.wall = { r: at.sub(at.addCanvas(c, 'map'), 1, 1, 510, 510), alpha: th.backwall.alpha ?? 1 }; }
+  if (wall) { const [c, g] = mk(512, 512); tile(g, wall, 0, 0, 512, 512, wall.width < 200 ? 2 : 1, 0); const t = th.backwall.tint; g.globalCompositeOperation = 'multiply'; g.fillStyle = rgb(t); g.fillRect(0, 0, 512, 512); g.globalCompositeOperation = 'source-over'; g.fillStyle = 'rgba(0,0,0,0.42)'; g.fillRect(0, 0, 512, 512); S.wall = { r: at.sub(at.addCanvas(c, 'map'), 1, 1, 510, 510), alpha: th.backwall.alpha ?? 1 }; }
   // ---- far silhouettes
   for (const f of th.far || []) { const [c, g] = mk(1016, 420); silhouette(g, f.kind, 1016, 420, r); S.far.push({ r: at.addCanvas(c, 'map'), color: f.color, parallax: f.parallax, height: f.height }); }
   // ---- ropes
   S.ropeTex = at.addCanvas(ropeArt(th.rope), 'map'); S.ropeKind = th.rope;
+  S.ladder = th.ladders && th.ladders.length ? propSprite({ ...th.ladders[0], h: 100 }) : null;
   // ---- town facades under the rooftops
   if (town && th.facade) await facades(S, M, th, r);
   // ---- props
   placeProps(S, M, th, r);
   // ---- portal frames + rune disc
   const doors = th.doors || [];
-  for (const po of M.portals) { const d = doors.length ? doors[hashStr(po.to || po.dungeon || 'x') % doors.length] : null; po.door = d ? propSprite(d) : null; po.doorH = d ? d.h : 0; po.doorDef = d; }
-  if (!S.runeMade) { S.rune = await runeDisc(); }
+  for (const po of M.portals) { po.door = null; po.doorH = 0; }
   M.scene = S;
   return S;
 }
@@ -96,7 +112,7 @@ function ledgeArt(g, tex, style, w, H, capL, capR, r, ox) {
   const sh = g.createLinearGradient(0, 5, 0, 5 + T); sh.addColorStop(0, 'rgba(255,255,255,0.16)'); sh.addColorStop(0.18, 'rgba(0,0,0,0)'); sh.addColorStop(0.6, 'rgba(0,0,0,0.3)'); sh.addColorStop(1, 'rgba(0,0,0,0.75)');
   g.fillStyle = sh; g.fillRect(0, 5, w, T); g.restore();
   g.strokeStyle = 'rgba(0,0,0,0.8)'; g.lineWidth = 2; g.beginPath(); g.roundRect(1, 6, w - 2, T - 1, [capL ? 4 : 0, capR ? 4 : 0, capR ? 7 : 0, capL ? 7 : 0]); g.stroke();
-  g.fillStyle = 'rgba(255,255,255,0.2)'; g.fillRect(capL ? 4 : 0, 6, w - (capL ? 4 : 0) - (capR ? 4 : 0), 2); g.fillStyle = 'rgba(0,0,0,0.35)'; g.fillRect(0, 14, w, 2);
+  g.fillStyle = 'rgba(255,255,255,0.38)'; g.fillRect(capL ? 4 : 0, 6, w - (capL ? 4 : 0) - (capR ? 4 : 0), 2); g.fillStyle = 'rgba(0,0,0,0.35)'; g.fillRect(0, 14, w, 2);
   // what hangs beneath
   const y0 = 5 + T;
   if (style === 'wood') { for (let x = 28; x < w - 10; x += 150) { g.fillStyle = '#1c130c'; g.fillRect(x, y0, 9, 22); g.beginPath(); g.moveTo(x + 9, y0); g.lineTo(x + 36, y0); g.lineTo(x + 9, y0 + 22); g.fill(); } }
@@ -112,7 +128,8 @@ function ropeArt(kind) {
   if (kind === 'chain') { g.strokeStyle = '#8a8a90'; g.lineWidth = 3; for (let y = 0; y < 64; y += 16) { g.beginPath(); g.ellipse(13, y + 5, 4, 7, 0, 0, 7); g.stroke(); g.beginPath(); g.moveTo(13, y + 10); g.lineTo(13, y + 17); g.stroke(); } }
   else if (kind === 'ladder_wood' || kind === 'ladder_iron') { g.fillStyle = kind === 'ladder_iron' ? '#3a3d44' : '#5a3c22'; g.fillRect(2, 0, 4, 64); g.fillRect(20, 0, 4, 64); g.fillStyle = kind === 'ladder_iron' ? '#6a6e78' : '#8a6238'; for (let y = 6; y < 64; y += 16) g.fillRect(2, y, 22, 4); }
   else if (kind === 'vine' || kind === 'root') { g.strokeStyle = kind === 'vine' ? '#2f5a26' : '#4a3422'; g.lineWidth = 5; g.beginPath(); g.moveTo(13, 0); g.bezierCurveTo(4, 16, 22, 32, 13, 64); g.stroke(); if (kind === 'vine') { g.fillStyle = '#4f8a36'; for (let y = 6; y < 64; y += 15) { g.beginPath(); g.ellipse(y % 30 ? 6 : 20, y, 6, 3, 0.6, 0, 7); g.fill(); } } }
-  else { g.fillStyle = '#7a6140'; g.fillRect(10, 0, 6, 64); g.strokeStyle = '#3d2f1c'; g.lineWidth = 1.5; for (let y = -6; y < 64; y += 7) { g.beginPath(); g.moveTo(10, y + 6); g.lineTo(16, y); g.stroke(); } g.fillStyle = 'rgba(255,255,255,0.18)'; g.fillRect(10, 0, 2, 64); }
+  else { g.fillStyle = '#2a1e10'; g.fillRect(7, 0, 12, 64); g.fillStyle = '#a8875a'; g.fillRect(9, 0, 8, 64); g.fillStyle = '#d8bc8a'; g.fillRect(9, 0, 3, 64); g.strokeStyle = '#4a361e'; g.lineWidth = 2; for (let y = -8; y < 64; y += 8) { g.beginPath(); g.moveTo(9, y + 8); g.lineTo(17, y); g.stroke(); } return c; }
+  if (false) { g.fillStyle = '#7a6140'; g.fillRect(10, 0, 6, 64); g.strokeStyle = '#3d2f1c'; g.lineWidth = 1.5; for (let y = -6; y < 64; y += 7) { g.beginPath(); g.moveTo(10, y + 6); g.lineTo(16, y); g.stroke(); } g.fillStyle = 'rgba(255,255,255,0.18)'; g.fillRect(10, 0, 2, 64); }
   return c;
 }
 
@@ -122,8 +139,20 @@ function silhouette(g, kind, W, H, r) {
   const wrap = (fn) => { for (const dx of [-W, 0, W]) { g.save(); g.translate(dx, 0); fn(); g.restore(); } };
   const base = (y0, amp, step) => { const pts = []; for (let x = 0; x <= W; x += step) pts.push([x, y0 + (r() - 0.5) * amp]); pts[pts.length - 1][1] = pts[0][1]; return pts; };
   const fillPts = (pts) => { g.beginPath(); g.moveTo(0, H); for (const p of pts) g.lineTo(p[0], p[1]); g.lineTo(W, H); g.fill(); };
-  if (kind === 'mountains') { const pts = []; let x = 0, up = true; const y0 = H * 0.75; pts.push([0, y0]); while (x < W - 60) { x += 50 + r() * 120; pts.push([Math.min(x, W - 30), up ? H * (0.08 + r() * 0.4) : H * (0.5 + r() * 0.3)]); up = !up; } pts.push([W, y0]); fillPts(pts); return; }
-  fillPts(base(H * 0.86, 14, 60));
+  // every far layer is hazier toward the horizon: paler at its base, a shade darker at its crown
+  const haze = g.createLinearGradient(0, 0, 0, H); haze.addColorStop(0, 'rgb(150,150,150)'); haze.addColorStop(0.55, 'rgb(205,205,205)'); haze.addColorStop(1, 'rgb(255,255,255)'); g.fillStyle = haze;
+  if (kind === 'mountains') {
+    // a broken ridgeline by midpoint displacement (wraps at the seam), with a second lower range in front
+    const ridge = (base, amp, rough) => { let pts = [base, base - amp * (0.4 + r() * 0.6), base]; for (let it = 0, a = amp; it < 6; it++, a *= rough) { const n = []; for (let i = 0; i < pts.length - 1; i++) { n.push(pts[i]); n.push((pts[i] + pts[i + 1]) / 2 + (r() - 0.5) * a); } n.push(pts[pts.length - 1]); pts = n; } return pts; };
+    for (const [base, amp, rough, shade] of [[H * 0.62, H * 0.5, 0.56, 0.78], [H * 0.8, H * 0.3, 0.6, 1]]) {
+      const pts = ridge(base, amp, rough); g.globalAlpha = 1; g.fillStyle = shade < 1 ? `rgb(${150 * shade | 0},${150 * shade | 0},${150 * shade | 0})` : haze;
+      g.beginPath(); g.moveTo(0, H); pts.forEach((y, i) => g.lineTo(i / (pts.length - 1) * W, Math.max(6, y))); g.lineTo(W, H); g.fill();
+      // scree and snow-less crags: a few darker faces under the peaks
+      g.fillStyle = 'rgba(0,0,0,0.16)'; for (let i = 2; i < pts.length - 2; i += 3) if (pts[i] < pts[i - 2] && pts[i] < pts[i + 2]) { const x = i / (pts.length - 1) * W; g.beginPath(); g.moveTo(x, pts[i]); g.lineTo(x + 26 + r() * 30, pts[i] + 70 + r() * 60); g.lineTo(x - 6, pts[i] + 90 + r() * 40); g.fill(); }
+    }
+    return;
+  }
+  fillPts(base(H * 0.86, 14, 60)); g.fillStyle = haze;
   const items = [];
   const n = { town: 9, ruins: 8, deadtrees: 12, forest: 26, spires: 7, graves: 20, pillars: 7, cave: 16, pipes: 6, castle: 3 }[kind] || 8;
   for (let i = 0; i < n; i++) items.push((i + r() * 0.7) * W / n);
@@ -157,7 +186,13 @@ function placeProps(S, M, th, r) {
   const geo = M.geo, props = th.props || [], cache = new Map();
   const sp = (d) => { let s = cache.get(d); if (!s) { s = propSprite(d); cache.set(d, s); } return s; };
   const by = (layer, on) => props.filter(p => p.layer === layer && (on.includes(p.on) || p.on === 'any'));
-  const put = (layer, d, x, y, flip) => { const s = sp(d); S.props[layer].push({ s, x, y, flip, d }); if (d.light) S.lights.push({ x, y: y - d.h * 0.72, col: d.light, r: Math.max(120, d.h * 1.5), seed: r() * 9 }); };
+  const last = new Map();
+  const roomAbove = (x, y, h) => !geo.plats.some(q => !q.ground && x > q.x1 - 20 && x < q.x2 + 20 && q.y < y - 30 && q.y > y - h - 10);     // nothing may poke up through a ledge
+  const put = (layer, d, x, y, flip) => {
+    if (d.on !== 'hang' && d.on !== 'wall' && !roomAbove(x, y, d.h)) return;
+    if (last.has(d) && Math.abs(last.get(d) - x) < 1000) return; last.set(d, x);          // the same piece twice on one screen reads as a clone
+    if (layer === 'front' && d.h > 40) layer = 'mid';                                     // only low tufts may stand in front of the fighters
+    const s = sp(d); S.props[layer].push({ s, x, y, flip, d }); if (d.light) S.lights.push({ x, y: y - d.h * 0.72, col: d.light, r: Math.max(120, d.h * 1.5), seed: r() * 9 }); };
   const busy = (x) => M.portals.some(p => Math.abs(p.x - x) < 150) || M.npcSpots.some(n => Math.abs(n - x) < 70);
   for (const p of geo.plats) {
     const on = p.ground ? ['ground'] : ['ledge'], len = p.x2 - p.x1;
@@ -170,7 +205,7 @@ function placeProps(S, M, th, r) {
     if (!p.ground && hang.length && len > 300) for (let x = p.x1 + 80 + r() * 200; x < p.x2 - 60; x += 300 + r() * 500) put('back', pickW(hang, r), x, p.y + 30, false);
   }
   const wallP = props.filter(q => q.on === 'wall');
-  if (wallP.length) for (let x = 200 + r() * 300; x < geo.w - 150; x += 380 + r() * 420) { const g0 = geo.plats.find(p => p.ground && x >= p.x1 && x <= p.x2); if (!g0) continue; const d = pickW(wallP, r); put('back', d, x, g0.y - 190 - r() * 160 + d.h * 0.5, false); }
+  if (wallP.length && S.theme.backwall) for (let x = 200 + r() * 300; x < geo.w - 150; x += 380 + r() * 420) { const g0 = geo.plats.find(p => p.ground && x >= p.x1 && x <= p.x2); if (!g0) continue; const d = pickW(wallP, r); put('back', d, x, g0.y - 190 - r() * 160 + d.h * 0.5, false); }
 }
 
 // ---- town facades
@@ -207,13 +242,6 @@ async function facades(S, M, th, r) {
     S.buildings[S.buildings.length - 1].h = g0.y - (p.y - 7) + 2;
   }
 }
-async function runeDisc() {
-  const bm = await bitmap(PORTAL_FX.src); const [c, g] = mk(256, 256);
-  if (bm) { g.beginPath(); g.arc(128, 128, 126, 0, 7); g.clip(); g.drawImage(bm, 0, 0, 256, 256); }
-  else { g.strokeStyle = '#fff'; g.lineWidth = 6; g.beginPath(); g.arc(128, 128, 110, 0, 7); g.stroke(); }
-  return G.rd.atlas.addCanvas(c, 'map');
-}
-
 // ------------------------------------------------------------------ drawing
 const T4 = [1, 1, 1, 1];
 export function drawBack(rd, M) {
@@ -230,7 +258,7 @@ export function drawBack(rd, M) {
   }
   if (S.wall) { const s = 510, a = [1, 1, 1, S.wall.alpha]; for (let x = Math.floor(vx0 / s) * s; x < vx1; x += s) for (let y = Math.floor(cam.y / s) * s; y < vy1; y += s) rd.quad(S.wall.r, x, y, s + 0.5, s + 0.5, a); }
   for (const b of S.buildings) if (b.x < vx1 && b.x + b.w > vx0) rd.quad(b.r, b.x, b.y, b.w, b.h);
-  drawProps(rd, S.props.back, S, 0.72, vx0, vx1);
+  drawProps(rd, S.props.back, S, S.theme.backDim ?? 0.56, vx0, vx1, [0.92, 0.97, 1.08]);
   // light pools behind everything solid
   for (const l of S.lights) { if (l.x < vx0 - l.r || l.x > vx1 + l.r) continue; const fl = l.soft ? 1 : 0.85 + 0.15 * Math.sin(G.time * 9 + l.seed) * Math.sin(G.time * 5.3 + l.seed * 2); rd.quad(SHAPES.glow, l.x - l.r, l.y - l.r, l.r * 2, l.r * 2, [l.col[0], l.col[1], l.col[2], 0.36 * fl], null, 1); }
 }
@@ -239,24 +267,44 @@ export function drawTerrain(rd, M) {
   const vx0 = cam.x, vx1 = cam.x + cam.viewW, vy1 = cam.y + cam.viewH;
   for (const p of S.deep.grounds) { if (p.x2 < vx0 || p.x1 > vx1) continue; const y0 = p.y - 5 + GROUND_H - 1; if (y0 > vy1) continue; for (let x = Math.max(p.x1, Math.floor(vx0 / 510) * 510); x < Math.min(p.x2, vx1); x += 510) { const x0 = Math.max(x, p.x1), w = Math.min(x + 510, p.x2) - x0; for (let y = y0; y < vy1; y += 510) rd.quad(S.deep.r, x0, y, w + 0.5, 510.5); } }
   for (const c of S.chunks) if (c.x < vx1 && c.x2 > vx0 && c.y < vy1 && c.r.layer >= 0) rd.quad(c.r, c.x, c.y, c.w, c.h);
+  const LT = [S.light[0], S.light[1], S.light[2], 1];
+  for (const q of S.platSprites) { const r = q.s.r; if (!r || r.layer < 0 || q.x < vx0 - 500 || q.x > vx1 + 500) continue; rd.affine(r, [q.k, 0, 0, q.k, q.x, q.y], -q.ax, -q.ay, q.s.w, q.s.h, LT); }
+  for (const q of S.stairs) { const r = q.s.r; if (!r || r.layer < 0 || q.x < vx0 - 300 || q.x > vx1 + 300) continue; const k = q.h / 80, hw = 128;       // half of the stepped piece, rising toward the higher ground
+    const half = { layer: r.layer, u0: q.up ? r.u0 : (r.u0 + r.u1) / 2, u1: q.up ? (r.u0 + r.u1) / 2 : r.u1, v0: r.v0, v1: r.v1 };
+    rd.quad(half, q.up ? q.x - hw * k : q.x, q.y - q.h, hw * k, 80 * k, LT); }
   // ropes
   const rt = S.ropeTex, lad = S.ropeKind.startsWith('ladder');
-  for (const r of M.geo.ropes) { if (r.x < vx0 - 30 || r.x > vx1 + 30) continue; const w = lad ? 34 : 22; for (let y = r.y1 - 4; y < r.y2; y += 64) { const h = Math.min(64, r.y2 - y); rd.quad({ layer: rt.layer, u0: rt.u0, v0: rt.v0, u1: rt.u1, v1: rt.v0 + (rt.v1 - rt.v0) * h / 64 }, r.x - w / 2, y, w, h, [S.light[0], S.light[1], S.light[2], 1]); } }
+  for (const r of M.geo.ropes) { if (r.x < vx0 - 30 || r.x > vx1 + 30) continue; const w = lad ? 34 : 22;
+    if (r.ladder && S.ladder && S.ladder.r.layer >= 0) { const L = S.ladder, lw = 46, k = lw / L.w, seg = L.h * k; for (let y = r.y1 - 6; y < r.y2; y += seg - 2) { const hgt = Math.min(seg, r.y2 - y), rr = L.r; rd.quad({ layer: rr.layer, u0: rr.u0, v0: rr.v0, u1: rr.u1, v1: rr.v0 + (rr.v1 - rr.v0) * hgt / seg }, r.x - lw / 2, y, lw, hgt, LT); } continue; } for (let y = r.y1 - 4; y < r.y2; y += 64) { const h = Math.min(64, r.y2 - y); rd.quad({ layer: rt.layer, u0: rt.u0, v0: rt.v0, u1: rt.u1, v1: rt.v0 + (rt.v1 - rt.v0) * h / 64 }, r.x - w / 2, y, w, h, [S.light[0], S.light[1], S.light[2], 1]); } }
   drawProps(rd, S.props.mid, S, 1, vx0, vx1);
-  // portals: the frame, a turning rune disc and its glow
+  // portals: Velscour's free-standing vortex — rune rings on the ground, nested arcs of light sweeping
+  // round a tall ellipse, a bright heart, motes rising
   for (const po of M.portals) {
     if (po.x < vx0 - 300 || po.x > vx1 + 300 || po.hidden && !po.found) continue;
-    const col = po.color || [0.45, 0.6, 1], pulse = 0.8 + 0.2 * Math.sin(G.time * 3 + po.x);
-    if (po.door) drawProp(rd, po.door, po.x, po.y + 2, false, [S.light[0], S.light[1], S.light[2], 1]);
-    const cy = po.y - 74, ang = G.time * 0.8, c = Math.cos(ang), s = Math.sin(ang), R = 50;
-    rd.quad(SHAPES.glow, po.x - 120, cy - 120, 240, 240, [col[0], col[1], col[2], 0.55 * pulse], null, 1);
-    if (S.rune && S.rune.layer >= 0) rd.affine(S.rune, [c * 0.62, s, -s * 0.62, c, po.x, cy], -R, -R * 1.45, R * 2, R * 2.9, [col[0] * 1.3, col[1] * 1.3, col[2] * 1.3, 0.95], null, 0.75);
-    if (G.frame % 5 === 0) G.parts.add({ shape: 'star', x: po.x + (Math.random() - 0.5) * 60, y: po.y - Math.random() * 20, vy: -60 - Math.random() * 90, life: 1.2, size: 9, size2: 1, col, front: false });
-    const e = G.text.word(po.label, po.dungeon ? '#ffb86a' : '#cfe0ff', 12.5); G.text.draw(rd, e, po.x, po.y - 176 - (po.door ? Math.max(0, po.doorH - 180) : 0));
+    drawPortal(rd, po.x, po.y, po.color || [1, 0.31, 0.12], po.kind === 'breach' || po.kind === 'raid');
+    const e = G.text.word(po.label, po.dungeon ? '#ffb86a' : '#e8dcc0', 12.5); G.text.draw(rd, e, po.x, po.y - 214);
   }
 }
-export function drawFront(rd, M) { const S = M.scene; if (S) drawProps(rd, S.props.front, S, 0.5, G.cam.x, G.cam.x + G.cam.viewW); }
-function drawProps(rd, list, S, k, vx0, vx1) { const L = S.light, t = [L[0] * k, L[1] * k, L[2] * k, 1]; for (const p of list) { if (p.x < vx0 - 420 || p.x > vx1 + 420) continue; drawProp(rd, p.s, p.x, p.y, p.flip, p.d.light ? [1, 1, 1, 1] : t); } }
+export function drawPortal(rd, x, y, col, rift) {
+  const t = G.time, S2 = 2.9, cy = y - 34 * S2, pulse = 0.85 + 0.15 * Math.sin(t * 3 + x);
+  const ell = (shape, rx, ry, ang, tint, add = 1, oy = 0) => { const c = Math.cos(ang), s = Math.sin(ang); rd.affine(SHAPES[shape], [rx * c / 64, ry * s / 64, -rx * s / 64, ry * c / 64, x, cy + oy], -64, -64, 128, 128, tint, null, add); };
+  // ground: a soft pool of light and two rune rings turning against each other
+  rd.quad(SHAPES.glow, x - 130, y - 34, 260, 62, [col[0], col[1], col[2], 0.5 * pulse], null, 1);
+  ell('ring', 104, 30, t * 0.9, [col[0], col[1], col[2], 0.75], 1, 34 * S2 - 3);
+  ell('rune', 150, 40, -t * 0.5, [col[0], col[1], col[2], 0.5], 1, 34 * S2 - 3);
+  // the tear itself: a dark heart (deeper for rifts), then the light
+  ell('glow', rift ? 92 : 70, rift ? 150 : 118, 0, [0, 0, 0, rift ? 0.95 : 0.6], 0);
+  rd.quad(SHAPES.glow, x - 105, cy - 150, 210, 300, [col[0], col[1], col[2], 0.55 * pulse], null, 1);
+  for (let i = 0; i < 7; i++) {
+    const k = 1 - i * 0.12, sp = (2 + i * 0.6) * (i % 2 ? 1 : -0.8), w = i % 2 ? col : [1, 1, 1];
+    ell('arc', 54 * k * S2 / 2.6, 92 * k * S2 / 2.6, t * sp + i * 1.3, [w[0], w[1], w[2], 0.75 - i * 0.07]);
+  }
+  ell('glow', 30, 62, 0, [1, 0.96, 0.9, 0.55 + 0.25 * Math.sin(t * 5 + x)]);
+  if (rift) for (let i = 0; i < 3; i++) { const a = t * (1.3 + i * 0.4) + i * 2.1; rd.quad(SHAPES.shard, x + Math.cos(a) * 92 - 7, cy + Math.sin(a) * 120 - 14, 14, 28, [col[0] * 0.6, col[1] * 0.6, col[2] * 0.6, 1]); }
+  if (G.frame % 4 === 0) G.parts.add({ shape: Math.random() < 0.5 ? 'star' : 'glow', x: x + (Math.random() - 0.5) * 120, y: y - Math.random() * 16, vy: -70 - Math.random() * 130, vx: (Math.random() - 0.5) * 30, life: 1.4, size: 6 + Math.random() * 8, size2: 1, col, front: Math.random() < 0.4 });
+}
+export function drawFront(rd, M) { const S = M.scene; if (S) drawProps(rd, S.props.front, S, 0.45, G.cam.x, G.cam.x + G.cam.viewW, null, 0.85); }
+function drawProps(rd, list, S, k, vx0, vx1, cool, alpha = 1) { const L = S.light, c = cool || [1, 1, 1], t = [L[0] * k * c[0], L[1] * k * c[1], L[2] * k * c[2], alpha]; for (const p of list) { if (p.x < vx0 - 420 || p.x > vx1 + 420) continue; drawProp(rd, p.s, p.x, p.y, p.flip, p.d.light && k > 0.5 ? [1, 1, 1, 1] : t); } }
 function drawProp(rd, s, x, y, flip, tint) {
   const r = s.r; if (!r || r.layer < 0) return;
   if (s.full && !s.w) { s.w = r.w; s.h = r.h; s.k = s.def.h / r.h; if (s.ax == null) { s.ax = r.w / 2; s.ay = r.h; } }

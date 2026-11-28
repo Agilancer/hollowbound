@@ -30,13 +30,13 @@ export const MAPS = [
       { at: 0.62, to: "sewers_1", label: "Sewer Grate", style: "down" },
     ],
     npcs: [
-      { id: "tobin", at: 0.1 }, { id: "garrick", at: 0.18 }, { id: "stevie", at: 0.26 }, { id: "wren", at: 0.34, tier: 1 },
-      { id: "mira", at: 0.42 }, { id: "greta", at: 0.5 }, { id: "greener", at: 0.55 }, { id: "grinner", at: 0.57 },
+      { id: "garrick", at: 0.18 }, { id: "stevie", at: 0.26 }, { id: "wren", at: 0.34, tier: 1 },
+      { id: "greta", at: 0.5 }, { id: "greener", at: 0.55 }, { id: "grinner", at: 0.57 },
       { id: "gobble", at: 0.59 }, { id: "gorm", at: 0.66 }, { id: "fortunato", at: 0.76 }, { id: "malakor", at: 0.88 },
     ] },
   { id: "hh_west", area: "hollow", name: "Herrington Hollow", street: "Smithy Lane", kind: "town", shape: "town", w: 4400, tiers: 1,
     portals: [ { at: "left", to: "wilds_1", label: "West Gate" }, { at: "right", to: "hh_square" } ],
-    npcs: [
+    npcs: [ { id: "tobin", at: 0.17 }, { id: "mira", at: 0.3 },
       { id: "ferris", at: 0.1 }, { id: "ulf", at: 0.22 }, { id: "homunculus", at: 0.38 }, { id: "lily", at: 0.52, tier: 1 },
       { id: "zafir", at: 0.66 }, { id: "jamie", at: 0.8 },
     ] },

@@ -58,6 +58,7 @@ export function build(desc) {
         const rx = Math.round(k < 6 ? p.x1 + 60 + r() * (p.x2 - p.x1 - 120) : p.x1 + 40 + (k - 6) * (p.x2 - p.x1 - 80) / 7);
         const below = surfaceBelow(rx, p.y);
         if (!below) continue;
+        if (ropes.some(q => Math.abs(q.x - rx) < 170 && q.y1 < below.y && q.y2 > p.y - 250) && k < 12) continue;
         ropes.push({ x: rx, y1: p.y, y2: below.y - 14, ladder: r.chance(0.4) });
         if (p.x2 - p.x1 > 900 && k === 0 && r.chance(0.6)) continue;   // long ledges get a second rope
         break;

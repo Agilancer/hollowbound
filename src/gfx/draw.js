@@ -79,14 +79,16 @@ export function drawOverlay(rd, a) {
   } else if (a.kind === 'hero') {
     const col = a.isPlayer ? '#ffe9a0' : a.inParty ? '#9fd0ff' : a.team === 2 ? '#ff8a7a' : a.fake && a.fake.bad ? '#e8d0d0' : '#ffffff';
     const e = T.tag(a.name, col, a.guild ? '<' + a.guild + '>' : '', a.guildColor || '#c9b27a');
-    T.draw(rd, e, b.x, b.y + 5, a.alpha);
+    let ty = b.y + 5; if (e) { const tags = G._tags || (G._tags = []); for (let k = 0; k < 3; k++) { if (tags.some(q => Math.abs(q[0] - b.x) < (q[2] + e.w) / 2 && Math.abs(q[1] - ty) < 20)) ty += 22; else break; } tags.push([b.x, ty, e.w]); }
+    T.draw(rd, e, b.x, ty, a.alpha);
+    if (a.isPlayer) rd.quad(SHAPES.shard, b.x - 5, (a._top ?? b.y - a.h) - 20 + Math.sin(G.time * 4) * 2, 10, 14, [1, 0.85, 0.3, 0.9]);
     if (!a.isPlayer && (a.inParty || a.barT > 0 || a.team === 2) && !a.dead) {
       const w = 54, f = clamp(a.hp / a.maxHp, 0, 1), x = b.x - w / 2, y = top - 4;
       rd.rect(x - 1.5, y - 1.5, w + 3, 7, [0, 0, 0, 0.7]); rd.rect(x, y, w * f, 4, a.team === 2 ? [0.9, 0.2, 0.15, 1] : [0.25, 0.85, 0.35, 1]);
     }
   } else if (a.kind === 'npc') {
-    T.draw(rd, T.tag(a.name, '#ffd98a', a.title || '', '#b8a888'), b.x, b.y + 5);
-    if (a.mark) { const m = SHAPES[a.mark], bob = Math.sin(G.time * 3.2) * 4; rd.quad(m, b.x - 15, top - 44 + bob, 30, 30 * m.h / m.w); }
+    { const e = T.tag(a.name, '#ffd98a', a.title || '', '#b8a888'); let ty = b.y + 5; if (e) { const tags = G._tags || (G._tags = []); for (let k = 0; k < 3; k++) { if (tags.some(q => Math.abs(q[0] - b.x) < (q[2] + e.w) / 2 && Math.abs(q[1] - ty) < 30)) ty += 34; else break; } tags.push([b.x, ty, e.w]); } T.draw(rd, e, b.x, ty); }
+    if (a.mark) { const m = SHAPES[a.mark], bob = Math.sin(G.time * 3.2) * 4; rd.quad(SHAPES.glow, b.x - 30, top - 66 + bob, 60, 60, a.mark === 'book' ? [0.6, 0.6, 0.6, 0.25] : [1, 0.8, 0.2, 0.4], null, 1); rd.quad(m, b.x - 17, top - 62 + bob, 34, 34 * m.h / m.w); }
   } else if (a.kind === 'summon' && a.barT > 0) {
     const w = 40, f = clamp(a.hp / a.maxHp, 0, 1); rd.rect(b.x - w / 2, top - 4, w * f, 3, [0.3, 0.8, 0.9, 0.9]);
   }

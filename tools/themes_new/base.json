@@ -1,0 +1,1993 @@
+{
+ "THEMES": {
+  "town": {
+   "name": "Herrington Hollow",
+   "sky": {
+    "top": [
+     0.02,
+     0.03,
+     0.075
+    ],
+    "mid": [
+     0.075,
+     0.085,
+     0.15
+    ],
+    "bot": [
+     0.2,
+     0.15,
+     0.14
+    ],
+    "fog": [
+     0.12,
+     0.12,
+     0.17,
+     0.3
+    ],
+    "orb": [
+     0.76,
+     0.2,
+     0.05,
+     0.55
+    ],
+    "orbCol": [
+     0.95,
+     0.9,
+     0.75
+    ],
+    "stars": 0.55,
+    "vignette": 0.45
+   },
+   "light": [
+    0.95,
+    0.92,
+    1
+   ],
+   "ground": {
+    "top": "env/textures/surfaces/town_grey_cobbles.png",
+    "fill": "env/textures/surfaces/town_packed_dirt.png",
+    "lip": "stone",
+    "lipColor": [
+     0.42,
+     0.41,
+     0.4
+    ]
+   },
+   "ledge": {
+    "tex": "env/textures/surfaces/town_oak_boards.png",
+    "style": "wood"
+   },
+   "backwall": null,
+   "far": [
+    {
+     "kind": "mountains",
+     "color": [
+      0.055,
+      0.065,
+      0.12
+     ],
+     "parallax": 0.15,
+     "height": 0.55
+    },
+    {
+     "kind": "town",
+     "color": [
+      0.045,
+      0.05,
+      0.09
+     ],
+     "parallax": 0.3,
+     "height": 0.42
+    },
+    {
+     "kind": "town",
+     "color": [
+      0.03,
+      0.032,
+      0.055
+     ],
+     "parallax": 0.5,
+     "height": 0.3
+    }
+   ],
+   "rope": "rope",
+   "particles": "leaf",
+   "buildings": [],
+   "facade": {
+    "wall": [
+     "env/textures/surfaces/town_wall_oak_plaster.png",
+     "env/textures/surfaces/town_wall_wattle_daub.png",
+     "env/textures/surfaces/town_wall_town_brick.png",
+     "env/textures/surfaces/town_wall_fieldstone.png",
+     "env/textures/surfaces/town_wall_dressed_limestone.png",
+     "env/textures/surfaces/town_wall_pine_siding.png"
+    ],
+    "roof": [
+     "env/textures/surfaces/town_roof_oak_shingles.png",
+     "env/textures/surfaces/town_roof_blue_slate.png",
+     "env/textures/surfaces/town_roof_terracotta.png",
+     "env/textures/surfaces/town_roof_straw_thatch.png"
+    ],
+    "foundation": [
+     "env/textures/surfaces/masonry_fieldstone_03.png"
+    ],
+    "trim": [
+     "env/textures/surfaces/town_dark_pine.png"
+    ],
+    "doors": [
+     {
+      "src": "env/textures/biome/doors/town_cottage_oak_front.png",
+      "anchor": [
+       32,
+       112
+      ],
+      "h": 150,
+      "_key": "D:town_cottage_oak_front"
+     },
+     {
+      "src": "env/textures/biome/doors/town_tavern_tankard_front.png",
+      "anchor": [
+       32,
+       112
+      ],
+      "h": 150,
+      "_key": "D:town_tavern_tankard_front"
+     },
+     {
+      "src": "env/textures/biome/doors/town_smith_iron_front.png",
+      "anchor": [
+       32,
+       112
+      ],
+      "h": 150,
+      "_key": "D:town_smith_iron_front"
+     },
+     {
+      "src": "env/textures/biome/doors/town_mage_star_front.png",
+      "anchor": [
+       32,
+       112
+      ],
+      "h": 150,
+      "_key": "D:town_mage_star_front"
+     },
+     {
+      "src": "env/textures/biome/doors/town_stable_pine_front.png",
+      "anchor": [
+       32,
+       112
+      ],
+      "h": 150,
+      "_key": "D:town_stable_pine_front"
+     }
+    ],
+    "signs": [
+     "env/textures/biome/signs/sign_blacksmith.png",
+     "env/textures/biome/signs/sign_armorer.png",
+     "env/textures/biome/signs/sign_apothecary.png",
+     "env/textures/biome/signs/sign_spells.png",
+     "env/textures/biome/signs/sign_jeweler.png",
+     "env/textures/biome/signs/sign_tavern.png",
+     "env/textures/biome/signs/sign_inn.png",
+     "env/textures/biome/signs/sign_general_goods.png",
+     "env/textures/biome/signs/sign_bakery.png",
+     "env/textures/biome/signs/sign_stables.png",
+     "env/textures/biome/signs/sign_fletcher.png",
+     "env/textures/biome/signs/sign_tailor.png"
+    ],
+    "windows": [
+     {
+      "src": "env/castle2d/atlas.png",
+      "rect": [
+       120,
+       132,
+       67,
+       85
+      ],
+      "anchor": [
+       33,
+       85
+      ],
+      "h": 110,
+      "_key": "C:window_double"
+     },
+     {
+      "src": "env/castle2d/atlas.png",
+      "rect": [
+       811,
+       0,
+       43,
+       91
+      ],
+      "anchor": [
+       21,
+       91
+      ],
+      "h": 110,
+      "_key": "C:window_stained"
+     },
+     {
+      "src": "env/castle2d/atlas.png",
+      "rect": [
+       251,
+       132,
+       79,
+       84
+      ],
+      "anchor": [
+       39,
+       84
+      ],
+      "h": 110,
+      "_key": "C:window_rose"
+     }
+    ],
+    "recipes": [
+     {
+      "id": "weaponsmith",
+      "wall": "env/textures/surfaces/town_wall_town_brick.png",
+      "roof": "env/textures/surfaces/town_roof_blue_slate.png",
+      "door": "smith_iron",
+      "sign": "blacksmith"
+     },
+     {
+      "id": "armorer",
+      "wall": "env/textures/surfaces/town_wall_fieldstone.png",
+      "roof": "env/textures/surfaces/town_roof_blue_slate.png",
+      "door": "smith_iron",
+      "sign": "armorer"
+     },
+     {
+      "id": "enchanter",
+      "wall": "env/textures/surfaces/town_wall_dressed_limestone.png",
+      "roof": "env/textures/surfaces/town_roof_blue_slate.png",
+      "door": "mage_star",
+      "sign": "spells"
+     },
+     {
+      "id": "alchemist",
+      "wall": "env/textures/surfaces/town_wall_wattle_daub.png",
+      "roof": "env/textures/surfaces/town_roof_straw_thatch.png",
+      "door": "cottage_oak",
+      "sign": "apothecary"
+     },
+     {
+      "id": "jeweler",
+      "wall": "env/textures/surfaces/town_wall_dressed_limestone.png",
+      "roof": "env/textures/surfaces/town_roof_terracotta.png",
+      "door": "cottage_oak",
+      "sign": "jeweler"
+     },
+     {
+      "id": "tavern",
+      "wall": "env/textures/surfaces/town_wall_oak_plaster.png",
+      "roof": "env/textures/surfaces/town_roof_oak_shingles.png",
+      "door": "tavern_tankard",
+      "sign": "tavern"
+     },
+     {
+      "id": "inn",
+      "wall": "env/textures/surfaces/town_wall_oak_plaster.png",
+      "roof": "env/textures/surfaces/town_roof_terracotta.png",
+      "door": "tavern_tankard",
+      "sign": "inn"
+     },
+     {
+      "id": "stables",
+      "wall": "env/textures/surfaces/town_wall_pine_siding.png",
+      "roof": "env/textures/surfaces/town_roof_straw_thatch.png",
+      "door": "stable_pine",
+      "sign": "stables"
+     }
+    ]
+   }
+  },
+  "wilds": {
+   "name": "The Forsaken Wilds",
+   "sky": {
+    "top": [
+     0.03,
+     0.04,
+     0.07
+    ],
+    "mid": [
+     0.13,
+     0.12,
+     0.13
+    ],
+    "bot": [
+     0.3,
+     0.2,
+     0.13
+    ],
+    "fog": [
+     0.2,
+     0.17,
+     0.14,
+     0.35
+    ],
+    "orb": [
+     0.22,
+     0.3,
+     0.06,
+     0.5
+    ],
+    "orbCol": [
+     1,
+     0.72,
+     0.45
+    ],
+    "stars": 0.2,
+    "vignette": 0.5
+   },
+   "light": [
+    1,
+    0.93,
+    0.86
+   ],
+   "ground": {
+    "top": "env/textures/surfaces/town_straw_grass.png",
+    "fill": "env/textures/surfaces/town_dusty_earth.png",
+    "lip": "grass",
+    "lipColor": [
+     0.5,
+     0.44,
+     0.22
+    ]
+   },
+   "ledge": {
+    "tex": "env/textures/surfaces/town_split_boards.png",
+    "style": "wood"
+   },
+   "backwall": null,
+   "far": [
+    {
+     "kind": "mountains",
+     "color": [
+      0.1,
+      0.095,
+      0.11
+     ],
+     "parallax": 0.15,
+     "height": 0.5
+    },
+    {
+     "kind": "ruins",
+     "color": [
+      0.08,
+      0.072,
+      0.08
+     ],
+     "parallax": 0.32,
+     "height": 0.36
+    },
+    {
+     "kind": "deadtrees",
+     "color": [
+      0.05,
+      0.045,
+      0.05
+     ],
+     "parallax": 0.55,
+     "height": 0.34
+    }
+   ],
+   "rope": "rope",
+   "particles": "dust"
+  },
+  "forest": {
+   "name": "The Dark Forest",
+   "sky": {
+    "top": [
+     0.006,
+     0.016,
+     0.02
+    ],
+    "mid": [
+     0.025,
+     0.055,
+     0.05
+    ],
+    "bot": [
+     0.05,
+     0.09,
+     0.07
+    ],
+    "fog": [
+     0.04,
+     0.09,
+     0.075,
+     0.5
+    ],
+    "orb": [
+     0.3,
+     0.16,
+     0.035,
+     0.4
+    ],
+    "orbCol": [
+     0.7,
+     0.9,
+     0.8
+    ],
+    "stars": 0.15,
+    "vignette": 0.7
+   },
+   "light": [
+    0.84,
+    0.95,
+    0.88
+   ],
+   "ground": {
+    "top": "env/textures/surfaces/dark_forest_damp_moss.png",
+    "fill": "env/textures/surfaces/dark_forest_black_loam.png",
+    "lip": "moss",
+    "lipColor": [
+     0.2,
+     0.36,
+     0.14
+    ]
+   },
+   "ledge": {
+    "tex": "env/textures/surfaces/wood_03_rootwood_grain.png",
+    "style": "root"
+   },
+   "backwall": null,
+   "far": [
+    {
+     "kind": "forest",
+     "color": [
+      0.022,
+      0.05,
+      0.045
+     ],
+     "parallax": 0.2,
+     "height": 0.7
+    },
+    {
+     "kind": "forest",
+     "color": [
+      0.015,
+      0.035,
+      0.03
+     ],
+     "parallax": 0.38,
+     "height": 0.62
+    },
+    {
+     "kind": "forest",
+     "color": [
+      0.008,
+      0.02,
+      0.017
+     ],
+     "parallax": 0.6,
+     "height": 0.5
+    }
+   ],
+   "rope": "vine",
+   "particles": "spore"
+  },
+  "graveyard": {
+   "name": "Cathedral Graveyard",
+   "sky": {
+    "top": [
+     0.012,
+     0.02,
+     0.055
+    ],
+    "mid": [
+     0.05,
+     0.075,
+     0.14
+    ],
+    "bot": [
+     0.11,
+     0.14,
+     0.2
+    ],
+    "fog": [
+     0.1,
+     0.13,
+     0.2,
+     0.45
+    ],
+    "orb": [
+     0.68,
+     0.2,
+     0.075,
+     0.7
+    ],
+    "orbCol": [
+     0.82,
+     0.9,
+     1
+    ],
+    "stars": 0.7,
+    "vignette": 0.55
+   },
+   "light": [
+    0.84,
+    0.9,
+    1
+   ],
+   "ground": {
+    "top": "env/textures/surfaces/cathedral_graveyard_nave_flagstone.png",
+    "fill": "env/textures/surfaces/cathedral_graveyard_grave_soil.png",
+    "lip": "grass",
+    "lipColor": [
+     0.3,
+     0.33,
+     0.24
+    ]
+   },
+   "ledge": {
+    "tex": "env/textures/surfaces/cathedral_graveyard_limestone_squares.png",
+    "style": "stone"
+   },
+   "backwall": null,
+   "far": [
+    {
+     "kind": "spires",
+     "color": [
+      0.04,
+      0.06,
+      0.115
+     ],
+     "parallax": 0.18,
+     "height": 0.68
+    },
+    {
+     "kind": "graves",
+     "color": [
+      0.03,
+      0.045,
+      0.085
+     ],
+     "parallax": 0.36,
+     "height": 0.3
+    },
+    {
+     "kind": "deadtrees",
+     "color": [
+      0.018,
+      0.027,
+      0.05
+     ],
+     "parallax": 0.58,
+     "height": 0.4
+    }
+   ],
+   "rope": "chain",
+   "particles": "mist"
+  },
+  "catacombs": {
+   "name": "Skull-Lined Catacombs",
+   "sky": {
+    "top": [
+     0.004,
+     0.004,
+     0.006
+    ],
+    "mid": [
+     0.03,
+     0.025,
+     0.018
+    ],
+    "bot": [
+     0.006,
+     0.005,
+     0.006
+    ],
+    "fog": [
+     0.07,
+     0.055,
+     0.035,
+     0.4
+    ],
+    "orb": [
+     0.5,
+     0.2,
+     0,
+     0
+    ],
+    "orbCol": [
+     0,
+     0,
+     0
+    ],
+    "stars": 0,
+    "vignette": 0.75
+   },
+   "light": [
+    1,
+    0.92,
+    0.8
+   ],
+   "ground": {
+    "top": "env/textures/surfaces/catacombs_crypt_limestone.png",
+    "fill": "env/textures/surfaces/catacombs_slate_bricks.png",
+    "lip": "bone",
+    "lipColor": [
+     0.62,
+     0.56,
+     0.44
+    ]
+   },
+   "ledge": {
+    "tex": "env/textures/surfaces/catacombs_weathered_cobbles.png",
+    "style": "bone"
+   },
+   "backwall": {
+    "tex": "env/textures/biome/walls/catacombs_wall_crypt_ashlar.png",
+    "tint": [
+     0.42,
+     0.38,
+     0.32
+    ],
+    "alpha": 1
+   },
+   "far": [
+    {
+     "kind": "pillars",
+     "color": [
+      0.035,
+      0.03,
+      0.022
+     ],
+     "parallax": 0.25,
+     "height": 0.7
+    },
+    {
+     "kind": "cave",
+     "color": [
+      0.02,
+      0.017,
+      0.012
+     ],
+     "parallax": 0.5,
+     "height": 0.45
+    }
+   ],
+   "rope": "chain",
+   "particles": "dust"
+  },
+  "sewers": {
+   "name": "The Fetid Sewers",
+   "sky": {
+    "top": [
+     0.004,
+     0.004,
+     0.006
+    ],
+    "mid": [
+     0.018,
+     0.03,
+     0.02
+    ],
+    "bot": [
+     0.006,
+     0.005,
+     0.006
+    ],
+    "fog": [
+     0.05,
+     0.09,
+     0.04,
+     0.5
+    ],
+    "orb": [
+     0.5,
+     0.2,
+     0,
+     0
+    ],
+    "orbCol": [
+     0,
+     0,
+     0
+    ],
+    "stars": 0,
+    "vignette": 0.75
+   },
+   "light": [
+    0.86,
+    1,
+    0.84
+   ],
+   "ground": {
+    "top": "env/textures/surfaces/sewers_algae_cobbles.png",
+    "fill": "env/textures/surfaces/sewers_eroded_red_bricks.png",
+    "lip": "slime",
+    "lipColor": [
+     0.33,
+     0.52,
+     0.14
+    ]
+   },
+   "ledge": {
+    "tex": "env/textures/surfaces/sewers_iron_studded_flagstone.png",
+    "style": "iron"
+   },
+   "backwall": {
+    "tex": "env/textures/surfaces/masonry_mossy_ashlar_03.png",
+    "tint": [
+     0.32,
+     0.38,
+     0.28
+    ],
+    "alpha": 1
+   },
+   "far": [
+    {
+     "kind": "pipes",
+     "color": [
+      0.025,
+      0.04,
+      0.025
+     ],
+     "parallax": 0.25,
+     "height": 0.6
+    },
+    {
+     "kind": "pillars",
+     "color": [
+      0.014,
+      0.024,
+      0.015
+     ],
+     "parallax": 0.5,
+     "height": 0.7
+    }
+   ],
+   "rope": "ladder_iron",
+   "particles": "drip"
+  },
+  "march": {
+   "name": "The Veilscar March",
+   "sky": {
+    "top": [
+     0.03,
+     0.02,
+     0.05
+    ],
+    "mid": [
+     0.11,
+     0.08,
+     0.13
+    ],
+    "bot": [
+     0.2,
+     0.15,
+     0.14
+    ],
+    "fog": [
+     0.15,
+     0.12,
+     0.17,
+     0.55
+    ],
+    "orb": [
+     0.5,
+     0.24,
+     0.06,
+     0.6
+    ],
+    "orbCol": [
+     0.85,
+     0.7,
+     0.95
+    ],
+    "stars": 0.25,
+    "vignette": 0.6
+   },
+   "light": [
+    0.93,
+    0.87,
+    0.98
+   ],
+   "ground": {
+    "top": "env/textures/surfaces/dark_forest_peat.png",
+    "fill": "env/textures/surfaces/dark_forest_packed_mud.png",
+    "lip": "grass",
+    "lipColor": [
+     0.36,
+     0.3,
+     0.2
+    ]
+   },
+   "ledge": {
+    "tex": "env/textures/surfaces/ship_09_mossed_shipboard.png",
+    "style": "wood"
+   },
+   "backwall": null,
+   "far": [
+    {
+     "kind": "mountains",
+     "color": [
+      0.085,
+      0.062,
+      0.1
+     ],
+     "parallax": 0.15,
+     "height": 0.45
+    },
+    {
+     "kind": "ruins",
+     "color": [
+      0.06,
+      0.044,
+      0.072
+     ],
+     "parallax": 0.33,
+     "height": 0.34
+    },
+    {
+     "kind": "deadtrees",
+     "color": [
+      0.035,
+      0.026,
+      0.042
+     ],
+     "parallax": 0.56,
+     "height": 0.42
+    }
+   ],
+   "rope": "rope",
+   "particles": "firefly"
+  },
+  "castle": {
+   "name": "Thornwall Approach",
+   "sky": {
+    "top": [
+     0.02,
+     0.02,
+     0.03
+    ],
+    "mid": [
+     0.1,
+     0.075,
+     0.075
+    ],
+    "bot": [
+     0.3,
+     0.13,
+     0.07
+    ],
+    "fog": [
+     0.16,
+     0.1,
+     0.09,
+     0.4
+    ],
+    "orb": [
+     0.8,
+     0.42,
+     0.07,
+     0.6
+    ],
+    "orbCol": [
+     1,
+     0.45,
+     0.25
+    ],
+    "stars": 0.2,
+    "vignette": 0.55
+   },
+   "light": [
+    1,
+    0.9,
+    0.86
+   ],
+   "ground": {
+    "top": "env/textures/surfaces/castle_keep_weathered_gatehouse_flag.png",
+    "fill": "env/textures/surfaces/masonry_grey_ashlar_03.png",
+    "lip": "stone",
+    "lipColor": [
+     0.5,
+     0.5,
+     0.52
+    ]
+   },
+   "ledge": {
+    "tex": "env/textures/surfaces/masonry_grey_ashlar_07.png",
+    "style": "stone"
+   },
+   "backwall": null,
+   "far": [
+    {
+     "kind": "mountains",
+     "color": [
+      0.08,
+      0.06,
+      0.065
+     ],
+     "parallax": 0.15,
+     "height": 0.5
+    },
+    {
+     "kind": "castle",
+     "color": [
+      0.06,
+      0.042,
+      0.047
+     ],
+     "parallax": 0.3,
+     "height": 0.65
+    },
+    {
+     "kind": "castle",
+     "color": [
+      0.035,
+      0.025,
+      0.028
+     ],
+     "parallax": 0.52,
+     "height": 0.45
+    }
+   ],
+   "rope": "chain",
+   "particles": "ash",
+   "buildings": [],
+   "facade": {
+    "wall": [
+     "env/textures/surfaces/masonry_grey_ashlar_01.png",
+     "env/textures/surfaces/masonry_grey_ashlar_05.png",
+     "env/textures/surfaces/masonry_slate_03.png",
+     "env/textures/surfaces/masonry_blackstone_02.png",
+     "env/textures/surfaces/masonry_mossy_ashlar_02.png"
+    ],
+    "roof": [
+     "env/textures/surfaces/castle_roof_black.png",
+     "env/textures/surfaces/castle_roof_blue.png",
+     "env/textures/surfaces/castle_roof_char.png",
+     "env/textures/surfaces/castle_roof_violet.png"
+    ],
+    "foundation": [
+     "env/textures/surfaces/masonry_blackstone_05.png"
+    ],
+    "trim": [
+     "env/textures/surfaces/met_02_riveted_black_iron.png"
+    ],
+    "doors": [
+     {
+      "src": "env/castle2d/atlas.png",
+      "rect": [
+       566,
+       0,
+       61,
+       96
+      ],
+      "anchor": [
+       30,
+       96
+      ],
+      "h": 190,
+      "_key": "C:door_wood"
+     },
+     {
+      "src": "env/castle2d/atlas.png",
+      "rect": [
+       688,
+       0,
+       60,
+       96
+      ],
+      "anchor": [
+       30,
+       96
+      ],
+      "h": 210,
+      "_key": "C:portcullis"
+     },
+     {
+      "src": "env/castle2d/atlas.png",
+      "rect": [
+       628,
+       0,
+       59,
+       96
+      ],
+      "anchor": [
+       29,
+       96
+      ],
+      "h": 190,
+      "_key": "C:door_open"
+     },
+     {
+      "src": "env/castle2d/atlas.png",
+      "rect": [
+       855,
+       0,
+       47,
+       90
+      ],
+      "anchor": [
+       23,
+       90
+      ],
+      "h": 170,
+      "_key": "C:cell_door"
+     }
+    ],
+    "signs": [],
+    "windows": [
+     {
+      "src": "env/castle2d/atlas.png",
+      "rect": [
+       811,
+       0,
+       43,
+       91
+      ],
+      "anchor": [
+       21,
+       91
+      ],
+      "h": 110,
+      "_key": "C:window_stained"
+     },
+     {
+      "src": "env/castle2d/atlas.png",
+      "rect": [
+       120,
+       132,
+       67,
+       85
+      ],
+      "anchor": [
+       33,
+       85
+      ],
+      "h": 110,
+      "_key": "C:window_double"
+     },
+     {
+      "src": "env/castle2d/atlas.png",
+      "rect": [
+       251,
+       132,
+       79,
+       84
+      ],
+      "anchor": [
+       39,
+       84
+      ],
+      "h": 110,
+      "_key": "C:window_rose"
+     },
+     {
+      "src": "env/castle2d/atlas.png",
+      "rect": [
+       952,
+       0,
+       44,
+       90
+      ],
+      "anchor": [
+       22,
+       90
+      ],
+      "h": 110,
+      "_key": "C:window_broken"
+     }
+    ],
+    "battlements": [
+     {
+      "src": "env/castle2d/atlas.png",
+      "rect": [
+       727,
+       132,
+       49,
+       68
+      ],
+      "anchor": [
+       24,
+       68
+      ],
+      "h": 70,
+      "_key": "C:battlement_l"
+     },
+     {
+      "src": "env/castle2d/atlas.png",
+      "rect": [
+       306,
+       287,
+       62,
+       53
+      ],
+      "anchor": [
+       31,
+       53
+      ],
+      "h": 70,
+      "_key": "C:battlement_m"
+     },
+     {
+      "src": "env/castle2d/atlas.png",
+      "rect": [
+       777,
+       132,
+       54,
+       68
+      ],
+      "anchor": [
+       27,
+       68
+      ],
+      "h": 70,
+      "_key": "C:battlement_r"
+     }
+    ],
+    "banners": [
+     "env/textures/banners/velscour_crimson_thorn.png",
+     "env/textures/banners/velscour_bloodstripe.png",
+     "env/textures/banners/velscour_gilded_sunburst.png",
+     "env/textures/banners/velscour_twin_serpents.png"
+    ]
+   }
+  },
+  "caves": {
+   "name": "Depth's Edge Caverns",
+   "sky": {
+    "top": [
+     0.004,
+     0.004,
+     0.006
+    ],
+    "mid": [
+     0.02,
+     0.025,
+     0.035
+    ],
+    "bot": [
+     0.006,
+     0.005,
+     0.006
+    ],
+    "fog": [
+     0.04,
+     0.06,
+     0.08,
+     0.45
+    ],
+    "orb": [
+     0.5,
+     0.2,
+     0,
+     0
+    ],
+    "orbCol": [
+     0,
+     0,
+     0
+    ],
+    "stars": 0,
+    "vignette": 0.75
+   },
+   "light": [
+    0.86,
+    0.94,
+    1
+   ],
+   "ground": {
+    "top": "env/textures/surfaces/dark_forest_shale_chips.png",
+    "fill": "env/textures/surfaces/sand_obsidian_shard_bed.png",
+    "lip": "none",
+    "lipColor": [
+     0.3,
+     0.32,
+     0.36
+    ]
+   },
+   "ledge": {
+    "tex": "env/textures/surfaces/catacombs_black_basalt.png",
+    "style": "stone"
+   },
+   "backwall": {
+    "tex": "env/textures/surfaces/cave_dec_09.png",
+    "tint": [
+     0.2,
+     0.22,
+     0.28
+    ],
+    "alpha": 1
+   },
+   "far": [
+    {
+     "kind": "cave",
+     "color": [
+      0.03,
+      0.04,
+      0.055
+     ],
+     "parallax": 0.2,
+     "height": 0.7
+    },
+    {
+     "kind": "cave",
+     "color": [
+      0.016,
+      0.022,
+      0.03
+     ],
+     "parallax": 0.45,
+     "height": 0.5
+    }
+   ],
+   "rope": "rope",
+   "particles": "drip"
+  },
+  "breach": {
+   "name": "The Eternal Breach",
+   "sky": {
+    "top": [
+     0.015,
+     0.004,
+     0.035
+    ],
+    "mid": [
+     0.1,
+     0.03,
+     0.17
+    ],
+    "bot": [
+     0.22,
+     0.07,
+     0.24
+    ],
+    "fog": [
+     0.16,
+     0.06,
+     0.24,
+     0.5
+    ],
+    "orb": [
+     0.5,
+     0.26,
+     0.11,
+     1
+    ],
+    "orbCol": [
+     0.75,
+     0.35,
+     1
+    ],
+    "stars": 0.85,
+    "vignette": 0.7
+   },
+   "light": [
+    0.93,
+    0.85,
+    1
+   ],
+   "ground": {
+    "top": "env/textures/surfaces/catacombs_weathered_cobbles.png",
+    "fill": "env/textures/surfaces/catacombs_black_basalt.png",
+    "lip": "ash",
+    "lipColor": [
+     0.5,
+     0.45,
+     0.56
+    ]
+   },
+   "ledge": {
+    "tex": "env/textures/surfaces/catacombs_ossuary_aggregate.png",
+    "style": "bone"
+   },
+   "backwall": null,
+   "far": [
+    {
+     "kind": "spires",
+     "color": [
+      0.08,
+      0.025,
+      0.135
+     ],
+     "parallax": 0.15,
+     "height": 0.7
+    },
+    {
+     "kind": "ruins",
+     "color": [
+      0.055,
+      0.016,
+      0.095
+     ],
+     "parallax": 0.34,
+     "height": 0.4
+    },
+    {
+     "kind": "deadtrees",
+     "color": [
+      0.03,
+      0.008,
+      0.05
+     ],
+     "parallax": 0.56,
+     "height": 0.42
+    }
+   ],
+   "rope": "chain",
+   "particles": "ember"
+  },
+  "hall": {
+   "name": "Guild Hall",
+   "sky": {
+    "top": [
+     0.004,
+     0.004,
+     0.006
+    ],
+    "mid": [
+     0.035,
+     0.025,
+     0.018
+    ],
+    "bot": [
+     0.006,
+     0.005,
+     0.006
+    ],
+    "fog": [
+     0.09,
+     0.06,
+     0.035,
+     0.25
+    ],
+    "orb": [
+     0.5,
+     0.2,
+     0,
+     0
+    ],
+    "orbCol": [
+     0,
+     0,
+     0
+    ],
+    "stars": 0,
+    "vignette": 0.55
+   },
+   "light": [
+    1,
+    0.95,
+    0.86
+   ],
+   "ground": {
+    "top": "env/textures/surfaces/castle_keep_royal_inlay_slab.png",
+    "fill": "env/textures/surfaces/masonry_grey_ashlar_05.png",
+    "lip": "none",
+    "lipColor": [
+     0.6,
+     0.56,
+     0.5
+    ]
+   },
+   "ledge": {
+    "tex": "env/textures/surfaces/town_oak_parquet.png",
+    "style": "wood"
+   },
+   "backwall": {
+    "tex": "env/textures/biome/walls/cathedral_wall_nave_ashlar.png",
+    "tint": [
+     0.5,
+     0.46,
+     0.42
+    ],
+    "alpha": 1
+   },
+   "far": [
+    {
+     "kind": "pillars",
+     "color": [
+      0.05,
+      0.038,
+      0.028
+     ],
+     "parallax": 0.3,
+     "height": 0.7
+    },
+    {
+     "kind": "pillars",
+     "color": [
+      0.03,
+      0.022,
+      0.016
+     ],
+     "parallax": 0.55,
+     "height": 0.7
+    }
+   ],
+   "rope": "rope",
+   "particles": "none"
+  },
+  "arena": {
+   "name": "The Duelling Pit",
+   "sky": {
+    "top": [
+     0.004,
+     0.004,
+     0.006
+    ],
+    "mid": [
+     0.04,
+     0.022,
+     0.015
+    ],
+    "bot": [
+     0.006,
+     0.005,
+     0.006
+    ],
+    "fog": [
+     0.1,
+     0.05,
+     0.03,
+     0.3
+    ],
+    "orb": [
+     0.5,
+     0.2,
+     0,
+     0
+    ],
+    "orbCol": [
+     0,
+     0,
+     0
+    ],
+    "stars": 0,
+    "vignette": 0.65
+   },
+   "light": [
+    1,
+    0.9,
+    0.8
+   ],
+   "ground": {
+    "top": "env/textures/surfaces/town_sandy_earth.png",
+    "fill": "env/textures/surfaces/masonry_blackstone_04.png",
+    "lip": "none",
+    "lipColor": [
+     0.6,
+     0.48,
+     0.3
+    ]
+   },
+   "ledge": {
+    "tex": "env/textures/surfaces/town_nailed_decking.png",
+    "style": "wood"
+   },
+   "backwall": {
+    "tex": "env/textures/surfaces/masonry_fieldstone_05.png",
+    "tint": [
+     0.36,
+     0.3,
+     0.26
+    ],
+    "alpha": 1
+   },
+   "far": [
+    {
+     "kind": "pillars",
+     "color": [
+      0.05,
+      0.03,
+      0.02
+     ],
+     "parallax": 0.3,
+     "height": 0.65
+    },
+    {
+     "kind": "pillars",
+     "color": [
+      0.028,
+      0.016,
+      0.011
+     ],
+     "parallax": 0.55,
+     "height": 0.7
+    }
+   ],
+   "rope": "chain",
+   "particles": "dust"
+  },
+  "barrow": {
+   "name": "The Hollow Barrow",
+   "sky": {
+    "top": [
+     0.004,
+     0.004,
+     0.006
+    ],
+    "mid": [
+     0.015,
+     0.03,
+     0.018
+    ],
+    "bot": [
+     0.006,
+     0.005,
+     0.006
+    ],
+    "fog": [
+     0.03,
+     0.07,
+     0.04,
+     0.5
+    ],
+    "orb": [
+     0.5,
+     0.2,
+     0,
+     0
+    ],
+    "orbCol": [
+     0,
+     0,
+     0
+    ],
+    "stars": 0,
+    "vignette": 0.75
+   },
+   "light": [
+    0.86,
+    0.97,
+    0.86
+   ],
+   "ground": {
+    "top": "env/textures/surfaces/dark_forest_root_soil.png",
+    "fill": "env/textures/surfaces/masonry_mossy_ashlar_04.png",
+    "lip": "moss",
+    "lipColor": [
+     0.22,
+     0.36,
+     0.13
+    ]
+   },
+   "ledge": {
+    "tex": "env/textures/surfaces/wood_03_rootwood_grain.png",
+    "style": "root"
+   },
+   "backwall": {
+    "tex": "env/textures/surfaces/masonry_mossy_ashlar_08.png",
+    "tint": [
+     0.26,
+     0.31,
+     0.22
+    ],
+    "alpha": 1
+   },
+   "far": [
+    {
+     "kind": "cave",
+     "color": [
+      0.02,
+      0.04,
+      0.025
+     ],
+     "parallax": 0.22,
+     "height": 0.65
+    },
+    {
+     "kind": "pillars",
+     "color": [
+      0.012,
+      0.024,
+      0.014
+     ],
+     "parallax": 0.5,
+     "height": 0.7
+    }
+   ],
+   "rope": "root",
+   "particles": "spore"
+  },
+  "cistern": {
+   "name": "The Drowned Cistern",
+   "sky": {
+    "top": [
+     0.004,
+     0.004,
+     0.006
+    ],
+    "mid": [
+     0.012,
+     0.03,
+     0.04
+    ],
+    "bot": [
+     0.006,
+     0.005,
+     0.006
+    ],
+    "fog": [
+     0.03,
+     0.09,
+     0.1,
+     0.55
+    ],
+    "orb": [
+     0.5,
+     0.2,
+     0,
+     0
+    ],
+    "orbCol": [
+     0,
+     0,
+     0
+    ],
+    "stars": 0,
+    "vignette": 0.75
+   },
+   "light": [
+    0.82,
+    0.97,
+    1
+   ],
+   "ground": {
+    "top": "env/textures/surfaces/sewers_damp_flagstone.png",
+    "fill": "env/textures/surfaces/sewers_culvert_brick_pavers.png",
+    "lip": "slime",
+    "lipColor": [
+     0.16,
+     0.46,
+     0.4
+    ]
+   },
+   "ledge": {
+    "tex": "env/textures/surfaces/met_05_oxidized_copper.png",
+    "style": "iron"
+   },
+   "backwall": {
+    "tex": "env/textures/biome/walls/catacombs_wall_drowned_crypt.png",
+    "tint": [
+     0.36,
+     0.46,
+     0.48
+    ],
+    "alpha": 1
+   },
+   "far": [
+    {
+     "kind": "pillars",
+     "color": [
+      0.018,
+      0.045,
+      0.055
+     ],
+     "parallax": 0.25,
+     "height": 0.7
+    },
+    {
+     "kind": "pipes",
+     "color": [
+      0.01,
+      0.026,
+      0.032
+     ],
+     "parallax": 0.5,
+     "height": 0.55
+    }
+   ],
+   "rope": "chain",
+   "particles": "drip"
+  },
+  "ossuary": {
+   "name": "Ossuary of Saint Ivo",
+   "sky": {
+    "top": [
+     0.004,
+     0.004,
+     0.006
+    ],
+    "mid": [
+     0.04,
+     0.035,
+     0.025
+    ],
+    "bot": [
+     0.006,
+     0.005,
+     0.006
+    ],
+    "fog": [
+     0.1,
+     0.085,
+     0.055,
+     0.35
+    ],
+    "orb": [
+     0.5,
+     0.2,
+     0,
+     0
+    ],
+    "orbCol": [
+     0,
+     0,
+     0
+    ],
+    "stars": 0,
+    "vignette": 0.75
+   },
+   "light": [
+    1,
+    0.96,
+    0.84
+   ],
+   "ground": {
+    "top": "env/textures/surfaces/catacombs_mortuary_tesserae.png",
+    "fill": "env/textures/surfaces/catacombs_burial_terracotta.png",
+    "lip": "bone",
+    "lipColor": [
+     0.72,
+     0.66,
+     0.52
+    ]
+   },
+   "ledge": {
+    "tex": "env/textures/surfaces/masonry_white_limestone_04.png",
+    "style": "bone"
+   },
+   "backwall": {
+    "tex": "env/textures/biome/walls/catacombs_wall_funerary_chapel.png",
+    "tint": [
+     0.42,
+     0.38,
+     0.3
+    ],
+    "alpha": 1
+   },
+   "far": [
+    {
+     "kind": "pillars",
+     "color": [
+      0.05,
+      0.042,
+      0.03
+     ],
+     "parallax": 0.25,
+     "height": 0.7
+    },
+    {
+     "kind": "graves",
+     "color": [
+      0.03,
+      0.025,
+      0.018
+     ],
+     "parallax": 0.5,
+     "height": 0.3
+    }
+   ],
+   "rope": "ladder_wood",
+   "particles": "dust"
+  },
+  "gatehouse": {
+   "name": "Thornwall Gatehouse",
+   "sky": {
+    "top": [
+     0.004,
+     0.004,
+     0.006
+    ],
+    "mid": [
+     0.03,
+     0.02,
+     0.02
+    ],
+    "bot": [
+     0.006,
+     0.005,
+     0.006
+    ],
+    "fog": [
+     0.09,
+     0.04,
+     0.03,
+     0.35
+    ],
+    "orb": [
+     0.5,
+     0.2,
+     0,
+     0
+    ],
+    "orbCol": [
+     0,
+     0,
+     0
+    ],
+    "stars": 0,
+    "vignette": 0.75
+   },
+   "light": [
+    1,
+    0.88,
+    0.82
+   ],
+   "ground": {
+    "top": "env/textures/surfaces/castle_keep_charcoal_guardstone.png",
+    "fill": "env/textures/surfaces/masonry_blackstone_03.png",
+    "lip": "none",
+    "lipColor": [
+     0.3,
+     0.3,
+     0.32
+    ]
+   },
+   "ledge": {
+    "tex": "env/textures/surfaces/met_02_riveted_black_iron.png",
+    "style": "iron"
+   },
+   "backwall": {
+    "tex": "env/textures/surfaces/masonry_slate_04.png",
+    "tint": [
+     0.36,
+     0.34,
+     0.36
+    ],
+    "alpha": 1
+   },
+   "far": [
+    {
+     "kind": "pillars",
+     "color": [
+      0.04,
+      0.026,
+      0.024
+     ],
+     "parallax": 0.28,
+     "height": 0.7
+    },
+    {
+     "kind": "castle",
+     "color": [
+      0.022,
+      0.014,
+      0.013
+     ],
+     "parallax": 0.52,
+     "height": 0.5
+    }
+   ],
+   "rope": "ladder_iron",
+   "particles": "ember"
+  },
+  "vault": {
+   "name": "The Bone Colossus' Vault",
+   "sky": {
+    "top": [
+     0.004,
+     0.004,
+     0.006
+    ],
+    "mid": [
+     0.035,
+     0.02,
+     0.045
+    ],
+    "bot": [
+     0.006,
+     0.005,
+     0.006
+    ],
+    "fog": [
+     0.09,
+     0.05,
+     0.11,
+     0.45
+    ],
+    "orb": [
+     0.5,
+     0.2,
+     0,
+     0
+    ],
+    "orbCol": [
+     0,
+     0,
+     0
+    ],
+    "stars": 0,
+    "vignette": 0.8
+   },
+   "light": [
+    0.95,
+    0.88,
+    1
+   ],
+   "ground": {
+    "top": "env/textures/surfaces/catacombs_ossuary_aggregate.png",
+    "fill": "env/textures/surfaces/sand_fossil_bedrock.png",
+    "lip": "bone",
+    "lipColor": [
+     0.66,
+     0.6,
+     0.56
+    ]
+   },
+   "ledge": {
+    "tex": "env/textures/surfaces/ship_08_bone_nail_oak.png",
+    "style": "bone"
+   },
+   "backwall": {
+    "tex": "env/textures/biome/walls/catacombs_wall_ossuary_niches.png",
+    "tint": [
+     0.36,
+     0.3,
+     0.4
+    ],
+    "alpha": 1
+   },
+   "far": [
+    {
+     "kind": "pillars",
+     "color": [
+      0.05,
+      0.03,
+      0.065
+     ],
+     "parallax": 0.2,
+     "height": 0.7
+    },
+    {
+     "kind": "cave",
+     "color": [
+      0.03,
+      0.017,
+      0.04
+     ],
+     "parallax": 0.45,
+     "height": 0.55
+    }
+   ],
+   "rope": "chain",
+   "particles": "ash"
+  }
+ },
+ "PORTAL_FX": {
+  "src": "env/textures/portal/portal_top.webp",
+  "rect": [
+   0,
+   0,
+   1024,
+   1024
+  ],
+  "shape": "disc",
+  "radius": 0.5,
+  "edge": "env/textures/portal/portal_edge.webp"
+ },
+ "CHESTS": {
+  "src": "props/chests.webp",
+  "rareOpen": [
+   0,
+   0,
+   128,
+   136
+  ],
+  "open": [
+   130,
+   0,
+   114,
+   126
+  ],
+  "rareClosed": [
+   246,
+   0,
+   109,
+   112
+  ],
+  "closed": [
+   357,
+   0,
+   109,
+   106
+  ]
+ }
+}

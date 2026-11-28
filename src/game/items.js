@@ -86,7 +86,7 @@ export function lookOf(cls, equip, designs) {
     if (head && designs.helms.length) {
       const top = Math.max(...designs.helms.map(d => d.rarity)), r = Math.min(head.rarity, top);
       const ok = designs.helms.filter(d => d.rarity === r); const pool = ok.length ? ok : designs.helms;
-      look.helm = [pool[head.look[0] % pool.length].id, head.look[1]];
+      look.helm = [pool[head.look[0] % pool.length].id, body ? body.look[1] : head.look[1]];      // the helm takes the armour's finish so the set matches
     }
   }
   for (const slot of ['weapon', 'offhand']) {
@@ -106,7 +106,7 @@ export function kitFor(cls, lvl, quality = 0) {
   eq.weapon = makeGear({ slot: 'weapon', cls, ilvl: lvl, rarity: r(base + quality) });
   if (classOffhand(cls)) eq.offhand = makeGear({ slot: 'offhand', cls, ilvl: lvl, rarity: r(base + quality) });
   eq.body = makeGear({ slot: 'body', cls, ilvl: lvl, rarity: r(base + quality) });
-  if (lvl >= 3 || quality > 0) eq.head = makeGear({ slot: 'head', cls, ilvl: lvl, rarity: r(base + quality) });
+  eq.head = makeGear({ slot: 'head', cls, ilvl: lvl, rarity: r(base + quality) });
   if (lvl >= 8) eq.ring = makeGear({ slot: 'ring', cls, ilvl: lvl, rarity: r(base) });
   if (lvl >= 14) eq.amulet = makeGear({ slot: 'amulet', cls, ilvl: lvl, rarity: r(base) });
   return eq;

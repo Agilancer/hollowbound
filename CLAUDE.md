@@ -11,6 +11,8 @@ python3 -m http.server 8200              # from the repo root
 node tools/check_content.mjs -v          # world / npc / quest data cross-checks
 node tools/check_nav.mjs                 # every foothold of every map reachable
 node tools/check_bot.mjs [mapId]         # the hero Bot walks/jumps/climbs to every foothold and back with the real physics
+python3 tools/extract_newgfx.py          # cut assets/newgfx sheets into assets/env/new (sprites.json, tiles.json); needs numpy, scipy, Pillow
+python3 tools/themes_new/gen.py          # spec.py + base.json -> src/data/themes.js (which sprite/tile goes in which area)
 node tools/gen_bestiary.mjs /path/to/velscour   # rebuild assets/bestiary.json from Velscour's data modules
 ```
 Headless Chromium in the cloud container cannot present a WebGPU canvas. Add `?offscreen` and the renderer
@@ -41,4 +43,6 @@ draws to a texture and reads it back onto a 2D canvas (`src/gpu/renderer.js`); l
 - World units: the hero is ~100 tall; Velscour tiles are 62 units (`TILE`); Velscour creature heights ×1.8.
 - Art has no animation frames (slimes excepted): all motion is transform-based in `gfx/draw.js`.
 - Never recolour or refit hero gear by hand: change data in Velscour and re-copy.
+- Environment art is the side-view set in `assets/env/new` (cut from `assets/newgfx`); do not put isometric props back.
+- Spells leave from the weapon tip (`muzzle()` in `skillrun.js`, from the held-gear data); dragon breath from the mouth.
 - Assets under `assets/` come from the velscour, bellmourn and bm repos (see `tools/`); keep additions lean.
