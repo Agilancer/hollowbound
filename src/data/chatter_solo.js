@@ -1669,7 +1669,7 @@ export const SOLO = {
     "malakor was here when my grandfather was a boy. same face",
     "lily belle wears the veil because of what she saw in the flame",
     "they say lily belle enchants with her own memories. thats why shes forgetting things",
-    "homunculus's axe was his brother. long story. sad one",
+    "homunculus says the voice in his axe is a saint. awfully cold for a saint",
     "the axe tells homunculus when someone is about to die. he closes early those days",
     "old mother wren is older than \"old\". ask what year she was born. watch her smile",
     "wren's cauldron has never been emptied. the bottom is from another century",

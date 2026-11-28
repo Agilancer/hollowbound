@@ -122,7 +122,7 @@ export function tickSocial(dt) {
     gossipT = rnd(9, 22); const ns = M.npcs.filter(n => Math.abs(n.x - P.x) < 1100);
     if (ns.length) { const n = pick(ns);
       if (!convo && ns.length > 1 && chance(0.3)) { const o = ns.filter(q => q !== n).sort((a, b) => Math.abs(a.x - n.x) - Math.abs(b.x - n.x))[0]; const src = chance(0.6) ? pick(CONVOS.npc_gossip) : pick(CHATS); convo = { cast: [n, o], lines: src.lines.filter(l => l[0] < 2), i: 0, t: 0.5, kind: 'npc', names: [n.name, o.name] }; }
-      else { const lines = n.N.idle && n.N.idle.length ? n.N.idle : BARKS.any.map(b => b[0]); n.speak(pick(lines), 'npc', 4.5); n.sayDur = 4.5; n.emote = pick(['happy', 'point', 'thinking', 'curious', 'proud', 'worried']); n.emoteT = 4; } }
+      else { const lines = n.N.idle && n.N.idle.length ? n.N.idle : BARKS.any.map(b => b[0]); const L = pick(lines), [text, pose] = Array.isArray(L) ? L : [L]; n.speak(text, 'npc', 4.5); n.sayDur = 4.5; n.emote = pose || pick(['happy', 'point', 'thinking', 'curious', 'proud', 'worried']); n.emoteT = 4; } }
   }
   // the town crier's horn: world shouts
   shoutT -= dt; if (shoutT <= 0) { shoutT = rnd(16, 40); const f = pick(G.roster); emit('chat', { chan: 'shout', from: f.name, guild: f.guild, text: fill(pick(SOLO.shout), { name: f.name, fake: f, cls: f.cls, lvl: f.lvl }) }); }

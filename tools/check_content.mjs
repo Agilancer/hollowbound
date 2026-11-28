@@ -147,14 +147,20 @@ for (const [id, n] of Object.entries(NPCS)) {
   if (!n.name || !n.title) err(`${W}: missing name/title`);
   const r = ROLES.exec(n.role ?? ""); if (!r) err(`${W}: bad role ${n.role}`); else if (r[3] && !dById.has(r[3])) err(`${W}: role for unknown dungeon ${r[3]}`);
   const s = n.sprite ?? {};
-  if (s.va) { if (!(s.va in VA)) err(`${W}: va sprite ${s.va} not in atlas`); }
+  if (s.sheet) {   // a character's own painted poses: every pose it is told to strike must be on the sheet
+    let m = null; try { m = json(`assets/sprites/npc/${s.sheet}.json`); } catch { err(`${W}: sheet ${s.sheet} missing`); }
+    if (m) { const ok = (p) => p in m.poses || (s.emo && s.emo[p] in m.poses);
+      for (const p of [...(s.idle ?? []), ...Object.values(s.emo ?? {})]) if (!(p in m.poses)) err(`${W}: pose ${p} not on sheet ${s.sheet}`);
+      for (const l of [...(n.greet ?? []), ...(n.idle ?? [])]) if (Array.isArray(l) && l[1] && !ok(l[1])) err(`${W}: pose ${l[1]} not on sheet ${s.sheet}`); }
+  }
+  else if (s.va) { if (!(s.va in VA)) err(`${W}: va sprite ${s.va} not in atlas`); }
   else if (s.people) { if (!PEOPLE.has(s.people)) err(`${W}: people sheet ${s.people} missing`); }
   else if (s.mob) { if (!mobOk(s.mob)) err(`${W}: mob sprite ${s.mob} missing`); }
   else if (s.hero) { if (!CLASSES.has(s.hero)) err(`${W}: hero class ${s.hero} unknown`); }
   else err(`${W}: no sprite`);
   if (!(n.greet?.length >= 5)) err(`${W}: ${n.greet?.length ?? 0} greet lines (<5)`);
   if (!(n.idle?.length >= 7)) err(`${W}: ${n.idle?.length ?? 0} idle lines (<7)`);
-  for (const l of [...(n.greet ?? []), ...(n.idle ?? [])]) if (typeof l !== "string" || !l.trim()) err(`${W}: empty line`);
+  for (let l of [...(n.greet ?? []), ...(n.idle ?? [])]) { if (Array.isArray(l)) { if (l[1] != null && typeof l[1] !== "string") err(`${W}: bad pose on "${l[0]}"`); l = l[0]; } if (typeof l !== "string" || !l.trim()) err(`${W}: empty line`); }
 }
 for (const role of ["guild", "arena", "storage", "innkeeper", "travel", "smith", "enchant", "gamble", "shop:weapons", "shop:armor", "shop:potions", "shop:gems"])
   if (!Object.values(NPCS).some((n) => n.role === role)) err(`no npc with role ${role}`);

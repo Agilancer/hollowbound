@@ -30,9 +30,10 @@ export const actions = {
   },
   talk(npc) {
     const id = npc.npcId, N = npc.N, advanced = Q.onTalk(id);
-    npc.body.face = G.player.x >= npc.x ? 1 : -1; npc.emote = 'happy'; npc.emoteT = 3;
+    const L = pick(N.greet || ['...']), [text, pose] = Array.isArray(L) ? L : [L];   // a line may carry its pose: [text, pose]
+    npc.body.face = G.player.x >= npc.x ? 1 : -1; npc.emote = pose || 'happy'; npc.emoteT = pose ? 6 : 3;
     audio.sfx('ui_open');
-    emit('dialog', { npc, id, name: N.name, title: N.title, role: N.role || 'flavor', text: pick(N.greet || ['...']), offers: Q.offersOf(id), turnins: Q.turninsOf(id), active: Q.activeList().filter(q => q.giver === id && !Q.complete(q)), advanced });
+    emit('dialog', { npc, id, name: N.name, title: N.title, role: N.role || 'flavor', text, offers: Q.offersOf(id), turnins: Q.turninsOf(id), active: Q.activeList().filter(q => q.giver === id && !Q.complete(q)), advanced });
   },
   acceptQuest(id) { const q = Q.QUEST_BY_ID.get(id); if (q && Q.canOffer(q)) Q.accept(q); },
   turnInQuest(id) { const q = Q.QUEST_BY_ID.get(id); if (q && Q.complete(q)) Q.turnIn(q); },

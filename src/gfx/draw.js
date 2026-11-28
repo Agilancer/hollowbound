@@ -3,7 +3,7 @@
 // attacks, a lift and lean-back for casts, recoil when hurt, a topple on death.
 import { G, clamp } from '../state.js';
 import { SHAPES } from './fx.js';
-import { heroSprite, slimeFrame, peopleFrame } from './sprites.js';
+import { heroSprite, slimeFrame, peopleFrame, sheetPose } from './sprites.js';
 import { dropTo } from '../game/body.js';
 import { rarityColor } from '../game/items.js';
 
@@ -25,6 +25,7 @@ export function drawActor(rd, a, light) {
   const b = a.body, t = a.animT, moving = Math.abs(b.vx) > 20 && b.plat;
   if (sp.slime) { r = slimeFrame(sp, a.dead ? 'die' : a.hurtT > 0.3 ? 'hurt' : a.lunge > 0.2 ? 'attack' : moving ? 'walk' : 'idle', a.dead ? Math.min(0.55, a.deadT) : t); }
   else if (sp.people) r = peopleFrame(sp, a.dead ? 'dead' : a.emote && a.emoteT > 0 ? a.emote : 'idle');
+  else if (sp.sheet) r = sheetPose(sp, a.emote && a.emoteT > 0 ? a.emote : sp.idle[Math.floor(Math.abs(t / 7 + (a.x || 0) * 0.01)) % sp.idle.length]);   // painted poses: what he's saying, else a slow idle cycle
   if (!r || r.layer < 0) return;
   let dir = b.face < 0 ? -1 : 1; if (sp.faceL) dir = -dir;
   let k = sp.k * (a.scale || 1), sx = 1, sy = 1, rot = 0, lift = 0, ox = 0;

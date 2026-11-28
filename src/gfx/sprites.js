@@ -61,13 +61,25 @@ export function sweepLooks() {
   if (looks.size < 70) return;
   for (const [k, e] of looks) if (e.ready && G.frame - e.used > 600) { e.pool.give(e.r); e.ready = false; looks.delete(k); }
 }
-/** NPC art: { va } vendor portraits, { people } townsfolk strips, { mob } a creature, { hero } an adventurer. */
+/** NPC art: { va } vendor portraits, { people } townsfolk strips, { sheet } a character's own painted poses
+ *  (assets/sprites/npc/<sheet>.webp + .json, Velscour's cut), { mob } a creature, { hero } an adventurer. */
 let peopleMeta = null, vaMeta = null;
+const sheetMeta = {};
 export async function loadNpcMeta() {
-  [peopleMeta, vaMeta] = await Promise.all([fetch(asset('sprites/people/manifest.json')).then(r => r.json()).catch(() => null), fetch(asset('sprites/replacements/atlas.json')).then(r => r.json()).catch(() => null)]);
+  const { NPCS } = await import('../data/npcs.js');
+  const sheets = [...new Set(Object.values(NPCS).map(n => n.sprite && n.sprite.sheet).filter(Boolean))];
+  [peopleMeta, vaMeta] = await Promise.all([fetch(asset('sprites/people/manifest.json')).then(r => r.json()).catch(() => null), fetch(asset('sprites/replacements/atlas.json')).then(r => r.json()).catch(() => null),
+    ...sheets.map(id => fetch(asset('sprites/npc/' + id + '.json')).then(r => r.json()).then(m => { sheetMeta[id] = m; }).catch(() => null))]);
 }
 export function npcSprite(spec, scope = 'map') {
   const at = G.rd.atlas;
+  if (spec.sheet && sheetMeta[spec.sheet]) {   // stand = the figure's painted height; draw him as tall as a vendor (118) and a touch more
+    const m = sheetMeta[spec.sheet], [w, h] = m.cell, url = asset('sprites/npc/' + spec.sheet + '.webp');
+    const idle = spec.idle || [Object.keys(m.poses)[0]];
+    const sp = { sheet: true, url, poses: m.poses, idle, emo: spec.emo || {}, w, h, ax: w / 2, ay: h, k: (spec.ht || 124) / m.stand, cells: {}, scope };
+    sp.r = sheetPose(sp, idle[0]);
+    return sp;
+  }
   if (spec.va && vaMeta && vaMeta[spec.va]) { const c = vaMeta[spec.va]; return { r: at.cell(asset('sprites/replacements/atlas.webp'), c.x, c.y, c.w, c.h, scope), w: c.w, h: c.h, ax: c.w / 2, ay: c.h, k: 118 / c.h }; }
   if (spec.people && peopleMeta) {
     const sh = peopleMeta.sheets.find(s => s.id === spec.people) || peopleMeta.sheets[0];
@@ -77,6 +89,16 @@ export function npcSprite(spec, scope = 'map') {
     return sp;
   }
   return null;
+}
+/** One pose of a { sheet } NPC; `name` is a pose or a town emotion (mapped by spec.emo). Falls back to the
+ *  first idle pose while a new cell uploads. */
+export function sheetPose(sp, name) {
+  if (sp.emo[name]) name = sp.emo[name];
+  if (!(name in sp.poses)) name = sp.idle[0];
+  let r = sp.cells[name];
+  if (!r) r = sp.cells[name] = G.rd.atlas.cell(sp.url, sp.poses[name] * sp.w, 0, sp.w, sp.h, sp.scope);
+  if (r.layer >= 0) return r;
+  const f = sp.cells[sp.idle[0]]; return f && f.layer >= 0 ? f : r;
 }
 export function peopleFrame(sp, name) {
   let r = sp.cells[name]; if (r) return r.layer >= 0 ? r : sp.cells.idle;
