@@ -1,0 +1,20 @@
+HOLLOWBOUND · 100 MULTI-MATERIAL TILESETS
+
+Each 1536 × 1024 RGBA PNG holds six 512 × 512 material blocks.
+Read them left to right on the first row, then left to right on the second.
+Each block uses the same 4 × 4 grid of 128 × 128 cells. The index maps block
+positions to the texture briefs. Row and column numbers are one-based.
+
+Block row 1   Foreground fill | Background fill | Floor top middle | Ceiling middle
+Block row 2   Platform left   | Platform middle | Platform right   | Floor top left
+Block row 3   Slope rises     | Slope falls      | Stairs rise      | Stairs fall
+Block row 4   Ceiling left    | Ceiling right    | Floor top right  | Standalone platform
+
+Both fills repeat horizontally and vertically. Middle platform, floor-top and
+ceiling sections repeat horizontally and join the matching end caps. Shape
+tiles use hard alpha and the PNGs should be sampled with nearest filtering.
+
+Local y of straight walking surfaces is 32. Rising slopes run from y=96 at
+the left to y=32 at the right. Rising stair treads sit at y=92, 76, 60 and 44.
+Descending pieces mirror these elevations. Place matchingly offset landings
+or adjoining elements at the intended step or slope endpoint elevation.
