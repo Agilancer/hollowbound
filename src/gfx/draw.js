@@ -86,7 +86,7 @@ export function drawOverlay(rd, a) {
     }
   } else if (a.kind === 'npc') {
     T.draw(rd, T.tag(a.name, '#ffd98a', a.title || '', '#b8a888'), b.x, b.y + 5);
-    if (a.mark) { const m = SHAPES[a.mark], bob = Math.sin(G.time * 3.2) * 4; rd.quad(m, b.x - 15, top - 44 + bob, 30, 30 * m.h / m.w); }
+    if (a.mark) { const m = SHAPES[a.mark], bob = Math.sin(G.time * 3.2) * 4; rd.quad(SHAPES.glow, b.x - 30, top - 66 + bob, 60, 60, a.mark === 'book' ? [0.6, 0.6, 0.6, 0.25] : [1, 0.8, 0.2, 0.4], null, 1); rd.quad(m, b.x - 17, top - 62 + bob, 34, 34 * m.h / m.w); }
   } else if (a.kind === 'summon' && a.barT > 0) {
     const w = 40, f = clamp(a.hp / a.maxHp, 0, 1); rd.rect(b.x - w / 2, top - 4, w * f, 3, [0.3, 0.8, 0.9, 0.9]);
   }
