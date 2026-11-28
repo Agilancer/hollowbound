@@ -1,51 +1,45 @@
-# Hollowbound
+# Velscour : Hollowbound
 
-A small 2D action platformer. Explore the mining village of Emberwick, then go down into
-Gloamhollow, the old mine beneath the hill, to bring back the Hearthstone from Gorrak, the
-Horned Foreman.
+A grimdark 2D side-scrolling action RPG with a simulated MMO around you: the world, classes, monsters
+and art of **Velscour**, played as a platforming, portal-hopping, party-running side-scroller.
 
-**Play it in the browser:** https://agilancer.github.io/hollowbound/
+**Play:** https://agilancer.github.io/hollowbound/  (needs WebGPU: current Chrome/Edge, Safari on iOS/macOS 26+, Firefox on Windows)
 
-Runs on desktop and phones (touch controls appear on touch screens). Xbox, PlayStation and
-Switch-style controllers work on desktop browsers and on iPhone/iPad.
+You start in **Herrington Hollow**. Take work from the townsfolk, hunt the Forsaken Wilds, the Dark
+Forest, the Cathedral Graveyard, the Fetid Sewers and Skull-Lined Catacombs beneath them, Depth's
+Edge Caverns, the Veilscar March and the road to Thornwall. Other "players" are everywhere: grinding
+your spot, selling junk in the square, forming parties, arguing between guilds. Team up with four of
+them for a dungeon or nineteen for the raid, recruit up to four as companions, charter your own guild
+and furnish its hall, and settle things in the Pit.
+
+- 19 classes with all 684 of Velscour's skills, run in side view
+- Velscour's armor / helmet / weapon overlays and fit data, composed live on every hero
+- 3,100+ creatures from Velscour's bestiary (the Eternal Breach throws all of them at you)
+- 69 maps, 4 party dungeons, 1 raid, 93 quests, ~8,000 lines of chatter
+- Auto-play (T): quests, hunts, loots, shops and runs dungeons on its own
+- Saves in the browser
 
 ## Controls
 
-| Action   | Keyboard              | Controller |
-|----------|-----------------------|------------|
-| Move     | Arrows / WASD         | Left stick or d-pad |
-| Jump     | Z, Space or K         | A |
-| Attack   | X or J                | X |
-| Dash     | C, L or Shift         | B, RB or RT |
-| Talk     | E                     | Y |
-| Potion   | Q or H                | LB or LT |
-| Pause    | Esc or P              | Menu / View |
+| | Keyboard | Touch |
+|---|---|---|
+| Move / climb | Arrows or WASD | left stick |
+| Jump (Down+Jump drops through) | Space / Alt | Jump |
+| Attack | X / Ctrl | Attack |
+| Skills | 1-8 | skill arc |
+| Potions | Q / E | potion buttons |
+| Enter portal | Up | stick up |
+| Talk / interact | F | Talk |
+| Loot | Z (or walk over it) | walk over it |
+| Auto-play | T | AUTO |
+| Bag / Hero / Skills / Quests / Map / Party / Guild / Bestiary | I C V L M P G B | menu row |
 
 ## Run it locally
 
-No build step: it's plain JavaScript modules.
+No build step: plain ES modules.
 
 ```
-python tools/serve.py
+python3 -m http.server 8200
 ```
 
-Then open http://localhost:8420. Add `--lan` to let phones on your Wi-Fi connect.
-
-## Art
-
-Every sprite, tile, background and UI piece is original and drawn by code in `tools/art/`:
-
-- `kit.py`: the shared palette, style guide and pixel tools
-- `chars.py`: a pose rig plus paper-doll layers (bodies, clothes, hair, hats, held items) for every character,
-  rig variants for the ghoul and for Gorrak (drawn natively at twice the resolution), and the dialogue portraits
-- `world.py`: terrain autotiles, parallax skies, houses, trees and water
-- `props.py`: town and cave props, fires, torches, chests, ores and the portal
-- `ui.py`: the HUD, icons, emotes, effects, slimes, pets and the shrine spirit
-
-To repaint everything into `assets/` (needs Python 3 and Pillow):
-
-```
-python tools/art/build.py
-```
-
-Sound effects are synthesized at runtime with the Web Audio API.
+Then open http://localhost:8200. See `CLAUDE.md` for the layout of the code and the tests.

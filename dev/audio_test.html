@@ -1,0 +1,67 @@
+<!doctype html><meta charset="utf-8"><title>audio test</title>
+<body style="background:#111;color:#ccc;font:13px monospace"><button id="go">click to unlock audio</button><pre id="log"></pre>
+<script type="module">
+// Taps whatever reaches the destination so each sound's peak level can be measured.
+const taps = new Map(), conn = AudioNode.prototype.connect;
+AudioNode.prototype.connect = function (dst, ...a) {
+  if (dst instanceof AudioDestinationNode) {
+    let an = taps.get(dst.context);
+    if (!an) { an = dst.context.createAnalyser(); an.fftSize = 2048; taps.set(dst.context, an); }
+    conn.call(this, an);
+  }
+  return conn.call(this, dst, ...a);
+};
+const errors = []; window.errors = errors;
+addEventListener('error', (e) => errors.push('error: ' + e.message));
+addEventListener('unhandledrejection', (e) => errors.push('rejection: ' + (e.reason && e.reason.message || e.reason)));
+const { audio, audioDebug, MUSIC_FOR, AMB_FOR } = await import('../src/core/audio.js');
+window.audio = audio; window.audioDebug = audioDebug;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const buf = new Float32Array(2048);
+async function peak(ms) {
+  const an = [...taps.values()][0]; let pk = 0; const end = performance.now() + ms;
+  while (performance.now() < end) { an.getFloatTimeDomainData(buf); for (const x of buf) pk = Math.max(pk, Math.abs(x)); await sleep(8); }
+  return +pk.toFixed(3);
+}
+const NAMES = 'hit hit_heavy crit swing swing_heavy shoot cast cast_fire cast_cold cast_light cast_holy cast_shadow cast_poison cast_arcane explode heal buff jump land step hurt die mob_die boss_roar coin loot loot_rare potion levelup quest_accept quest_done portal ui_click ui_open ui_close ui_error equip chat shout rope chest summon block dash bell'.split(' ');
+window.NAMES = NAMES;
+// before any gesture: all of this must be a harmless no-op / deferred
+audio.sfx('hit'); audio.music('town'); audio.ambience('town'); audio.setVolume('music', 0.5);
+audio.init(); audio.init();
+window.runTest = async () => {
+  const res = { pre: audioDebug().state, synth: {}, sample: {}, music: {}, amb: {} };
+  audio.init();
+  await sleep(300);
+  res.state = audioDebug().state;
+  res.pendingMusic = audioDebug().music; res.pendingAmb = audioDebug().amb;
+  audio.music(null); audio.ambience(null); await sleep(1800);
+  // pass 1: nothing decoded yet -> procedural fallbacks (and decoding starts)
+  for (const n of NAMES) { audio.sfx(n, { pan: -0.5 }); res.synth[n] = await peak(160); await sleep(60); }
+  audio.sfx('no_such_sound'); audio.sfx(undefined); audio.sfx('constructor'); audio.sfx('hit', { vol: NaN, rate: 0, pan: 9 });
+  for (let i = 0; i < 100 && audioDebug().loading; i++) await sleep(100);
+  await sleep(4500);   // let long tails die
+  res.decoded = audioDebug().decoded.length; res.failed = audioDebug().failed; res.wanted = audioDebug().files.sfx.length;
+  // pass 2: samples
+  for (const n of NAMES) { audio.sfx(n, { vol: 1, rate: 1, pan: 0.3 }); res.sample[n] = await peak(200); await sleep(250); }
+  await sleep(4500);
+  // rate limit + voice cap
+  for (let i = 0; i < 10; i++) audio.sfx('hit');
+  res.rateLimited = audioDebug().voices;
+  for (let k = 0; k < 6; k++) { for (const n of NAMES) audio.sfx(n); await sleep(45); }
+  res.maxVoices = audioDebug().voices;
+  await sleep(5000); res.voicesAfter = audioDebug().voices;
+  // music + ambience, by id and by area key
+  audio.setVolume('sfx', 0);
+  for (const id of audio.list().music) { audio.music(id); await sleep(2200); const d = audioDebug().music; res.music[id] = { ...d, peak: await peak(300) }; }
+  audio.music(null); await sleep(1800); res.musicStopped = audioDebug().music === null; res.silence = await peak(200);
+  for (const id of audio.list().amb) { audio.ambience(id); await sleep(1500); const d = audioDebug().amb; res.amb[id] = { ...d, peak: await peak(300) }; }
+  res.keys = {};
+  for (const k of Object.keys(MUSIC_FOR)) { audio.music(k); audio.ambience(k); await sleep(50); res.keys[k] = [audioDebug().music && audioDebug().music.id, audioDebug().amb && audioDebug().amb.id]; }
+  audio.music('nope'); audio.ambience('nope'); audio.setVolume('bogus', 3); audio.setVolume('master', 7);
+  audio.music(null); audio.ambience(null);
+  res.list = audio.list(); res.errors = errors;
+  document.getElementById('log').textContent = JSON.stringify(res, null, 1);
+  return res;
+};
+window.ready = true;
+</script>

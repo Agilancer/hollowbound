@@ -1,0 +1,761 @@
+import { TREE4 } from './skilltrees4.js';
+// 19 classes x 4 trees x 9 skills = 684 distinct skills (3 rows x 3 columns per tree).
+// Each line: "Name|kind|element|fx|mods"
+// Row level requirements: 1, 12, 30 (mapped to tierRow 0, 2, 4 for unified damage & mana curves).
+// pow=: per-skill total damage tuning multiplier.
+// kinds: melee proj nova aoe beam chain wall zone orbit cyclone whirl leap dash blink
+//        summon buff curse heal trap rain strike fissure corpse
+export const SKILLDATA = {
+  paladin: [
+    // Tree 0: Holy Wrath (Hammerdin & Holy Caster)
+    [
+      'Holy Bolt|proj|holy|bolt|free wc=0.8 pierce',
+      'Blessed Hammer|orbit|holy|hammer|spiral n=2 dur=2.8 pow=0.82',
+      'Consecration|zone|holy|holy|r=1.35 dur=6 heal pow=0.35',
+      'Fist of the Heavens|strike|holy|lightning|n=4 pow=0.58 cd=2.5',
+      'Judgment Beam|beam|holy|laser|dur=1.6 range=1.2 pow=0.95',
+      'Sanctuary|zone|holy|holy|follow heal r=1.4 dur=8 cd=12',
+      'Purifying Nova|nova|holy|holy|r=1.6 knock stun cd=5',
+      "Heaven's Fury|aoe|holy|pillar|n=5 r=1.2 dur=3 cd=6",
+      'Apocalypse of Light|rain|holy|star|n=24 r=2 dur=3 cd=10 pow=0.9',
+    ],
+    // Tree 1: Bulwark (Smiter, Shield Combat & Active Auras)
+    [
+      'Smite|melee|holy|smash|free wc=1.1 knock stun arc=70',
+      'Holy Shield|buff|holy|shield|buff=armor,block amt=40 dur=25 cd=25',
+      "Crusader's Charge|dash|holy|charge|range=1.3 knock pow=0.88",
+      'Blessed Shield|proj|holy|pshield|ricochet=5 spd=0.85 pow=0.56',
+      'Fanaticism|buff|holy|aura|buff=as,dmg amt=28 dur=20 cd=28 party',
+      'Conviction|curse|holy|sigil|curse=amp amt=35 r=1.6 at=self',
+      'Holy Freeze Aura|buff|cold|aura|pulse slow buff=armor amt=25 dur=20 cd=25',
+      'Guardian Angel|summon|holy|guardian|sum=guardian n=2 dur=22 cd=30',
+      'Bastion of Faith|buff|holy|shield|buff=armor,res,block,thorns amt=55 dur=12 cd=40',
+    ],
+    // Tree 2: Crusade (Melee Flurries, Vengeance & Condemn)
+    [
+      'Zeal|melee|phys|slash|n=5 dmg=0.58 pow=0.36',
+      'Vengeance|melee|light|smash|exp burn pow=0.68',
+      'Condemn|nova|holy|holy|pull r=1.5 dmg=1.35 cd=3.5',
+      'Holy Fire Blade|melee|fire|slash|cleave burn exp pow=0.78',
+      'Sweep|melee|phys|spin|arc=220 r=1.25 knock',
+      'Inquisition|curse|fire|sigil|curse=decay,amp r=1.3',
+      'Blade Barrage|proj|holy|blade|n=7 spread=65 pierce pow=0.34',
+      'Final Judgment|melee|holy|smash|dmg=2.8 exp r=1.5 cd=3 pow=0.55',
+      'Crusade|buff|holy|transform|transform buff=dmg,as,leech amt=38 dur=15 cd=40',
+    ],
+  ],
+  ranger: [
+    // Tree 0: Marksmanship (Bow, Precision & Ballistics)
+    [
+      'Quick Shot|proj|phys|arrow|free wc=1',
+      'Multishot|proj|phys|arrow|n=5 spread=42',
+      'Piercing Arrow|proj|phys|arrow|pierce spd=1.4 dmg=1.15',
+      'Guided Arrow|proj|phys|arrow|home pierce dmg=1.35',
+      'Strafe|proj|phys|arrow|n=8 rand dmg=0.62',
+      'Rain of Arrows|rain|phys|arrow|n=20 r=1.5 slow cd=3',
+      'Sniper Shot|proj|phys|arrow|pierce dmg=3.2 spd=2 cd=2.5',
+      'Windrunner|buff|phys|wind|buff=speed,as,crit amt=35 dur=14 cd=25',
+      'Arrow Storm|rain|phys|arrow|n=42 r=2.1 dur=3 cd=8',
+    ],
+    // Tree 1: The Wilds (Companion Beasts & Primal Nature)
+    [
+      'Wolf Companion|summon|phys|wolf|sum=wolf n=2 max=4',
+      'Entangling Roots|curse|poison|thorn|curse=slow,stun r=1.3',
+      'Poison Ivy Shot|proj|poison|arrow|poison slow exp r=1.1',
+      'Hawk Companion|summon|light|bird|sum=stormhawk n=2 max=2 cd=12',
+      'Great Bear|summon|phys|bear|sum=bear max=1 cd=15',
+      "Hunter's Call|buff|phys|aura|buff=as,leech amt=30 dur=15 cd=25 party",
+      'Heart of the Oak|buff|poison|aura|buff=life,regen amt=35 dur=25 cd=30 party',
+      'Ghost Stampede|fissure|phys|earth|n=3 spread=36 range=1.6 knock cd=4',
+      'Avatar of the Wild|buff|poison|transform|transform buff=dmg,as,armor amt=45 dur=15 cd=45',
+    ],
+    // Tree 2: Traps & Tricks (Mechanical Demolitions & Stealth)
+    [
+      'Spike Trap|trap|phys|spike|n=2 bleed',
+      'Caltrops|zone|phys|spike|r=1.1 dur=6 slow',
+      'Smoke Screen|curse|shadow|smoke|curse=slow,weaken r=1.3 at=self cd=8',
+      'Explosive Trap|trap|fire|fire|n=3 burn',
+      'Decoy|summon|phys|scarecrow|sum=scarecrow max=1 dur=15 cd=14',
+      'Lightning Pylon|summon|light|tesla|sum=sentry max=2 dur=15 cd=8',
+      'Shadow Step|blink|shadow|smoke|range=1.3 nova cd=2',
+      'Cluster Minefield|trap|fire|mine|n=6 r=1.5 cd=5',
+      'Death Machine|summon|fire|tesla|sum=deathsentry max=2 dur=18 cd=15',
+    ],
+  ],
+  wizard: [
+    // Tree 0: Fire (Pyromancy, Burning & Explosions)
+    [
+      'Fireball|proj|fire|fireball|free wc=0.7 exp r=1.1 burn',
+      'Combustion|aoe|fire|explosion|r=1.3 delay=0.4 burn',
+      'Fire Wall|wall|fire|fire|dur=5 burn',
+      'Flame Wave|beam|fire|breath|dur=1.4 cone knock burn',
+      'Summon Hydra|summon|fire|hydra|sum=hydra max=2 dur=14 cd=6',
+      'Meteor|aoe|fire|meteor|r=1.7 delay=0.9 dmg=2.1 burn cd=2.5',
+      'Inferno Beam|beam|fire|laser|dur=2.4 dmg=1.35 burn cd=4',
+      'Volcano|aoe|fire|eruption|n=6 r=1.1 dur=2.5 burn cd=4',
+      'Armageddon|rain|fire|meteor|n=14 r=2.2 dur=3.5 burn cd=10',
+    ],
+    // Tree 1: Frost (Cryomancy, Crowd Control & Shatter)
+    [
+      'Frost Bolt|proj|cold|shard|free wc=0.7 pierce slow',
+      'Frost Nova|nova|cold|frost|r=1.25 freeze cd=2',
+      'Ice Armor|buff|cold|shield|buff=armor,thorns amt=45 dur=25 cd=25',
+      'Glacial Spike|proj|cold|spear|pierce exp freeze r=1.2 dmg=1.35',
+      'Frozen Orb|proj|cold|orb|spray spd=0.55 slow',
+      'Blizzard|aoe|cold|blizzard|r=1.8 dur=4 slow cd=2.5',
+      'Ice Wall|wall|cold|ice|block dur=6 freeze',
+      'Deep Freeze|buff|cold|shield|pulse freeze buff=armor,res,regen amt=60 dur=6 cd=28',
+      'Absolute Zero|nova|cold|frost|r=2.3 n=2 dmg=2 freeze cd=8',
+    ],
+    // Tree 2: Storm (Electromancy, Mobility & Overcharge)
+    [
+      'Charged Bolt|proj|light|spark|free wc=0.65 n=5 rand spd=0.85 range=1.2 bounce=1 wander',
+      'Lightning Bolt|beam|light|lightning|range=1.2',
+      'Teleport|blink|light|lightning|range=1.5 cd=1',
+      'Chain Lightning|chain|light|lightning|n=5',
+      'Ball Lightning|proj|light|orb|pierce spd=0.6 r=1.5',
+      'Static Field|nova|light|lightning|r=1.35 static=25 dmg=0.55 cd=1.5',
+      'Thunderstorm|summon|light|cloud|sum=stormcloud max=1 dur=16 cd=14',
+      'Tempest Cyclone|cyclone|light|storm|n=3 dur=5 cd=6',
+      'Wrath of the Sky|strike|light|lightning|n=12 r=1.6 cd=8',
+    ],
+  ],
+  necromancer: [
+    // Tree 0: Bone & Blood (Physical Artillery & Vitality Siphon)
+    [
+      'Bone Spear|proj|phys|spear|free wc=0.75 pierce dmg=1.15',
+      'Bone Armor|buff|phys|bone|buff=armor,thorns amt=55 dur=28 cd=25',
+      'Blood Drain|beam|blood|drain|dur=1.4 leech range=0.8',
+      'Corpse Explosion|corpse|fire|gore|n=4 r=1.35',
+      'Blood Nova|nova|blood|blood|r=1.35 leech',
+      'Bone Prison|wall|phys|bone|ring block dur=6 cd=6',
+      'Bone Spirit|proj|shadow|skull|home dmg=2 cd=1.5',
+      'Bone Storm|orbit|phys|bone|n=8 dur=7 cd=9',
+      'Exsanguinate|nova|blood|blood|r=2.2 n=2 dmg=2 leech cd=8',
+    ],
+    // Tree 1: Summoning (The Undead Horde & Constructs)
+    [
+      'Raise Skeleton|summon|phys|skeleton|sum=skeleton n=2 max=6',
+      'Skeletal Mage|summon|cold|skeleton|sum=skelmage n=1 max=4',
+      'Summon Golem|summon|phys|golem|sum=claygolem max=1 cd=8',
+      'Dark Pact|buff|shadow|aura|buff=dmg,crit amt=28 dur=20 party cd=25',
+      'Revive|summon|shadow|revive|sum=revive n=1 max=3',
+      'Unholy Command|buff|shadow|aura|buff=as,speed amt=35 party dur=15 cd=22',
+      'Ghoul Horde|summon|poison|ghoul|sum=ghoul n=4 dur=18 cd=15',
+      'Army of the Dead|summon|shadow|skeleton|sum=skeleton n=6 dur=16 cd=30',
+      'Lich Form|buff|cold|transform|transform buff=dmg,res,cdr amt=42 dur=16 cd=45',
+    ],
+    // Tree 2: Curses & Plague (Debuffs, Hexes & Virulence)
+    [
+      'Amplify Damage|curse|shadow|sigil|curse=amp amt=40 r=1.3',
+      'Decrepify|curse|shadow|sigil|curse=slow,weaken r=1.3',
+      'Poison Nova|nova|poison|poison|r=1.4 poison',
+      'Life Tap|curse|blood|sigil|curse=leech r=1.3',
+      'Plague Cloud|zone|poison|poison|r=1.4 dur=6 poison',
+      'Terror|curse|shadow|sigil|curse=fear,confuse r=1.4 at=self cd=6',
+      'Plague Spear|proj|poison|spear|pierce poison exp r=1.2 dmg=1.4',
+      'Pestilence Aura|zone|poison|poison|follow r=1.6 dur=10 poison cd=14',
+      'Doom|curse|shadow|sigil|curse=doom,amp r=1.1 dmg=4.2 cd=8',
+    ],
+    // Tree 3: Skeletal Legion (Formations & Specialized Champions)
+    [
+      'Skeletal Reaver|summon|phys|skeleton|sum=reaver max=3',
+      'Coffin Guard|summon|phys|skeleton|sum=coffinguard max=2',
+      'Mend Bones|heal|shadow|bone|amt=20 party cd=8',
+      'Bone Standard-Bearer|summon|phys|skeleton|sum=standard max=1 cd=12',
+      'Skeletal Stormcaller|summon|light|skeleton|sum=stormcaller max=3',
+      'Chained Jailer|summon|phys|skeleton|sum=jailer max=2',
+      'Pyre Inquisitor|summon|fire|skeleton|sum=pyreknight max=2 cd=10',
+      'Grave Warband|summon|phys|skeleton|sum=warband n=5 dur=20 cd=28',
+      'Reaper King|summon|shadow|skeleton|sum=reaperking max=1 cd=15',
+    ],
+  ],
+  barbarian: [
+    // Tree 0: Rage (The Berserker & Whirlwind)
+    [
+      'Bash|melee|phys|smash|free wc=1.1 knock',
+      'Frenzy|melee|phys|slash|n=3 dmg=0.72',
+      'Furious Charge|dash|phys|charge|range=1.6 knock',
+      'Whirlwind|whirl|phys|blade|dur=12 r=1.45 suck=0.4',
+      'Cleave|melee|phys|slash|cleave arc=200 dmg=1.35',
+      'Double Throw|proj|phys|axe|n=2 spread=16 ret pierce',
+      'Executioner|melee|blood|slash|dmg=3 bleed cd=2',
+      'Bloodlust|buff|blood|aura|buff=as,crit,leech amt=30 dur=12 cd=25',
+      'Wrath of the Berserker|buff|blood|transform|transform buff=dmg,as,speed amt=50 dur=16 cd=45',
+    ],
+    // Tree 1: Warcries (Vocal Commands & Ancestral Spirits)
+    [
+      'Battle Orders|buff|phys|shout|buff=life,armor amt=35 dur=30 cd=28 party',
+      'Howl|curse|phys|shout|curse=fear at=self r=1.3',
+      'Taunt|curse|phys|shout|curse=weaken,amp at=self r=1.2',
+      'War Cry|nova|phys|shock|stun r=1.5 cd=4',
+      'Battle Command|buff|phys|shout|buff=dmg,as amt=25 dur=30 cd=28 party',
+      'Grim Ward|summon|phys|totem|sum=grimward dur=16 cd=18',
+      'Rallying Cry|heal|phys|light|amt=35 party cd=18',
+      'Call of the Ancients|summon|phys|ancient|sum=ancient n=3 dur=22 cd=45',
+      'Undying Rage|buff|blood|aura|buff=regen,armor,res amt=65 dur=10 cd=50',
+    ],
+    // Tree 2: Earthshaker (Seismic Devastation & Leaps)
+    [
+      'Ground Stomp|nova|phys|shock|r=1.1 stun',
+      'Leap Attack|leap|phys|smash|range=1.3 r=1.25 dmg=1.4',
+      'Boulder Toss|proj|phys|rock|lob exp knock r=1.4',
+      'Fissure|fissure|phys|earth|range=1.4 dmg=1.3',
+      'Seismic Step|dash|phys|charge|range=1.4 knock slow',
+      'Earthquake|aoe|phys|eruption|r=2 dur=3.5 rage=25 cd=5',
+      'Avalanche|rain|phys|rock|n=12 r=1.7 stun cd=5',
+      'Stone Skin|buff|phys|shield|buff=armor,thorns amt=70 dur=18 cd=30',
+      'Worldsplitter|fissure|phys|earth|range=2.4 dmg=2.6 stun cd=5',
+    ],
+  ],
+  dragoon: [
+    // Tree 0: Lancework (Spearmanship & Precision Reach)
+    [
+      'Lance Jab|melee|phys|thrust|free wc=1.1 range=1.3',
+      'Twin Thrust|melee|phys|thrust|n=2 range=1.35',
+      'Sweeping Lance|melee|phys|slash|arc=200 knock',
+      'Spiral Lance|proj|phys|spear|pierce spd=1.4 dmg=1.35',
+      'Spearstep|dash|phys|charge|range=1.4 dmg=1.35 cd=2 weave',
+      'Lance Flurry|melee|phys|thrust|n=6 dmg=0.55 range=1.35',
+      'Lance Barrier|orbit|phys|spear|n=5 dur=6 cd=8',
+      'Spear Rain|rain|phys|javelin|n=18 r=1.6 cd=4',
+      'Gungnir|proj|light|spear|pierce dmg=2.8 cd=3',
+    ],
+    // Tree 1: Sky Dive (Aerial Supremacy & Plunges)
+    [
+      'Jump|leap|phys|smash|range=1.15',
+      'Wind Step|dash|phys|wind|range=1.1',
+      'Dragon Dive|leap|fire|dragon|range=1.4 dmg=1.55 burn',
+      'Feather Fall|buff|phys|wind|buff=speed,as amt=30 dur=18 cd=24',
+      'Comet Dive|leap|fire|meteor|dmg=2 r=1.5 cd=3',
+      'Updraft Cyclone|cyclone|phys|wind|n=2 dur=4 pull',
+      'Storm Dive|leap|light|lightning|r=1.65 dmg=2.1 cd=3',
+      'Skyward Sweep|nova|phys|wind|r=1.4 knock stun cd=4',
+      'Dragonfall|leap|fire|dragon|r=2.4 dmg=3.2 burn cd=6',
+    ],
+    // Tree 2: Wyrmblood (Dragon Metamorphosis & Breath)
+    [
+      'Dragon Breath|beam|fire|breath|dur=1.2 cone burn',
+      'Wyrm Scale|buff|fire|shield|buff=armor,res amt=35 dur=28 cd=28',
+      'Blood Pact|buff|blood|aura|buff=as,leech amt=28 dur=18 cd=24',
+      'Wyvern Familiar|summon|fire|dragon|sum=wyvern max=1 dur=22 cd=18',
+      'Draconic Roar|curse|fire|shout|curse=amp,fear at=self r=1.5',
+      'Flame Lash|melee|fire|slash|arc=200 burn knock',
+      'Wyrm Coil|orbit|fire|dragon|n=3 dur=8 burn cd=10',
+      'Bloodfire Nova|nova|blood|fire|r=2 leech burn cd=5',
+      'Dragonsoul|buff|fire|transform|transform buff=dmg,armor,res amt=50 dur=18 cd=50',
+    ],
+    // Tree 3: Spearstorm (Tactical Polearms & Phalanx)
+    [
+      'Thousandfold Impalement|aoe|phys|spear|barrage=1 r=1.55 dmg=3 wc=0 cd=8',
+      'Triune Spearfall|aoe|phys|spear|barrage=3 r=1.55 dmg=4.5 wc=0 cd=14',
+      'Rallying Standard|buff|phys|aura|buff=as,speed amt=24 dur=14 cd=24 party weave',
+      'Phalanx Breaker|dash|phys|charge|range=1.6 dmg=1.8 knock cd=4',
+      'Storm of Barbs|nova|light|lightning|r=1.35 n=2 cd=5',
+      'Spear Vortex|cyclone|phys|blade|n=2 dur=4 r=1.35 pull cd=6',
+      'Sunfall Lance|leap|fire|meteor|r=1.8 dmg=2.5 cd=5',
+      'Aegis of the Wyrm|buff|fire|shield|buff=armor,res amt=50 dur=15 cd=35 party',
+      'Sovereign Spearstorm|rain|phys|javelin|n=40 r=2.2 cd=8',
+    ],
+  ],
+  totem_master: [
+    // Tree 0: Totems (Primordial Pylons & Deployables)
+    [
+      'Elemental Totem|summon|fire|totem|sum=totem_fire max=2',
+      'Healing Stream Totem|summon|holy|totem|sum=totem_heal max=1 cd=10',
+      'Stoneclaw Totem|summon|phys|totem|sum=totem_stone max=1 cd=8',
+      'Windfury Totem|summon|phys|totem|sum=totem_wind max=1 cd=14',
+      'Earthbind Totem|summon|phys|totem|sum=totem_earthbind max=1 cd=12',
+      'Totemic Recall|nova|arcane|spirit|r=1.6 dmg=1.5 cd=6',
+      'Magma Totem|summon|fire|totem|sum=totem_volcano max=2 cd=12',
+      'Spirit Link Totem|summon|holy|totem|sum=totem_link max=1 cd=18',
+      'Grand Pantheon Totem|summon|arcane|totem|sum=totem_grand max=1 cd=28',
+    ],
+    // Tree 1: Ancestors (Spiritual Communion & Phantoms)
+    [
+      'Spirit Wolf|summon|cold|spiritwolf|sum=spiritwolf n=2 max=3',
+      'Ancestral Bolt|proj|holy|spirit|home pierce',
+      'Spirit Shield|buff|holy|shield|buff=armor,thorns amt=40 dur=25 cd=25',
+      'Hex|curse|shadow|sigil|curse=slow,weaken,stun r=1.1 cd=6',
+      'Ancestral Guardian|summon|holy|ancient|sum=guardian max=2 cd=14',
+      'Spirit Walk|blink|holy|spirit|range=1.3 nova cd=3',
+      'Rebirth|heal|holy|light|amt=40 party cd=22',
+      'Spirit Bear|summon|holy|bear|sum=spiritbear max=1 cd=16',
+      'Council of Elders|summon|holy|ancient|sum=ancestor n=3 dur=22 cd=45',
+    ],
+    // Tree 2: Earth & Storm (Shamanic Elements & Overloads)
+    [
+      'Elemental Shock|proj|light|spark|free wc=0.85',
+      'Lightning Bolt|beam|light|lightning|range=1.15',
+      'Chain Lightning|chain|light|lightning|n=5',
+      'Primal Stomp|nova|phys|shock|stun knock r=1.3 cd=3',
+      'Lava Burst|proj|fire|fireball|exp burn dmg=1.6',
+      'Thunderstorm|summon|light|cloud|sum=stormcloud max=1 dur=15 cd=14',
+      'Earthquake|aoe|phys|eruption|r=2 dur=3.5 slow cd=4',
+      'Earthen Wall|wall|phys|earth|block dur=7 cd=6',
+      'Avatar of Storms|buff|light|transform|transform buff=dmg,as,cdr amt=45 dur=16 cd=45',
+    ],
+  ],
+  death_knight: [
+    // Tree 0: Frost (Glacial Runes & Obliteration)
+    [
+      'Frost Strike|melee|cold|slash|free wc=1.1 slow',
+      'Howling Blast|nova|cold|frost|r=1.25 slow',
+      'Chains of Ice|curse|cold|frost|curse=slow r=1.1',
+      'Obliterate|melee|cold|smash|dmg=1.85 freeze',
+      'Icebound Fortitude|buff|cold|shield|buff=armor,res amt=50 dur=12 cd=28',
+      'Remorseless Winter|zone|cold|frost|follow r=1.45 dur=8 slow cd=12',
+      'Horn of Winter|buff|cold|aura|buff=dmg,as amt=28 dur=20 cd=25 party',
+      'Glacial Advance|fissure|cold|ice|range=1.5 freeze cd=3',
+      "Sindragosa's Fury|beam|cold|breath|cone dur=2.6 dmg=1.6 freeze cd=8",
+    ],
+    // Tree 1: Unholy (Diseases, Scourge & Undead Command)
+    [
+      'Plague Strike|melee|poison|slash|poison',
+      'Death Coil|proj|shadow|skull|leech',
+      'Raise Ghoul|summon|shadow|ghoul|sum=ghoul max=2',
+      'Pestilence|nova|poison|poison|r=1.6 poison',
+      'Anti-Magic Shell|buff|shadow|shield|buff=res,regen amt=50 dur=10 cd=25',
+      'Dark Transformation|summon|poison|abomination|sum=abomination max=1 cd=24',
+      'Defile|zone|shadow|void|r=1.75 dur=8 cd=8',
+      'Summon Gargoyle|summon|shadow|wraith|sum=wraith n=2 dur=18 cd=22',
+      'Army of the Dead|summon|shadow|ghoul|sum=ghoul n=6 dur=15 cd=40',
+    ],
+    // Tree 2: Blood (Vampirism, Armor & Bone Barriers)
+    [
+      'Blood Strike|melee|blood|slash|cleave leech',
+      'Death Strike|melee|blood|smash|leech dmg=1.45',
+      'Bone Shield|buff|blood|bone|buff=armor,reduce amt=35 dur=24 cd=24',
+      'Death Grip|proj|shadow|chain|pull stun cd=4',
+      'Blood Boil|nova|blood|blood|r=1.4 bleed leech',
+      'Vampiric Blood|buff|blood|aura|buff=life,regen amt=35 dur=14 cd=28',
+      "Gorefiend's Grasp|nova|shadow|void|pull r=1.9 cd=8",
+      'Dancing Rune Weapon|summon|blood|blade|sum=runeweapon max=1 dur=15 cd=28',
+      'Purgatory|buff|blood|transform|transform buff=regen,leech,armor amt=55 dur=12 cd=50',
+    ],
+  ],
+  arcane_sorcerer: [
+    // Tree 0: Starfire (Pure Arcane Energy & Laser Beams)
+    [
+      'Star Missiles|proj|arcane|starmissile|free wc=0.65 n=3 spread=26 home',
+      'Arcane Orb|proj|arcane|orb|pierce exp r=1.25 spd=0.85',
+      'Disintegrate|beam|arcane|quasar|dur=1.6 range=1.1',
+      'Celestial Mirror|buff|arcane|mirror|astro=mirror buff=dmg amt=22 dur=4 cd=24',
+      'Supernova|nova|arcane|supernova|astro=supernova r=2.1 dmg=1.9 cd=6',
+      'Arcane Torrent|rain|arcane|starmissile|n=16 r=1.6 cd=3',
+      'Pulsar|beam|light|pulsar|astro=pulsar dur=3.5 cd=7',
+      'Cosmic Ascension|buff|arcane|transform|transform buff=dmg,as,cdr amt=42 dur=14 cd=45',
+      'Big Bang|aoe|arcane|bigbang|astro=bigbang r=3.3 dmg=3.8 delay=1.3 cd=12',
+    ],
+    // Tree 1: Celestial Bodies (Comets, Meteors & Solar Flares)
+    [
+      'Falling Star|aoe|arcane|starfall|astro=meteor r=0.95 delay=0.5',
+      'Comet|proj|cold|comet|pierce slow r=1.25 spd=1.3',
+      'Solar Wind|proj|fire|flare|n=6 spread=55 knock burn spd=1.25',
+      'Meteor Shower|rain|fire|meteor|astro=shower n=16 r=2.1 dur=2.4 burn cd=4',
+      'Corona|zone|fire|corona|follow r=1.55 dur=8 burn cd=12',
+      'Lunar Tide|nova|arcane|tide|r=1.75 knock heal cd=6',
+      'Eclipse|curse|shadow|eclipse|astro=eclipse curse=amp,fear r=2.2 cd=14',
+      'Sun Slam|aoe|fire|sun|astro=sunslam r=3 dmg=3.4 delay=2 burn cd=10',
+      'Moonfall|aoe|cold|moon|astro=moonfall r=3.3 dmg=4 delay=2.4 freeze cd=14',
+    ],
+    // Tree 2: Gravity (Singularities, Dark Matter & Spacetime)
+    [
+      'Gravity Bolt|proj|shadow|gravorb|pull slow',
+      'Repulse|nova|shadow|gravwave|r=1.25 knock',
+      'Gravity Well|aoe|shadow|blackhole|astro=well pull r=1.35 dur=4',
+      'Wormhole|blink|shadow|wormhole|astro=wormhole range=1.6 nova cd=2',
+      'Graviton Lance|beam|shadow|graviton|dur=1.6 slow',
+      'Accretion Disk|orbit|arcane|accretion|n=8 r=1.3 spiral dur=5 cd=8',
+      'Black Hole|aoe|shadow|blackhole|astro=blackhole pull r=2.1 dur=4 dmg=1.3 cd=8',
+      'Neutron Star|zone|light|neutron|astro=neutron r=1.25 dur=8 cd=12',
+      'Singularity|aoe|shadow|blackhole|astro=blackhole pull r=3.1 dur=5.5 dmg=2 cd=15',
+    ],
+  ],
+  carrion_witch: [
+    // Tree 0: Plague (Insects, Rot & Poison Miasma)
+    [
+      'Rot Bolt|proj|poison|blob|free wc=0.65 poison',
+      'Plague Cloud|zone|poison|poison|r=1.25 dur=5 poison',
+      'Corpse Burst|corpse|poison|plague|n=3 r=1.25 poison',
+      'Locust Swarm|cyclone|poison|locust|n=2 dur=5 poison',
+      'Pestilent Spray|beam|poison|breath|cone dur=1.6 poison',
+      'Infest|curse|poison|locust|curse=decay,amp r=1.3',
+      'Rain of Rot|rain|poison|acid|n=26 r=2 poison cd=6',
+      'Pandemic|nova|poison|plague|n=2 r=2 dmg=1.8 poison cd=6',
+      'Hive Mother|summon|poison|hive|sum=hive max=1 dur=22 cd=28',
+    ],
+    // Tree 1: Murder of Crows (Avian Shadow & Dark Flight)
+    [
+      'Crow Swarm|proj|shadow|crow|n=3 spread=28 home',
+      'Raven Familiar|summon|shadow|bird|sum=raven n=2 max=3',
+      'Feathered Cloak|buff|shadow|feather|buff=speed,res amt=28 dur=20 cd=24',
+      'Murder of Crows|cyclone|shadow|crow|n=3 dur=5',
+      'Eye Gouge|curse|blood|crow|curse=slow,weaken,amp r=1.1',
+      'Night Wings|blink|shadow|feather|range=1.4 nova cd=2',
+      'Feather Blades|proj|phys|feather|n=7 spread=50 pierce bleed',
+      'Unkindness|summon|shadow|bird|sum=raven n=8 dur=15 cd=32',
+      'Nevermore|buff|shadow|transform|transform buff=dmg,speed,crit amt=42 dur=15 cd=45',
+    ],
+    // Tree 2: Hexes (Voodoo Dolls, Cauldrons & Effigies)
+    [
+      'Hex Bolt|proj|shadow|rune|curse=amp',
+      'Voodoo Doll|curse|blood|sigil|curse=mark amt=45 r=0.9',
+      'Withering Hex|curse|shadow|sigil|curse=weaken,slow r=1.3',
+      "Witch's Cauldron|summon|poison|cauldron|sum=cauldron max=1 cd=14",
+      'Blood Hex|curse|blood|sigil|curse=leech,thorns r=1.4',
+      'Effigy Totem|summon|blood|scarecrow|sum=effigy max=1 cd=18',
+      'Mass Hysteria|curse|shadow|sigil|curse=confuse r=1.9 cd=10',
+      'Puppeteer|curse|shadow|sigil|curse=charm r=1.2 cd=18',
+      'Witching Hour|buff|shadow|aura|pulse buff=dmg,cdr amt=40 dur=15 cd=45',
+    ],
+  ],
+  bard: [
+    // Tree 0: Songs (Melodies, Hymns & Party Auras)
+    [
+      'Plucked Note|proj|arcane|n_q|free wc=0.9',
+      'Hymn of Mending|buff|holy|note|buff=regen,res amt=24 dur=25 cd=25 party note=rh',
+      'Ballad of Valor|buff|holy|note|buff=dmg,crit amt=22 dur=25 cd=25 party note=h',
+      'Song of Swiftness|buff|phys|note|buff=speed,as amt=26 dur=24 cd=24 party note=s2',
+      'Dirge of Sorrow|curse|shadow|note|curse=slow,weaken r=1.5 at=self note=rq',
+      'Chorus of Spirits|summon|holy|clone|sum=chorus n=2 dur=16 cd=22 note=t8',
+      'Rhapsody Nova|nova|holy|note|r=1.65 stun heal cd=5 note=e2',
+      'Symphony of Storms|buff|light|note|pulse buff=dmg,as amt=25 dur=18 cd=28 note=treble',
+      'Magnum Opus|buff|holy|note|buff=dmg,as,armor,res amt=42 dur=16 cd=45 party note=hd',
+    ],
+    // Tree 1: Sonic Arts (Acoustic Force, Riffs & Shockwaves)
+    [
+      'Power Chord|proj|phys|n_q|n=3 spread=24 knock',
+      'Echo|proj|phys|n_e|bounce=3 canon dmg=0.78',
+      'Shockwave Riff|fissure|phys|sonic|range=1.35 knock note=e2',
+      'Resonance Beam|beam|arcane|n_treble|dur=1.8',
+      'Feedback Loop|orbit|phys|n_qd|n=3 dur=6 cd=7',
+      'Bass Drop|proj|phys|n_h|lob exp r=1.8 dmg=2 stun cd=4',
+      'Wall of Sound|wall|phys|sonic|block dur=6 cd=6 note=rh',
+      'Amplifier Pylon|summon|arcane|drum|sum=amp max=1 cd=14 note=e2',
+      'Sonic Boom|nova|phys|sonic|r=2.3 n=2 dmg=2.1 knock stun cd=7 note=bass',
+    ],
+    // Tree 2: Trickery (Stage Magic, Illusions & Pyrotechnics)
+    [
+      'Fan of Notes|proj|phys|n_e|n=6 spread=45 bleed',
+      'Smoke Screen|curse|shadow|smoke|curse=slow,weaken r=1.3 at=self note=re',
+      'Pyrotechnics|aoe|fire|firework|n=4 r=0.95 dur=1 burn note=q',
+      'Dancing Notes|orbit|phys|n_e2|n=4 dur=8 cd=8',
+      'Mirror Images|summon|arcane|clone|sum=clone n=3 dur=15 cd=18 note=e2',
+      'Flashbang|curse|holy|flash|curse=stun r=1.5 dur=2 cd=6 note=rq',
+      'Swashbuckle|dash|phys|wind|range=1.35 n=3 bleed cd=4 note=e',
+      'Firework Finale|rain|fire|n_q|n=20 r=1.85 burn cd=5',
+      'Bladestorm Waltz|whirl|phys|blade|dur=4 r=1.45 cd=6 note=qd',
+    ],
+  ],
+  slime_lord: [
+    // Tree 0: Ooze (Acid Projectiles, Waves & Puddles)
+    [
+      'Slime Ball|proj|acid|blob|free wc=0.7 bounce=2',
+      'Slime Pool|zone|acid|slime|r=1.25 dur=6 slow',
+      'Ooze Wave|fissure|acid|slime|range=1.3 knock slow',
+      'Acid Rain|rain|acid|acid|n=16 r=1.55 cd=3',
+      'Gelatinous Wall|wall|acid|slime|block dur=6 slow',
+      'Sludge Beam|beam|acid|slime|dur=2 slow',
+      'Viscous Orbs|orbit|acid|blob|n=6 dur=6 cd=8',
+      'Acid Geyser|aoe|acid|eruption|n=5 r=1.1 dur=2 knock cd=4',
+      'Primordial Flood|zone|acid|slime|r=2.5 dur=8 slow cd=12',
+    ],
+    // Tree 1: Spawn (Mitosis, Broods & Titans)
+    [
+      'Spawn Slimeling|summon|acid|slime|sum=slimeling max=5',
+      'Mitosis|summon|acid|slime|sum=slimeling n=3 dur=18 cd=12',
+      'Sap Mender|summon|poison|slime|sum=sl_mender max=1 cd=10',
+      'Volatile Brood|summon|acid|slime|sum=bombslime n=3 dur=12 cd=8',
+      'Frost Sage|summon|cold|slime|sum=sl_frost max=2 cd=10',
+      'Cannibalize|heal|acid|light|amt=30 cd=14',
+      'Ooze Titan|summon|acid|slime|sum=slimetitan max=1 cd=30',
+      'Slime Hivemind|buff|acid|aura|buff=dmg,as,speed amt=35 party dur=18 cd=30',
+      'Mother Ooze|summon|acid|slime|sum=motherooze max=1 cd=45',
+    ],
+    // Tree 2: Mutation (Amorphous Anatomy & Bounces)
+    [
+      'Body Slam|melee|acid|smash|knock',
+      'Bounce|leap|acid|slime|range=1.2 r=1.3',
+      'Tendril Lash|melee|acid|slash|arc=200 range=1.5 pull',
+      'Slime Armor|buff|acid|shield|buff=armor,thorns amt=50 dur=24 cd=25',
+      'Engulf|melee|acid|bite|dmg=1.75 stun leech',
+      'Rolling Blob|dash|acid|slime|range=1.5 dmg=1.4 knock',
+      'Spike Mutation|nova|acid|spike|r=1.55 n=2 cd=4',
+      'Colossal Form|buff|acid|transform|transform buff=dmg,armor,life amt=42 dur=16 cd=40',
+      'Slime God|buff|acid|transform|transform buff=dmg,as,armor,res amt=55 dur=16 cd=50',
+    ],
+  ],
+  boomerang_knight: [
+    // Tree 0: Throwing (Boomerangs, Trajectories & Catches)
+    [
+      'Curved Boomerang|proj|phys|rang|free wc=1 ret pierce',
+      'Twin Boomerangs|proj|phys|rang|n=2 spread=30 ret pierce',
+      'Chakram|proj|phys|chakram|bounce=6 spd=1.25 ret dmg=0.85',
+      'Heavy Rang|proj|phys|rang|ret pierce r=1.5 dmg=1.45 knock stun',
+      'Seeking Rang|proj|phys|rang|home ret pierce dmg=1.25',
+      'Ricochet Rang|proj|phys|rang|bounce=5 ret dmg=0.82',
+      'Buzzsaw|fissure|phys|blade|range=1.5 bleed cd=3',
+      'Catch & Release|buff|phys|aura|buff=dmg,as,speed amt=35 dur=12 cd=22',
+      'Horizon Rang|proj|arcane|rang|ret pierce r=2.3 dmg=2.4 cd=4',
+    ],
+    // Tree 1: Bladesmanship (Melee Flurries & Wind Slashes)
+    [
+      'Cross Cut|melee|phys|slash|free wc=1 n=2 dmg=0.72',
+      'Wind Slash|proj|phys|wave|pierce spd=1.4',
+      'Gale Rush|dash|phys|charge|range=1.2',
+      'Blade Barrier|buff|phys|shield|buff=block,thorns amt=35 dur=18 cd=22',
+      'Whirling Slash|melee|phys|spin|arc=360 r=1.25',
+      'Blade Flurry|melee|phys|slash|n=6 dmg=0.58 bleed',
+      'Razor Wind Arc|proj|phys|wave|n=3 spread=38 pierce',
+      'Bladestorm Dance|whirl|phys|blade|dur=3 r=1.35 cd=5',
+      "Executioner's Guillotine|melee|blood|slash|dmg=3 bleed exp cd=3.5",
+    ],
+    // Tree 2: Gale Knight (Wind Magic, Twisters & Updrafts)
+    [
+      'Gust|nova|phys|wind|knock r=1.1',
+      'Gale Vortex|zone|phys|wind|r=1.3 dur=4 pull slow',
+      'Tailwind Aura|buff|phys|wind|buff=speed,as amt=25 dur=24 cd=24 party',
+      'Wind Spout|aoe|phys|wind|r=1.3 knock stun',
+      'Razor Tornado|cyclone|phys|wind|n=2 dur=5 bleed',
+      'Tempest Dash|blink|light|wind|range=1.35 nova cd=2.5',
+      'Sky Cutter|strike|phys|blade|n=6 cd=4',
+      'Eye of the Hurricane|zone|light|storm|follow r=1.6 dur=8 knock cd=12',
+      'Cataclysmic Typhoon|cyclone|cold|wind|n=5 dur=6 pull cd=8',
+    ],
+  ],
+  lancer: [
+    // Tree 0: Energy Lance (Jousting, Thrusts & Beams)
+    [
+      'Lance Thrust|melee|light|thrust|free wc=1.1 range=1.5 lance',
+      'Lance Charge|dash|light|charge|range=1.35 knock lance',
+      'Lance Barrage|melee|arcane|thrust|n=4 dmg=0.68 range=1.8 lance',
+      'Lance of Light|beam|holy|laser|dur=0.45 range=0.85 dmg=1.45 lance',
+      'Sweeping Cleave|melee|phys|slash|arc=200 range=1.3 knock lance',
+      'Sunspear|proj|holy|spear|pierce spd=1.6 dmg=1.5 stun',
+      'Storm Lance|beam|light|laser|dur=0.65 range=1.1 dmg=1.75 cd=3 lance',
+      'Lance of Ruin|melee|shadow|thrust|range=2.6 dmg=2.6 exp cd=3 lance',
+      'Prismatic Lance|beam|arcane|laser|dur=1.2 range=1.5 dmg=2.8 cd=5 lance prism',
+    ],
+    // Tree 1: Bulwark (Tower Shields & Fortifications)
+    [
+      'Tower Shield|orbit|phys|tshield|shields dur=20 cd=6',
+      'Shield Slam|melee|phys|smash|stun knock',
+      'Shield Wall|buff|phys|shield|buff=block,armor amt=38 dur=20 cd=24',
+      'Shield Throw|proj|phys|tshield|bounce=4',
+      'Bulwark Nova|nova|phys|shock|r=1.5 stun knock cd=4',
+      'Spear Wall|wall|phys|spike|block dur=6 cd=6',
+      'Ironclad Juggernaut|buff|phys|transform|transform buff=armor,dmg amt=45 dur=15 cd=40',
+      'Bastion of Ten|orbit|light|tshield|shields n=10 dur=30 cd=10 r=1.6 dmg=2',
+      'Living Fortress|buff|holy|aura|buff=armor,res,block,regen amt=55 dur=14 cd=45 party',
+    ],
+    // Tree 2: Knight Order (Banners, Knights & Chivalry)
+    [
+      'Squire Knight|summon|phys|knight|sum=kn_squire n=1 max=1 grow',
+      'Rallying Cry|heal|holy|light|amt=24 party cd=12',
+      'War Banner|summon|holy|banner|sum=banner dur=20 cd=20',
+      'Knight Captain|summon|holy|knight|sum=kn_captain max=1 cd=20',
+      'Hold the Line|buff|phys|shield|buff=armor,res amt=35 party dur=20 cd=28',
+      'Shout of Valor|nova|holy|sonic|stun r=1.45 cd=5',
+      'Valiant Leap|leap|holy|holy|r=1.6 dmg=1.85 cd=3',
+      'Knights of the Round|summon|holy|knight|sum=kn_round n=4 dur=28 cd=45',
+      "Hero's Ascension|buff|holy|transform|transform buff=dmg,as,armor amt=50 dur=18 cd=50",
+    ],
+  ],
+  dragon_knight: [
+    // Tree 0: Flame (Pyromancy, Fire Breath & Magma)
+    [
+      'Dragon Fang Strike|melee|fire|slash|free wc=1.1 burn',
+      'Fire Breath|beam|fire|breath|cone dur=1.2 burn',
+      'Fireball Spit|proj|fire|fireball|lob exp r=1.15 burn',
+      'Flame Nova|nova|fire|fire|r=1.35 knock burn',
+      'Molten Fissure|fissure|fire|fire|range=1.4 burn',
+      'Fire Aura|buff|fire|aura|pulse buff=dmg amt=25 dur=18 cd=26',
+      'Magma Geyser|aoe|fire|eruption|n=4 r=1.2 dur=2 burn knock cd=4',
+      'Inferno Breath|beam|fire|breath|cone dur=2.2 dmg=1.45 burn cd=5',
+      'Cataclysm of Flame|rain|fire|meteor|n=18 r=2.3 dur=3 burn cd=9',
+    ],
+    // Tree 1: Scale (Carapace, Defense & Tail Sweeps)
+    [
+      'Dragon Claw|melee|phys|claw|free wc=1 bleed n=2 dmg=0.72',
+      'Dragon Scales|buff|fire|shield|buff=armor,res amt=40 dur=28 cd=26',
+      'Tail Swipe|melee|phys|spin|arc=360 knock',
+      'Dragon Charge|dash|phys|charge|range=1.4 knock dmg=1.4',
+      'Spiked Carapace|buff|fire|shield|buff=thorns,armor amt=50 dur=20 cd=25',
+      'Draconic Roar|nova|fire|sonic|r=1.5 stun cd=5',
+      'Dragon Leap|leap|fire|dragon|r=1.6 dmg=1.85 cd=3.5',
+      'Dragon Heart|buff|fire|aura|buff=regen,life amt=45 dur=14 cd=32',
+      'Ironclad Wyrmform|buff|phys|transform|transform buff=armor,res,thorns amt=55 dur=16 cd=45',
+    ],
+    // Tree 2: Draconic (Dragon Summons & Wings)
+    [
+      'Drake Whelp|summon|fire|dragon|sum=whelp max=2',
+      'Dragon Wings|dash|fire|wind|range=1.25',
+      'Blood Frenzy|buff|blood|aura|buff=as,leech amt=30 dur=16 cd=24',
+      'Wyvern Spirit|summon|fire|dragon|sum=wyvern max=1 cd=16',
+      'Dragon Fear|curse|fire|shout|curse=fear,amp r=1.5 at=self',
+      'Wyrm Coil|orbit|fire|dragon|n=3 dur=7 burn cd=9',
+      'Elder Red Drake|summon|fire|dragon|sum=elderwyrm max=1 cd=38',
+      'Dragonflight Swarm|summon|fire|dragon|sum=whelp n=6 dur=18 cd=35',
+      'True Dragon Form|buff|fire|transform|transform buff=dmg,as,armor,speed amt=50 dur=18 cd=50',
+    ],
+  ],
+  gunner: [
+    // Tree 0: Firearms (Ballistics, Pistols & Miniguns)
+    [
+      'Burst Fire|proj|phys|bullet|free wc=1 spd=1.6',
+      'Shotgun Blast|proj|phys|bullet|n=7 spread=42 spd=1.35 range=0.65 knock',
+      'Piercing Shot|proj|phys|bullet|pierce spd=2 dmg=1.25',
+      'Snipe|proj|phys|bullet|pierce dmg=2.4 spd=2.5 range=1.5 cd=2',
+      'Full Auto|proj|phys|bullet|n=10 rand spread=28 spd=1.65 dmg=0.6',
+      'Magnum Execution|proj|phys|bullet|dmg=2.2 spd=2 bleed cd=2',
+      'Gunslinger Stance|buff|phys|aura|buff=as,speed,crit amt=35 dur=14 cd=26',
+      'Minigun Fury|proj|phys|bullet|n=32 rand spread=36 spd=1.8 dmg=0.52 cd=5',
+      'Orbital Death Laser|beam|fire|laser|dur=2.8 dmg=1.7 burn cd=7',
+    ],
+    // Tree 1: Explosives (Grenades, Rockets & Demolitions)
+    [
+      'Frag Grenade|proj|fire|bomb|lob exp r=1.2',
+      'Landmine|trap|fire|mine|n=2',
+      'Smoke Grenade|curse|shadow|smoke|curse=slow,weaken r=1.4 at=self',
+      'Rocket Launcher|proj|fire|rocket|exp r=1.45 spd=1.25 dmg=1.4',
+      'Napalm Zone|zone|fire|fire|r=1.45 dur=6 burn slow',
+      'Sticky Bomb|proj|fire|bomb|exp r=1.4 dmg=1.75 cd=2',
+      'Carpet Bomb|fissure|fire|explosion|range=1.7 burn cd=4',
+      'Rocket Barrage|proj|fire|rocket|n=6 spread=42 home exp spd=1.15 cd=4',
+      'Tactical Nuke|aoe|fire|nuke|r=3.3 dmg=4.2 delay=1.3 burn cd=12',
+    ],
+    // Tree 2: Engineering (Turrets, Drones & Robotics)
+    [
+      'Gun Turret|summon|phys|turret|sum=turret max=2',
+      'Support Drone|summon|light|drone|sum=drone max=2',
+      'Repair Kit|heal|phys|light|amt=25 cd=12',
+      'Tesla Coil|summon|light|tesla|sum=tesla max=2 cd=10',
+      'Shield Generator|zone|arcane|holy|r=1.6 dur=8 heal cd=15',
+      'Overclock|buff|light|aura|buff=as,dmg amt=32 dur=14 cd=25 party',
+      'Laser Fence|wall|light|storm|dur=6 cd=6',
+      'Mech Suit|buff|phys|transform|transform buff=armor,dmg,as amt=48 dur=18 cd=45',
+      'War Machine|summon|fire|mech|sum=mech max=1 cd=50',
+    ],
+  ],
+  monk: [
+    // Tree 0: Martial Arts (Barehanded Combos, Kicks & Flurries)
+    [
+      'Fist of Fury|melee|phys|smash|free wc=1 n=3 dmg=0.62',
+      'Flying Kick|dash|phys|charge|range=1.2 knock stun',
+      'Sweeping Crescent|melee|phys|spin|arc=360 r=1.15 knock',
+      'Hundred Fists|melee|phys|smash|n=6 dmg=0.55',
+      'Iron Palm|melee|phys|smash|stun exp r=1.1 dmg=1.5',
+      'Spinning Crane Kick|cyclone|phys|wind|n=1 dur=3.5 pull',
+      'Quivering Palm|melee|phys|smash|dmg=2.6 exp cd=3.5',
+      'Asura Stance|buff|phys|aura|buff=as,crit,speed amt=38 dur=14 cd=30',
+      'Grandmaster Flurry|melee|phys|slash|n=10 dmg=0.52 exp cd=5',
+    ],
+    // Tree 1: Spirit & Mantras (Holy Chi, Bells & Divine Auras)
+    [
+      'Chi Bolt|proj|holy|bolt|free wc=0.8 pierce',
+      'Mantra of Healing|heal|holy|light|amt=20 party cd=8',
+      'Radiant Bell|aoe|holy|pillar|r=1.4 stun delay=0.35',
+      'Inner Peace|zone|holy|holy|heal r=1.45 dur=7 cd=12',
+      'Mantra of Retribution|buff|holy|aura|pulse buff=thorns,dmg amt=32 dur=22 cd=26 party',
+      'Spirit Chains|nova|holy|spirit|pull r=1.6 cd=5',
+      'Purifying Wave|fissure|holy|wave|range=1.5',
+      'Pillar of Nirvana|beam|holy|laser|dur=2.4 dmg=1.5 cd=6',
+      'Avatar of Enlightenment|buff|holy|transform|transform buff=dmg,armor,as,cdr amt=42 dur=16 cd=45',
+    ],
+    // Tree 2: Dragon & Tiger (Fire Martial Arts & Primal Beasts)
+    [
+      'Dragon Strike|melee|fire|smash|free wc=1 burn exp',
+      'Tiger Pounce|dash|fire|charge|range=1.15 bleed exp',
+      'Flaming Lotus|proj|fire|fireball|n=6 ring burn',
+      'Breath of the Wyrm|beam|fire|breath|dur=1.6 cone burn',
+      'Tiger Roar|nova|phys|shock|r=1.35 slow stun cd=4',
+      'Fiery Ascent|leap|fire|charge|r=1.45 dmg=1.55 burn',
+      'Inferno Palm|aoe|fire|explosion|r=1.8 dmg=2.2 burn cd=4',
+      'Dragon Tempest|cyclone|fire|wind|n=3 dur=5 burn cd=6',
+      'Cataclysmic Dragon Slam|aoe|fire|meteor|r=2.4 dmg=3 burn cd=7',
+    ],
+  ],
+  // The Rogue (game/rogue.js): `cp=N` builds N Combo Points when the skill lands, `fin` is a finisher (it spends
+  // them all and hits harder for each), `rog=` names a move of her own. fx dagger3: three.js daggers (gfx/blades3d.js).
+  rogue: [
+    // Tree 0: Assassination (twin daggers: builders, bloody finishers, bleeds and poison)
+    [
+      'Sinister Strike|melee|phys|slash|free wc=1 n=2 dmg=0.6 cp=1 rog=twin',
+      'Eviscerate|melee|blood|slash|fin dmg=1.15 arc=130 rog=eviscerate',
+      'Backstab|blink|shadow|smoke|range=0.85 dmg=2 cp=2 rog=backstab',
+      'Rupture|melee|blood|claw|fin bleed dmg=0.8 arc=150 rog=rupture',
+      'Mutilate|melee|poison|slash|n=2 dmg=0.85 cp=2 poison rog=twin',
+      'Kidney Shot|melee|phys|smash|fin stun dmg=0.9 rog=kidney cd=4',
+      'Envenom|nova|poison|void|fin r=1.25 poison rog=envenom',
+      'Vendetta|buff|blood|aura|buff=crit,dmg amt=34 dur=14 cd=28',
+      'Death from Above|leap|blood|charge|fin r=1.5 dmg=1.5 bleed rog=dfa cd=5',
+    ],
+    // Tree 1: Subtlety (stealth, shadows and openers)
+    [
+      'Shadowstrike|dash|shadow|smoke|range=1.1 cp=1 rog=shadowstrike',
+      'Stealth|buff|shadow|smoke|buff=speed amt=25 dur=8 cd=12 rog=stealth',
+      'Smoke Bomb|curse|shadow|smoke|curse=slow,weaken r=1.4 at=self cd=10 rog=smoke',
+      'Cheap Shot|melee|phys|smash|stun dmg=0.9 cp=2 cd=3',
+      'Shadowstep|blink|shadow|smoke|range=1.3 nova cd=2',
+      'Shadow Dance|buff|shadow|aura|buff=as,crit amt=30 dur=10 cd=30 rog=dance',
+      'Marked for Death|curse|blood|sigil|curse=mark r=1.1 cd=18 rog=mark',
+      'Cloak of Shadows|buff|shadow|shield|buff=res,armor amt=45 dur=8 cd=30',
+      'Secret Technique|strike|shadow|spirit|fin n=4 rog=secret cd=8',
+    ],
+    // Tree 2: Knives (thrown daggers, daggers from the sky, daggers out of the ground)
+    [
+      'Throwing Knife|proj|phys|dagger3|free wc=0.9 spd=1.5 cp=1',
+      'Fan of Knives|proj|phys|dagger3|n=10 ring dmg=1.1 cp=1 cd=1.5',
+      'Ricochet Blade|proj|phys|dagger3|bounce=4 dmg=1.15 cp=1',
+      'Rain of Daggers|rain|blood|dagger3|n=18 r=1.5 bleed cd=3',
+      'Poisoned Volley|proj|poison|dagger3|n=5 spread=40 poison cp=1',
+      'Fangs of the Earth|aoe|blood|dagger3|r=1.4 dmg=1.5 bleed rog=fangs cd=3',
+      'Between the Eyes|proj|phys|dagger3|fin pierce stun dmg=1.5 spd=2 r=1.5 cd=2',
+      'Blade Flurry|buff|phys|aura|buff=as,dmg amt=30 dur=12 cd=26 rog=flurry',
+      "Executioner's Blade|aoe|blood|dagger3|fin r=2.3 dmg=2.4 bleed rog=giant cd=8",
+    ],
+  ],
+  // The Ninja (game/ninja.js): `nin=` names a move of his own (flips, slash-throughs, shadows, the hook).
+  // fx shuriken, kunai, caltrop: three.js models (gfx/blades3d.js).
+  ninja: [
+    // Tree 0: Way of the Blade (the katana: leaping cuts straight through the enemy)
+    [
+      'Crescent Cut|melee|phys|slash|free wc=1 arc=150 r=1.1 nin=crescent',
+      "Swallow's Flight|dash|phys|charge|range=1.25 dmg=1.1 nin=swallow",
+      'Rising Moon|melee|phys|slash|arc=220 r=1.15 knock dmg=1.4 nin=rising',
+      'Iaido|beam|phys|slash|range=0.85 dmg=1.5 nin=iai cd=2',
+      'Crossing Blades|dash|phys|charge|n=3 range=0.9 dmg=0.85 nin=cross',
+      "Heaven's Drop|leap|phys|charge|r=1.3 dmg=1.5 stun nin=drop cd=3",
+      'Flowing Water|buff|phys|wind|buff=as,speed,crit amt=34 dur=14 cd=28',
+      'Falling Petals|whirl|phys|spin|dur=2 dmg=1.1 nin=petals',
+      'Hundred-Cut Reckoning|aoe|phys|slash|r=2.2 n=12 dmg=0.6 nin=hundred cd=9',
+    ],
+    // Tree 1: Shadow Arts (shadows that repeat his cuts, the grappling hook, smoke)
+    [
+      'Shadow Step|blink|shadow|smoke|range=1.2 nova nin=step',
+      'Mirror Shadows|buff|shadow|aura|buff=dmg amt=12 dur=16 cd=22 nin=mirror',
+      'Grappling Hook|chain|phys|chain|n=1 range=0.85 dmg=1.1 stun nin=grapple cd=3',
+      'Smoke Bomb|curse|shadow|smoke|curse=slow,weaken r=1.4 at=self cd=9 nin=smoke',
+      'Shadow Bind|curse|shadow|sigil|curse=stun r=1.2 dur=2.2 cd=8',
+      'Hook Swing|leap|phys|charge|range=1.3 r=1.2 dmg=1.1 knock nin=zip',
+      'Umbral Legion|strike|shadow|spirit|n=6 nin=legion cd=6',
+      'Eclipse Veil|buff|shadow|shield|buff=armor,res,speed amt=36 dur=12 cd=28',
+      'Thousand Shadows|aoe|shadow|void|r=2.4 dmg=2.2 nin=thousand cd=10',
+    ],
+    // Tree 2: Tools of War (shuriken, caltrops, kunai and tags)
+    [
+      'Shuriken|proj|phys|shuriken|free wc=0.85 n=3 spread=24 spd=1.5 dmg=0.75',
+      'Caltrops|zone|phys|caltrop|r=1.1 dur=7 slow bleed nin=caltrops',
+      'Kunai Burst|proj|fire|kunai|n=3 spread=30 exp r=0.9 burn dmg=0.9',
+      'Windmill Shuriken|proj|phys|shuriken|ret pierce r=2.2 dmg=1.5 spd=0.9 cd=2',
+      'Backflip Scatter|leap|phys|caltrop|range=0.7 r=1.2 slow bleed dmg=0.7 nin=backflip cd=4',
+      'Blast Tags|trap|fire|fire|n=3 burn',
+      'Storm of Steel|rain|phys|shuriken|n=24 r=1.7 dur=1.6 nin=steel cd=5',
+      'Poison Darts|proj|poison|kunai|n=8 rand spread=30 poison dmg=0.55 spd=1.7',
+      'Demon Wind Shuriken|orbit|shadow|shuriken|n=4 spiral dur=3.2 r=1.25 dmg=1.5 nin=demon cd=8',
+    ],
+  ],
+};
+// Every class gets a fourth tree (data/skilltrees4.js); Necromancer and Dragoon already define theirs above.
+for (const [c, tree] of Object.entries(TREE4)) if (SKILLDATA[c].length === 3) SKILLDATA[c].push(tree);

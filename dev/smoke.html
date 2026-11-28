@@ -1,0 +1,25 @@
+<!doctype html><meta charset="utf-8"><body style="margin:0;background:#000"><canvas id="c" style="width:100vw;height:100vh;display:block"></canvas>
+<script type="module">
+import { Renderer } from '../src/gpu/renderer.js';
+import { loadLook, composeHero, gearMeta } from '../src/gfx/herolook.js';
+import { bakeShapes, SHAPES } from '../src/gfx/fx.js';
+import { Text } from '../src/gfx/text.js';
+const rd = await Renderer.create(document.getElementById("c")); window.rd = rd;
+rd.resize(innerWidth, innerHeight, 1);
+bakeShapes(rd.atlas); const text = new Text(rd.atlas);
+const CL = ['paladin','ranger','wizard','necromancer','barbarian','dragoon','totem_master','death_knight','arcane_sorcerer','carrion_witch','bard','slime_lord','boomerang_knight','lancer','dragon_knight','gunner','monk','rogue','ninja'];
+const W = {paladin:'mace',ranger:'bow',wizard:'staff',necromancer:'wand',barbarian:'axe',dragoon:'spear',totem_master:'staff',death_knight:'sword',arcane_sorcerer:'wand',carrion_witch:'staff',bard:'lute',slime_lord:'mace',boomerang_knight:'boomerang',lancer:'spear',dragon_knight:'sword',gunner:'pistol',monk:'staff',rogue:'dagger',ninja:'sword'};
+const O = {paladin:'shield',ranger:'quiver',wizard:'tome',necromancer:'orb',dragoon:'shield',totem_master:'idol',death_knight:'skull',arcane_sorcerer:'orb',carrion_witch:'lantern',bard:'drum',slime_lord:'jar',boomerang_knight:'rang',lancer:'shield',dragon_knight:'shield',gunner:'bomb',monk:'tome',ninja:'nunchaku',barbarian:'axe',rogue:'dagger'};
+const heroes = [];
+for (let i = 0; i < CL.length; i++) { const c = CL[i], rar = i % 6;
+  const look = { armor: [1 + (i * 5) % 26, i % 3 ? (i * 7) % 60 : 0], helm: i % 2 ? [1 + i % 15, (i * 3) % 60] : null, weapon: { base: W[c], rarity: rar, idx: i % 6, finish: i % 4 ? i * 2 : 0 }, offhand: O[c] ? { base: O[c], rarity: rar, idx: 1, finish: 0 } : null };
+  await loadLook(c, look); const h = composeHero(c, look, 2); heroes.push({ r: rd.atlas.addCanvas(h.canvas, 'keep'), c }); }
+const best = await (await fetch('../assets/bestiary.json')).json();
+const mobs = []; for (let i = 0; i < 40; i++) { const row = best.rows[(i * 79) % best.rows.length]; const base = await rd.atlas.load('../assets/' + best.files[row[2]], 'map'); mobs.push({ r: rd.atlas.sub(base, row[3], row[4], row[5], row[6]), w: row[5], h: row[6], ht: row[8] }); }
+let t = 0; function frame() { t += 1/60; rd.begin(); rd.camera(0, 0, 1);
+  heroes.forEach((h, i) => { const x = 20 + (i % 10) * 125, y = 20 + Math.floor(i / 10) * 210; const b = Math.abs(Math.sin(t * 9 + i)) * 4; rd.quad(SHAPES.shadow, x + 34, y + 176, 60, 14); rd.quad(h.r, x, y - b, 128, 192); text.draw(rd, text.tag(h.c, '#fff', i % 2 ? '<Ashen Vow>' : ''), x + 64, y + 186); });
+  mobs.forEach((m, i) => { const s = m.ht * 1.7 / m.h, x = 20 + (i % 14) * 90, y = 620 + Math.floor(i / 14) * 130; rd.quad(m.r, x, y - m.h * s, m.w * s, m.h * s); });
+  text.glyphs(rd, '12345', 'n', 300, 470); text.glyphs(rd, '98765', 'c', 500, 470, 1.2); text.glyphs(rd, 'MISS', 'p', 700, 470); text.draw(rd, text.bubble('S> ashen greaves 40k, pst. no lowballs you ghouls', 'say'), 900, 420);
+  rd.quad(SHAPES.slash, 1000, 480, 120, 120, [1, .8, .4, 1], null, 1); rd.quad(SHAPES.rune, 1100, 480, 120, 120, [.5, .7, 1, 1], null, 1);
+  rd.end(t, t * 100, 0); text.tick(); window.ready = true; requestAnimationFrame(frame); } frame();
+</script>
