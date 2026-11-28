@@ -37,7 +37,13 @@ export class Body {
     // ---- horizontal
     const top = PHYS.walk * this.speed;
     if (this.plat) {
-      if (move) { this.vx += move * PHYS.accel * dt; if (Math.abs(this.vx) > top) this.vx = Math.sign(this.vx) * Math.max(top, Math.abs(this.vx) - PHYS.drag * dt); this.face = move > 0 ? 1 : -1; }
+      if (move) {
+        // accelerate up to the top speed and no further; anything faster (a dash, a shove) bleeds off
+        const along = this.vx * move;
+        if (along > top) this.vx = move * Math.max(top, along - PHYS.drag * dt);
+        else this.vx = move * Math.min(top, along + PHYS.accel * dt);
+        this.face = move > 0 ? 1 : -1;
+      }
       else { const d = PHYS.drag * dt; this.vx = Math.abs(this.vx) <= d ? 0 : this.vx - Math.sign(this.vx) * d; }
       if (want.jump) {
         if (want.down && canDrop(map, this)) { this.dropFrom = this.plat; this.dropT = 0.35; this.plat = null; this.vy = 120; ev = 'jump'; }
@@ -45,7 +51,7 @@ export class Body {
       }
     } else if (move) {
       // a little air control: enough to correct a jump, not enough to turn it round
-      const lim = top; this.vx += move * PHYS.air * dt; if (Math.abs(this.vx) > lim) this.vx = Math.sign(this.vx) * Math.max(lim, Math.abs(this.vx) - PHYS.air * dt);
+      const along = this.vx * move; if (along <= top) this.vx = move * Math.min(top, along + PHYS.air * dt);
       this.face = move > 0 ? 1 : -1;
     }
     // ---- integrate
