@@ -28,7 +28,7 @@ export function drawActor(rd, a, light) {
   if (!r || r.layer < 0) return;
   let dir = b.face < 0 ? -1 : 1; if (sp.faceL) dir = -dir;
   let k = sp.k * (a.scale || 1), sx = 1, sy = 1, rot = 0, lift = 0, ox = 0;
-  const run = 11 * Math.min(1.5, Math.abs(b.vx) / 138 + 0.35);
+  const run = 11 * Math.min(1.5, Math.abs(b.vx) / 215 + 0.35);
   if (b.rope) { rot = Math.sin(t * 9) * (Math.abs(b.vy) + 1 > 0 ? 0.05 : 0); sx = 0.94; const cl = Math.sin(a.y * 0.09); rot = cl * 0.07; lift = Math.abs(cl) * 2; }
   else if (b.fly) { lift = Math.sin(t * 3) * 5; sy = 1 + Math.sin(t * 6) * 0.03; rot = clamp(b.vx / 900, -0.12, 0.12) * dir; }
   else if (!b.plat) { const v = clamp(b.vy / 900, -1, 1); sy = 1 + Math.abs(v) * 0.09; sx = 1 - Math.abs(v) * 0.06; rot = (v < 0 ? 0.08 : -0.05) * dir * (Math.abs(b.vx) > 30 ? 1 : 0.3); }
