@@ -518,7 +518,7 @@ body.touch .tr-name{font-size:12px}body.touch .tr-step{font-size:11.5px}body.tou
 body.touch #party{top:calc(104px + var(--st))}body.touch .pf{width:132px;padding:2px 5px 3px 2px!important}body.touch .pf-cls{display:none}body.touch .pf-lv{width:20px;height:20px;font-size:10px}
 body.touch #boss{top:calc(46px + var(--st));width:min(360px,44vw)}body.touch .boss-name{font-size:13px}body.touch .boss-bar{height:14px}
 body.touch #toasts{top:calc(84px + var(--st));width:min(440px,calc(100vw - 400px))}.touch .toast{font-size:12.5px;padding:3px 12px}
-body.touch #chat{left:calc(184px + var(--sl));bottom:calc(var(--xph) + 36px + var(--sb));width:min(300px,calc(100vw - 184px - 262px - var(--sl) - var(--sr)))}
+body.touch #chat{left:calc(184px + var(--sl));bottom:calc(var(--xph) + 50px + var(--sb));width:min(300px,calc(100vw - 184px - 262px - var(--sl) - var(--sr)))}
 body.touch .chat-log{height:62px;font-size:12px;padding:3px 6px}
 body.touch .chat-tabs,body.touch .chat-row{display:none}
 body.touch #chat.open .chat-tabs,body.touch #chat.open .chat-row{display:flex}body.touch #chat.open .chat-log{height:110px;background:rgba(10,8,14,.82)}
@@ -547,7 +547,8 @@ body.touch #dialog{bottom:calc(var(--xph) + 44px + var(--sb))}
 @media (max-width:1180px){ body:not(.touch){--slot:44px} body:not(.touch) .bars{width:170px} body:not(.touch) .who-t{max-width:110px} body:not(.touch) #bar{gap:8px;padding:6px 10px} body:not(.touch) #auto{width:62px} }
 @media (max-width:980px){ body:not(.touch){--slot:38px} body:not(.touch) .who-t{display:none} body:not(.touch) .bars{width:130px} body:not(.touch) .pot{width:32px} body:not(.touch) #chat{width:min(300px,40vw)} body:not(.touch) .chat-log{height:110px} }
 @media (max-width:760px){ body:not(.touch) #bar{flex-wrap:wrap;justify-content:center;max-width:calc(100vw - 8px);width:max-content} body:not(.touch) #menu,body:not(.touch) #chat{bottom:calc(var(--xph) + 136px)} }
-@media (min-width:1880px){ body:not(.touch) #chat,body:not(.touch) #menu{bottom:calc(var(--xph) + 10px)} body:not(.touch) .chat-log{height:190px} }
+@media (min-width:1900px){ body:not(.touch) #chat{bottom:calc(var(--xph) + 10px)} body:not(.touch) .chat-log{height:190px} }
+@media (min-width:2140px){ body:not(.touch) #menu{bottom:calc(var(--xph) + 10px)} }
 @media (max-height:620px){ body:not(.touch) .chat-log{height:100px} #tracker .tr-q:nth-of-type(n+4){display:none} }
 
 /* ============================================================== phones: windows become sheets */
