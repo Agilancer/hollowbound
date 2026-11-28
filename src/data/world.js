@@ -1,5 +1,5 @@
 // VELSCOUR : HOLLOWBOUND — the world graph. Maps are descriptors only; the engine builds platforms from `shape`/`w`/`tiers`.
-// Mob ids are bestiary ids (assets/bestiary.json) or "slime:<key>" (assets/sprites/slimes/slimes.json).
+// Mob ids are bestiary ids (assets/bestiary.json).
 // Validate with: node tools/check_content.mjs
 
 export const AREAS = {
@@ -55,19 +55,19 @@ export const MAPS = [
 
   // ───────────────────────────── The Forsaken Wilds (1-6) ─────────────────────────────
   { id: "wilds_1", area: "wilds", name: "Hollow Road", street: "The Forsaken Wilds", kind: "field", shape: "field", w: 5200, tiers: 2, level: 1,
-    mobs: [ ["slime:meadow", 8], ["slime:bramble", 6], ["emerald_droplet", 5], ["nightmare_hare", 3] ],
+    mobs: [ ["gravehound", 8], ["crowmask_sneak", 6], ["scorpion_spearer", 5], ["nightmare_hare", 3] ],
     portals: [ { at: "right", to: "hh_west" }, { at: "left", to: "wilds_2" } ] },
   { id: "wilds_2", area: "wilds", name: "Fallow Acres", street: "The Forsaken Wilds", kind: "field", shape: "field", w: 5800, tiers: 2, level: 2,
-    mobs: [ ["slime:forest_sprout", 6], ["slime:honey", 5], ["amber_dome", 5], ["scrapknife_sneak", 5], ["grave_crow", 3] ],
+    mobs: [ ["boneflute_hexer", 6], ["cauldron_carrier", 5], ["bellback_fanatic", 5], ["scrapknife_sneak", 5], ["grave_crow", 3] ],
     portals: [ { at: "right", to: "wilds_1" }, { at: "left", to: "wilds_3" } ],
     npcs: [ { id: "rowena", at: 0.7 } ] },
   { id: "wilds_3", area: "wilds", name: "Scarecrow Rows", street: "The Forsaken Wilds", kind: "field", shape: "field", w: 6200, tiers: 2, level: 3,
-    mobs: [ ["slime:sap", 5], ["pothelm_clubber", 5], ["ratbone_archer", 4], ["the_wicker_child", 5], ["carrion_jackal", 4] ],
+    mobs: [ ["lantern_lurker", 5], ["pothelm_clubber", 5], ["ratbone_archer", 4], ["the_wicker_child", 5], ["carrion_jackal", 4] ],
     elite: "bramble_crone",
     portals: [ { at: "right", to: "wilds_2" }, { at: "left", to: "wilds_4" }, { at: "top", to: "wilds_mill", label: "The Burnt Mill" } ],
     npcs: [ { id: "nan", at: 0.55 } ] },
   { id: "wilds_mill", area: "wilds", name: "The Burnt Mill", street: "The Forsaken Wilds", kind: "field", shape: "tower", w: 2400, tiers: 6, level: 4,
-    mobs: [ ["frogskin_slinger", 4], ["lantern_grubber", 4], ["vesper_swarm", 4], ["cinder_imp", 3], ["slime:ember", 3] ],
+    mobs: [ ["frogskin_slinger", 4], ["lantern_grubber", 4], ["vesper_swarm", 4], ["cinder_imp", 3], ["powder_keg_runner", 3] ],
     elite: "barrel_bomber",
     portals: [ { at: "left", to: "wilds_3" } ] },
   { id: "wilds_4", area: "wilds", name: "Gallowmere Crossing", street: "The Forsaken Wilds", kind: "field", shape: "field", w: 6400, tiers: 2, level: 5,
@@ -76,13 +76,13 @@ export const MAPS = [
     portals: [ { at: "right", to: "wilds_3" }, { at: "top", to: "wilds_5", hidden: true } ],
     npcs: [ { id: "brina", at: 0.82 } ] },
   { id: "wilds_5", area: "wilds", name: "The Unpicked Orchard", street: "The Forsaken Wilds", kind: "field", shape: "tiers", w: 4200, tiers: 3, level: 6, hidden: true,
-    mobs: [ ["slime:poison_ivy", 5], ["moss_antler", 4], ["vine_whip_raider", 5], ["boarjaw_brawler", 4], ["iron_banded_boar", 3] ],
+    mobs: [ ["blight_vessel", 5], ["crossbow_tinker", 4], ["vine_whip_raider", 5], ["boarjaw_brawler", 4], ["iron_banded_boar", 3] ],
     elite: "mushroom_shaman",
     portals: [ { at: "left", to: "wilds_4" } ] },
 
   // ───────────────────────────── The Dark Forest (5-12) ─────────────────────────────
   { id: "forest_1", area: "forest", name: "The Eaves", street: "The Dark Forest", kind: "field", shape: "field", w: 5600, tiers: 2, level: 5,
-    mobs: [ ["slime:forest", 5], ["twig_stalker", 5], ["briar_wolf", 5], ["redscale_shiv", 4], ["blue_jay_screecher", 3] ],
+    mobs: [ ["sawblade_ripper", 5], ["twig_stalker", 5], ["briar_wolf", 5], ["redscale_shiv", 4], ["blue_jay_screecher", 3] ],
     portals: [ { at: "left", to: "hh_east" }, { at: "right", to: "forest_2" } ] },
   { id: "forest_2", area: "forest", name: "Hangman's Walk", street: "The Dark Forest", kind: "field", shape: "field", w: 6200, tiers: 2, level: 7,
     mobs: [ ["greywood_archer", 5], ["bluecrest_spear", 5], ["gallows_vulture", 4], ["black_mange_wolf", 5], ["rootbound_thrall", 3] ],
@@ -141,11 +141,11 @@ export const MAPS = [
 
   // ───────────────────────────── The Fetid Sewers (10-18) ─────────────────────────────
   { id: "sewers_1", area: "sewers", name: "Under-Market Drains", street: "The Fetid Sewers", kind: "field", shape: "cavern", w: 5200, tiers: 2, level: 10,
-    mobs: [ ["tar_pancake", 5], ["bile_slug", 5], ["gutter_wolf", 4], ["ck_grate_rat", 5], ["gutter_hexer", 3] ],
+    mobs: [ ["rustblood_raider", 5], ["bile_slug", 5], ["gutter_wolf", 4], ["ck_grate_rat", 5], ["gutter_hexer", 3] ],
     portals: [ { at: "top", to: "hh_square", label: "Sewer Grate", style: "up" }, { at: "right", to: "sewers_2" } ],
     npcs: [ { id: "hale", at: 0.16 } ] },
   { id: "sewers_2", area: "sewers", name: "Tallow Channel", street: "The Fetid Sewers", kind: "field", shape: "cavern", w: 6000, tiers: 2, level: 12,
-    mobs: [ ["tallow_husk", 5], ["rust_bubble_colony", 4], ["many_eyed_slug", 4], ["eeltooth_fisher", 4], ["candle_skitterer", 4] ],
+    mobs: [ ["tallow_husk", 5], ["carrion_shrike", 4], ["many_eyed_slug", 4], ["eeltooth_fisher", 4], ["candle_skitterer", 4] ],
     elite: "candle_cultist",
     portals: [ { at: "left", to: "sewers_1" }, { at: "right", to: "sewers_3" }, { at: 0.4, to: "sewers_h", hidden: true, style: "door" } ],
     npcs: [ { id: "bartholomew", at: 0.58 } ] },
@@ -154,7 +154,7 @@ export const MAPS = [
     elite: "crowcloak_assassin",
     portals: [ { at: "left", to: "sewers_2" } ] },
   { id: "sewers_3", area: "sewers", name: "The Great Outfall", street: "The Fetid Sewers", kind: "field", shape: "tiers", w: 5600, tiers: 4, level: 14,
-    mobs: [ ["wellmaw", 4], ["drowned_hound", 5], ["weeping_drowned", 5], ["acid_fork", 4], ["porcelain_leech", 4] ],
+    mobs: [ ["wellmaw", 4], ["drowned_hound", 5], ["weeping_drowned", 5], ["rime_warden", 4], ["porcelain_leech", 4] ],
     portals: [
       { at: "left", to: "sewers_2" }, { at: "right", to: "sewers_4" },
       { at: 0.5, dungeon: "cistern", label: "The Drowned Cistern", style: "dungeon" },
@@ -168,16 +168,16 @@ export const MAPS = [
       { at: 0.5, to: "sewers_5", label: "The Long Drop", style: "down" },
     ] },
   { id: "sewers_5", area: "sewers", name: "The Long Drop", street: "The Fetid Sewers", kind: "field", shape: "tower", w: 2600, tiers: 7, level: 18,
-    mobs: [ ["gullet_worm", 4], ["red_rain_worm", 4], ["clawed_crawler", 4], ["sulfur_crownmaw", 4], ["glass_lunged_thing", 3] ],
+    mobs: [ ["gullet_worm", 4], ["red_rain_worm", 4], ["clawed_crawler", 4], ["cinder_fiend", 4], ["glass_lunged_thing", 3] ],
     elite: "writhing_maw",
     portals: [ { at: "top", to: "sewers_4", style: "up" } ] },
 
   // ───────────────────────────── Skull-Lined Catacombs (12-20) ─────────────────────────────
   { id: "cata_1", area: "catacombs", name: "The Charnel Stair", street: "Skull-Lined Catacombs", kind: "field", shape: "tower", w: 2600, tiers: 7, level: 12,
-    mobs: [ ["pinned_skeleton", 5], ["ossuary_crawler", 5], ["bone_sack", 4], ["shroud_crawler", 4], ["bone_jelly", 3] ],
+    mobs: [ ["pinned_skeleton", 5], ["ossuary_crawler", 5], ["bone_sack", 4], ["shroud_crawler", 4], ["sepulcher_digger", 3] ],
     portals: [ { at: "top", to: "grave_3", style: "up" }, { at: "right", to: "cata_2" } ] },
   { id: "cata_2", area: "catacombs", name: "Skull-Lined Gallery", street: "Skull-Lined Catacombs", kind: "field", shape: "cavern", w: 6400, tiers: 2, level: 14,
-    mobs: [ ["crypt_cleaver_skeleton", 5], ["grave_longbow_skeleton", 5], ["ossified_hound", 4], ["lantern_hollow", 4], ["marrow_hand", 3] ],
+    mobs: [ ["crypt_cleaver_skeleton", 5], ["grave_longbow_skeleton", 5], ["ossified_hound", 4], ["lantern_hollow", 4], ["ember_censer_adept", 3] ],
     elite: "bone_priest",
     portals: [ { at: "left", to: "cata_1" }, { at: "right", to: "cata_3" }, { at: 0.3, to: "sewers_4", label: "Broken Wall" } ],
     npcs: [ { id: "cassius", at: 0.14 } ] },

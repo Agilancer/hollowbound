@@ -7,7 +7,7 @@ import { hit, heal, skillHit, elemRgb, elemCore, sfxAt, floater } from './combat
 import { spawnProj, blast, zone, beam, chainFx, orbit, cyclone, flashFx, pillarFx, inEllipse, inBox, nearestFoe, friends, foes, puff } from './effects.js';
 import { Actor } from './actor.js';
 import { dropTo, platAt } from './body.js';
-import { mobDef } from './bestiary.js';
+import { mobDef, BEST } from './bestiary.js';
 import { mobSprite } from '../gfx/sprites.js';
 
 const MELEE_KINDS = new Set(['melee', 'whirl', 'leap', 'dash']);
@@ -195,12 +195,14 @@ const KIND = {
 
 export function spawnSummon(owner, sk, S, dur, i = 0, n = 1) {
   const look = S.look || {}; let art = look.art; if (Array.isArray(art)) art = pick(art);
-  let def = art && mobDef(art); if (!def) def = mobDef(S.ai === 'ranged' ? 'ns_archer' : 'ns_warrior');
+  let def = art && mobDef(art);
+  if (owner.cls === 'slime_lord' || (look.sprite === 'slime')) { const kind = (sk.m.sum || '').replace(/^sl_/, ''), all = BEST.groups.slimes || []; const fit = all.filter(d => d.tag === kind); const pool = fit.length ? fit : all; if (pool.length) def = pool[(owner.uid * 7 + (sk.idx || 0) * 3 + Math.floor(Math.random() * pool.length)) % pool.length]; }
+  if (!def) def = mobDef(S.ai === 'ranged' ? 'ns_archer' : 'ns_warrior');
   const still = !S.spd || S.spd <= 0;
   const s = new Actor('summon', owner.x + owner.face * (50 + i * 34) * (i % 2 ? -1 : 1), owner.y - 4);
   s.team = owner.team; s.owner = owner; s.skId = sk.id; s.name = S.name; s.lvl = owner.lvl; s.S = S; s.sk = sk; s.def = def; s.still = still;
   const hw = clamp(look.h ? look.h * 1.8 : def.hw * 0.9, 44, 150);
-  s.h = hw; s.w = Math.max(30, def.ww * hw / def.hw * 0.6); s.sprite = mobSprite(def, 'map'); s.sprite = { ...s.sprite, k: hw / (s.sprite.h || def.h) };
+  s.h = hw; s.w = Math.max(30, def.ww * hw / def.hw * 0.6); s.sprite = mobSprite(def, 'map'); if (!def.slime) s.sprite = { ...s.sprite, k: hw / (s.sprite.h || def.h) }; else { s.h = Math.max(40, def.hw); s.w = 40; }
   s.maxHp = s.hp = Math.round(owner.maxHp * clamp(S.hp || 0.4, 0.15, 3)); s.life = dur; s.atkT = rnd(0.2, 0.8);
   s.stats.speed = still ? 0 : clamp((S.spd || 3) / 3.2, 0.6, 1.3); s.stats.armor = owner.stats.armor * 0.5;
   s.body.fly = /hawk|raven|bird|drone|wraith|wyvern|whelp|cloud|skull|lantern|rune/.test(sk.m.sum || '') && !still;

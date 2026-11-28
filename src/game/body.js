@@ -2,7 +2,7 @@
 // drop down from, ground steps that act as walls, ropes you snap onto and climb.
 // Tuned from the classic foothold constants (walk 125, jump 555, gravity 2000, fall 670
 // at a 65px character) scaled to a ~100 unit hero.
-export const PHYS = { walk: 215, accel: 2300, drag: 1500, air: 620, jump: 830, gravity: 2900, fall: 980, climb: 190, kbx: 260, kby: 520 };
+export const PHYS = { walk: 138, accel: 1500, drag: 1100, air: 400, jump: 800, gravity: 2900, fall: 980, climb: 120, kbx: 200, kby: 520 };
 
 export class Body {
   constructor(x, y) {
