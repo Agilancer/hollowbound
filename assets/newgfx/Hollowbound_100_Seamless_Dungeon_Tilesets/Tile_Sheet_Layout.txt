@@ -1,0 +1,18 @@
+HOLLOWBOUND · 100 SEAMLESS DUNGEON TILESETS
+
+Each 512 × 512 RGBA PNG contains sixteen 128 × 128 cells.
+Columns run left to right and rows run top to bottom.
+
+Row 1   Foreground fill | Background fill | Floor top middle | Ceiling middle
+Row 2   Platform left   | Platform middle | Platform right   | Floor top left
+Row 3   Slope rises →   | Slope falls →    | Stairs rise →    | Stairs fall →
+Row 4   Ceiling left   | Ceiling right    | Floor top right  | Standalone platform
+
+Both wall fills repeat horizontally and vertically. Middle platform,
+floor-top and ceiling tiles repeat horizontally and join their own end caps.
+
+For the straight platform and floor top, the walk surface is at local y=32.
+Slope endpoints are at y=96 and y=32. Ascending stair treads sit at y=92,
+76, 60 and 44. Descending pieces mirror the geometry. Coordinates are in pixels
+from the top-left of the cell. Align along a shared endpoint or insert a landing
+with the intended height offset. Sample with nearest-neighbor filtering.
