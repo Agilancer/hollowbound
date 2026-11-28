@@ -1,0 +1,10 @@
+<!doctype html><body><canvas id="c" width="800" height="600"></canvas><script type="module">
+const a = await navigator.gpu.requestAdapter(); const d = await a.requestDevice(); let lost = false; d.lost.then(i => { lost = true; console.log('LOST', i.reason, i.message); });
+d.addEventListener('uncapturederror', e => console.log('ERR', e.error.message));
+const ctx = document.getElementById('c').getContext('webgpu'); const q = new URLSearchParams(location.search);
+ctx.configure({ device: d, format: q.get('f') || navigator.gpu.getPreferredCanvasFormat(), alphaMode: q.get('a') || 'opaque' });
+console.log('configured', navigator.gpu.getPreferredCanvasFormat());
+await new Promise(r => setTimeout(r, 200)); console.log('after cfg lost=' + lost);
+const enc = d.createCommandEncoder(); const pass = enc.beginRenderPass({ colorAttachments: [{ view: ctx.getCurrentTexture().createView(), loadOp: 'clear', storeOp: 'store', clearValue: { r: 1, g: 0, b: 0, a: 1 } }] }); pass.end(); d.queue.submit([enc.finish()]);
+await new Promise(r => setTimeout(r, 300)); console.log('after frame lost=' + lost);
+</script>

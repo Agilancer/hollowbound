@@ -1,0 +1,1217 @@
+{
+ "class": "Paladin",
+ "direction": "right",
+ "stages": [
+  "start",
+  "gather",
+  "release",
+  "peak",
+  "decay",
+  "fade"
+ ],
+ "items": {
+  "W01": {
+   "name": "Nail Sword",
+   "rarity": "Common",
+   "kind": "weapon",
+   "rect": [
+    0,
+    0,
+    76,
+    96
+   ]
+  },
+  "W02": {
+   "name": "Rust Sabre",
+   "rarity": "Common",
+   "kind": "weapon",
+   "rect": [
+    78,
+    0,
+    90,
+    96
+   ]
+  },
+  "W03": {
+   "name": "Chapel Mace",
+   "rarity": "Common",
+   "kind": "weapon",
+   "rect": [
+    559,
+    196,
+    96,
+    94
+   ]
+  },
+  "W04": {
+   "name": "Split Axe",
+   "rarity": "Common",
+   "kind": "weapon",
+   "rect": [
+    392,
+    294,
+    96,
+    89
+   ]
+  },
+  "W05": {
+   "name": "Pilgrim Spear",
+   "rarity": "Common",
+   "kind": "weapon",
+   "rect": [
+    0,
+    294,
+    96,
+    92
+   ]
+  },
+  "W06": {
+   "name": "Iron Flail",
+   "rarity": "Common",
+   "kind": "weapon",
+   "rect": [
+    784,
+    294,
+    96,
+    86
+   ]
+  },
+  "W07": {
+   "name": "Knotted Club",
+   "rarity": "Common",
+   "kind": "weapon",
+   "rect": [
+    170,
+    0,
+    83,
+    96
+   ]
+  },
+  "W08": {
+   "name": "Plank Buckler",
+   "rarity": "Common",
+   "kind": "shield",
+   "rect": [
+    255,
+    0,
+    88,
+    96
+   ]
+  },
+  "W09": {
+   "name": "Hide Roundshield",
+   "rarity": "Common",
+   "kind": "shield",
+   "rect": [
+    345,
+    0,
+    89,
+    96
+   ]
+  },
+  "W10": {
+   "name": "Scrap Kite",
+   "rarity": "Common",
+   "kind": "shield",
+   "rect": [
+    436,
+    0,
+    68,
+    96
+   ]
+  },
+  "W11": {
+   "name": "Votive Blade",
+   "rarity": "Uncommon",
+   "kind": "weapon",
+   "rect": [
+    506,
+    0,
+    71,
+    96
+   ]
+  },
+  "W12": {
+   "name": "Hook Falchion",
+   "rarity": "Uncommon",
+   "kind": "weapon",
+   "rect": [
+    579,
+    0,
+    95,
+    96
+   ]
+  },
+  "W13": {
+   "name": "Bell Hammer",
+   "rarity": "Uncommon",
+   "kind": "weapon",
+   "rect": [
+    657,
+    196,
+    96,
+    94
+   ]
+  },
+  "W14": {
+   "name": "Thorn Axe",
+   "rarity": "Uncommon",
+   "kind": "weapon",
+   "rect": [
+    196,
+    294,
+    96,
+    91
+   ]
+  },
+  "W15": {
+   "name": "Vigil Lance",
+   "rarity": "Uncommon",
+   "kind": "weapon",
+   "rect": [
+    755,
+    196,
+    96,
+    94
+   ]
+  },
+  "W16": {
+   "name": "Censer Flail",
+   "rarity": "Uncommon",
+   "kind": "weapon",
+   "rect": [
+    676,
+    0,
+    92,
+    96
+   ]
+  },
+  "W17": {
+   "name": "Copper Estoc",
+   "rarity": "Uncommon",
+   "kind": "weapon",
+   "rect": [
+    770,
+    0,
+    90,
+    96
+   ]
+  },
+  "W18": {
+   "name": "Rivet Buckler",
+   "rarity": "Uncommon",
+   "kind": "shield",
+   "rect": [
+    862,
+    0,
+    84,
+    96
+   ]
+  },
+  "W19": {
+   "name": "Chapel Heater",
+   "rarity": "Uncommon",
+   "kind": "shield",
+   "rect": [
+    948,
+    0,
+    62,
+    96
+   ]
+  },
+  "W20": {
+   "name": "Road Pavise",
+   "rarity": "Uncommon",
+   "kind": "shield",
+   "rect": [
+    0,
+    98,
+    65,
+    96
+   ]
+  },
+  "W21": {
+   "name": "Raven Edge",
+   "rarity": "Rare",
+   "kind": "weapon",
+   "rect": [
+    67,
+    98,
+    78,
+    96
+   ]
+  },
+  "W22": {
+   "name": "Moon Scimitar",
+   "rarity": "Rare",
+   "kind": "weapon",
+   "rect": [
+    147,
+    98,
+    95,
+    96
+   ]
+  },
+  "W23": {
+   "name": "Ossuary Mace",
+   "rarity": "Rare",
+   "kind": "weapon",
+   "rect": [
+    244,
+    98,
+    92,
+    96
+   ]
+  },
+  "W24": {
+   "name": "Gallows Cleaver",
+   "rarity": "Rare",
+   "kind": "weapon",
+   "rect": [
+    294,
+    388,
+    96,
+    82
+   ]
+  },
+  "W25": {
+   "name": "Tide Trident",
+   "rarity": "Rare",
+   "kind": "weapon",
+   "rect": [
+    490,
+    294,
+    96,
+    88
+   ]
+  },
+  "W26": {
+   "name": "Litany Flail",
+   "rarity": "Rare",
+   "kind": "weapon",
+   "rect": [
+    98,
+    388,
+    96,
+    83
+   ]
+  },
+  "W27": {
+   "name": "Wolf Glaive",
+   "rarity": "Rare",
+   "kind": "weapon",
+   "rect": [
+    853,
+    196,
+    96,
+    93
+   ]
+  },
+  "W28": {
+   "name": "Bone Buckler",
+   "rarity": "Rare",
+   "kind": "shield",
+   "rect": [
+    338,
+    98,
+    93,
+    96
+   ]
+  },
+  "W29": {
+   "name": "Rose Kite",
+   "rarity": "Rare",
+   "kind": "shield",
+   "rect": [
+    433,
+    98,
+    69,
+    96
+   ]
+  },
+  "W30": {
+   "name": "Mourning Shield",
+   "rarity": "Rare",
+   "kind": "shield",
+   "rect": [
+    504,
+    98,
+    78,
+    96
+   ]
+  },
+  "W31": {
+   "name": "Eclipse Sword",
+   "rarity": "Epic",
+   "kind": "weapon",
+   "rect": [
+    584,
+    98,
+    75,
+    96
+   ]
+  },
+  "W32": {
+   "name": "Veil Rapier",
+   "rarity": "Epic",
+   "kind": "weapon",
+   "rect": [
+    661,
+    98,
+    95,
+    96
+   ]
+  },
+  "W33": {
+   "name": "Furnace Maul",
+   "rarity": "Epic",
+   "kind": "weapon",
+   "rect": [
+    294,
+    294,
+    96,
+    91
+   ]
+  },
+  "W34": {
+   "name": "Martyr Axe",
+   "rarity": "Epic",
+   "kind": "weapon",
+   "rect": [
+    196,
+    388,
+    96,
+    83
+   ]
+  },
+  "W35": {
+   "name": "Storm Halberd",
+   "rarity": "Epic",
+   "kind": "weapon",
+   "rect": [
+    758,
+    98,
+    96,
+    96
+   ]
+  },
+  "W36": {
+   "name": "Sable Scourge",
+   "rarity": "Epic",
+   "kind": "weapon",
+   "rect": [
+    0,
+    388,
+    96,
+    84
+   ]
+  },
+  "W37": {
+   "name": "Inquisitor Blade",
+   "rarity": "Epic",
+   "kind": "weapon",
+   "rect": [
+    856,
+    98,
+    96,
+    96
+   ]
+  },
+  "W38": {
+   "name": "Censer Ward",
+   "rarity": "Epic",
+   "kind": "shield",
+   "rect": [
+    0,
+    196,
+    73,
+    96
+   ]
+  },
+  "W39": {
+   "name": "Basilica Shield",
+   "rarity": "Epic",
+   "kind": "shield",
+   "rect": [
+    75,
+    196,
+    65,
+    96
+   ]
+  },
+  "W40": {
+   "name": "Bleeding Aegis",
+   "rarity": "Epic",
+   "kind": "shield",
+   "rect": [
+    142,
+    196,
+    68,
+    96
+   ]
+  },
+  "W41": {
+   "name": "Ash Saint Blade",
+   "rarity": "Legendary",
+   "kind": "weapon",
+   "rect": [
+    212,
+    196,
+    92,
+    96
+   ]
+  },
+  "W42": {
+   "name": "Kingless Sword",
+   "rarity": "Legendary",
+   "kind": "weapon",
+   "rect": [
+    882,
+    294,
+    96,
+    85
+   ]
+  },
+  "W43": {
+   "name": "Gravebell Hammer",
+   "rarity": "Legendary",
+   "kind": "weapon",
+   "rect": [
+    98,
+    294,
+    96,
+    92
+   ]
+  },
+  "W44": {
+   "name": "Dawn Reaver",
+   "rarity": "Legendary",
+   "kind": "weapon",
+   "rect": [
+    392,
+    388,
+    96,
+    79
+   ]
+  },
+  "W45": {
+   "name": "Winter Pike",
+   "rarity": "Legendary",
+   "kind": "weapon",
+   "rect": [
+    686,
+    294,
+    96,
+    87
+   ]
+  },
+  "W46": {
+   "name": "Halo Flail",
+   "rarity": "Legendary",
+   "kind": "weapon",
+   "rect": [
+    490,
+    388,
+    96,
+    75
+   ]
+  },
+  "W47": {
+   "name": "Cinder Falchion",
+   "rarity": "Legendary",
+   "kind": "weapon",
+   "rect": [
+    588,
+    294,
+    96,
+    88
+   ]
+  },
+  "W48": {
+   "name": "Obsidian Ward",
+   "rarity": "Legendary",
+   "kind": "shield",
+   "rect": [
+    306,
+    196,
+    80,
+    96
+   ]
+  },
+  "W49": {
+   "name": "Cathedral Shield",
+   "rarity": "Legendary",
+   "kind": "shield",
+   "rect": [
+    388,
+    196,
+    96,
+    96
+   ]
+  },
+  "W50": {
+   "name": "Star Pall",
+   "rarity": "Legendary",
+   "kind": "shield",
+   "rect": [
+    486,
+    196,
+    71,
+    96
+   ]
+  },
+  "W51": {
+   "name": "Godless Edge",
+   "rarity": "Mythic",
+   "kind": "weapon",
+   "rect": [
+    777,
+    388,
+    76,
+    66
+   ]
+  },
+  "W52": {
+   "name": "Last Sun Sword",
+   "rarity": "Mythic",
+   "kind": "weapon",
+   "rect": [
+    683,
+    388,
+    92,
+    68
+   ]
+  },
+  "W53": {
+   "name": "Funeral Hammer",
+   "rarity": "Mythic",
+   "kind": "weapon",
+   "rect": [
+    392,
+    474,
+    96,
+    56
+   ]
+  },
+  "W54": {
+   "name": "Thorn Executioner",
+   "rarity": "Mythic",
+   "kind": "weapon",
+   "rect": [
+    294,
+    474,
+    96,
+    59
+   ]
+  },
+  "W55": {
+   "name": "Abyss Spear",
+   "rarity": "Mythic",
+   "kind": "weapon",
+   "rect": [
+    0,
+    474,
+    96,
+    61
+   ]
+  },
+  "W56": {
+   "name": "Covenant Scourge",
+   "rarity": "Mythic",
+   "kind": "weapon",
+   "rect": [
+    855,
+    388,
+    96,
+    63
+   ]
+  },
+  "W57": {
+   "name": "Final Amen",
+   "rarity": "Mythic",
+   "kind": "weapon",
+   "rect": [
+    196,
+    474,
+    96,
+    60
+   ]
+  },
+  "W58": {
+   "name": "Heaven Shard",
+   "rarity": "Mythic",
+   "kind": "shield",
+   "rect": [
+    490,
+    474,
+    68,
+    36
+   ]
+  },
+  "W59": {
+   "name": "Eternal Aegis",
+   "rarity": "Mythic",
+   "kind": "shield",
+   "rect": [
+    588,
+    388,
+    93,
+    71
+   ]
+  },
+  "W60": {
+   "name": "Worldend Ward",
+   "rarity": "Mythic",
+   "kind": "shield",
+   "rect": [
+    98,
+    474,
+    96,
+    61
+   ]
+  }
+ },
+ "fx": {
+  "F01": {
+   "name": "Votive Spark",
+   "rarity": "Common",
+   "desc": "tiny ivory ember gathering then popping",
+   "cell": [
+    112,
+    71
+   ]
+  },
+  "F02": {
+   "name": "Iron Smite",
+   "rarity": "Common",
+   "desc": "short dirty-gold angular slash impact",
+   "cell": [
+    162,
+    76
+   ]
+  },
+  "F03": {
+   "name": "Dust Step",
+   "rarity": "Common",
+   "desc": "grey ground dust kick",
+   "cell": [
+    162,
+    57
+   ]
+  },
+  "F04": {
+   "name": "Candle Bolt",
+   "rarity": "Common",
+   "desc": "small candle-orange dart moves right",
+   "cell": [
+    162,
+    44
+   ]
+  },
+  "F05": {
+   "name": "Prayer Ring",
+   "rarity": "Common",
+   "desc": "thin ivory ellipse expands on floor",
+   "cell": [
+    162,
+    63
+   ]
+  },
+  "F06": {
+   "name": "Buckler Flash",
+   "rarity": "Common",
+   "desc": "small dull silver semicircle flickers",
+   "cell": [
+    162,
+    81
+   ]
+  },
+  "F07": {
+   "name": "Mercy Mote",
+   "rarity": "Common",
+   "desc": "pale green motes spiral upward",
+   "cell": [
+    125,
+    97
+   ]
+  },
+  "F08": {
+   "name": "Cinder Tap",
+   "rarity": "Common",
+   "desc": "tiny red cinder impact",
+   "cell": [
+    162,
+    86
+   ]
+  },
+  "F09": {
+   "name": "Oath Mark",
+   "rarity": "Common",
+   "desc": "simple gold cross-like vow rune writes then fades",
+   "cell": [
+    162,
+    94
+   ]
+  },
+  "F10": {
+   "name": "Purge Puff",
+   "rarity": "Common",
+   "desc": "bone-white smoke curls and dissolves",
+   "cell": [
+    162,
+    82
+   ]
+  },
+  "F11": {
+   "name": "Thorn Lash",
+   "rarity": "Uncommon",
+   "desc": "gold-brown thorn whip snaps right",
+   "cell": [
+    162,
+    51
+   ]
+  },
+  "F12": {
+   "name": "Chapel Ward",
+   "rarity": "Uncommon",
+   "desc": "small gothic arch shield forms and breaks",
+   "cell": [
+    162,
+    66
+   ]
+  },
+  "F13": {
+   "name": "Bell Pulse",
+   "rarity": "Uncommon",
+   "desc": "bronze concentric isometric ground ellipses expand",
+   "cell": [
+    162,
+    57
+   ]
+  },
+  "F14": {
+   "name": "Pilgrim Dash",
+   "rarity": "Uncommon",
+   "desc": "low dusty grey streak surges right",
+   "cell": [
+    162,
+    54
+   ]
+  },
+  "F15": {
+   "name": "Litany Bolt",
+   "rarity": "Uncommon",
+   "desc": "three ivory prayer fragments fly right",
+   "cell": [
+    162,
+    61
+   ]
+  },
+  "F16": {
+   "name": "Ember Seal",
+   "rarity": "Uncommon",
+   "desc": "orange angular seal ignites on floor",
+   "cell": [
+    162,
+    64
+   ]
+  },
+  "F17": {
+   "name": "Chain Rebuke",
+   "rarity": "Uncommon",
+   "desc": "silver chain shoots right and retracts",
+   "cell": [
+    162,
+    65
+   ]
+  },
+  "F18": {
+   "name": "Mending Wisp",
+   "rarity": "Uncommon",
+   "desc": "muted green wisps gather upward",
+   "cell": [
+    162,
+    69
+   ]
+  },
+  "F19": {
+   "name": "Vigil Spark",
+   "rarity": "Uncommon",
+   "desc": "small blue-white star ignites and sheds sparks",
+   "cell": [
+    162,
+    75
+   ]
+  },
+  "F20": {
+   "name": "Censer Breath",
+   "rarity": "Uncommon",
+   "desc": "desaturated incense cone rolls right",
+   "cell": [
+    162,
+    51
+   ]
+  },
+  "F21": {
+   "name": "Raven Judgment",
+   "rarity": "Rare",
+   "desc": "black feather crescent sweeps right",
+   "cell": [
+    162,
+    70
+   ]
+  },
+  "F22": {
+   "name": "Moon Cleave",
+   "rarity": "Rare",
+   "desc": "pale blue narrow crescent slash",
+   "cell": [
+    162,
+    67
+   ]
+  },
+  "F23": {
+   "name": "Grave Light",
+   "rarity": "Rare",
+   "desc": "thin ivory flame rises from ground",
+   "cell": [
+    162,
+    82
+   ]
+  },
+  "F24": {
+   "name": "Crimson Vow",
+   "rarity": "Rare",
+   "desc": "blood-red angular ring pulses",
+   "cell": [
+    162,
+    67
+   ]
+  },
+  "F25": {
+   "name": "Wolf Verdict",
+   "rarity": "Rare",
+   "desc": "silver fang-shaped impact burst",
+   "cell": [
+    162,
+    69
+   ]
+  },
+  "F26": {
+   "name": "Tide Absolution",
+   "rarity": "Rare",
+   "desc": "cold turquoise splash sweeps right",
+   "cell": [
+    162,
+    57
+   ]
+  },
+  "F27": {
+   "name": "Gallows Bind",
+   "rarity": "Rare",
+   "desc": "grey spectral cords tighten",
+   "cell": [
+    162,
+    69
+   ]
+  },
+  "F28": {
+   "name": "Confessor Halo",
+   "rarity": "Rare",
+   "desc": "pale broken halo assembles and dissolves",
+   "cell": [
+    162,
+    87
+   ]
+  },
+  "F29": {
+   "name": "Rose Thorns",
+   "rarity": "Rare",
+   "desc": "dark crimson thorn ring erupts",
+   "cell": [
+    162,
+    71
+   ]
+  },
+  "F30": {
+   "name": "Reliquary Beam",
+   "rarity": "Rare",
+   "desc": "narrow pale gold beam fires right",
+   "cell": [
+    162,
+    55
+   ]
+  },
+  "F31": {
+   "name": "Eclipse Smite",
+   "rarity": "Epic",
+   "desc": "black center with fine gold eclipse flare",
+   "cell": [
+    162,
+    63
+   ]
+  },
+  "F32": {
+   "name": "Martyr Spikes",
+   "rarity": "Epic",
+   "desc": "ivory thorns rise in ground fan",
+   "cell": [
+    162,
+    55
+   ]
+  },
+  "F33": {
+   "name": "Bone Benediction",
+   "rarity": "Epic",
+   "desc": "bone-white ribs form protective arc",
+   "cell": [
+    162,
+    70
+   ]
+  },
+  "F34": {
+   "name": "Storm Litany",
+   "rarity": "Epic",
+   "desc": "violet-white jagged lightning forks right",
+   "cell": [
+    162,
+    57
+   ]
+  },
+  "F35": {
+   "name": "Sable Wings",
+   "rarity": "Epic",
+   "desc": "black spectral feather arcs unfold",
+   "cell": [
+    162,
+    63
+   ]
+  },
+  "F36": {
+   "name": "Furnace Wrath",
+   "rarity": "Epic",
+   "desc": "red-orange cinder wave erupts right",
+   "cell": [
+    162,
+    63
+   ]
+  },
+  "F37": {
+   "name": "Veil Rupture",
+   "rarity": "Epic",
+   "desc": "thin silver vertical tear opens and shuts",
+   "cell": [
+    162,
+    74
+   ]
+  },
+  "F38": {
+   "name": "Inquisitor Brand",
+   "rarity": "Epic",
+   "desc": "purple blade-shaped glyph stamps down",
+   "cell": [
+    162,
+    81
+   ]
+  },
+  "F39": {
+   "name": "Bleeding Dawn",
+   "rarity": "Epic",
+   "desc": "red sun disk sheds narrow golden rays",
+   "cell": [
+    162,
+    63
+   ]
+  },
+  "F40": {
+   "name": "Basilica Ward",
+   "rarity": "Epic",
+   "desc": "ghostly small gothic arch rises then shatters",
+   "cell": [
+    162,
+    70
+   ]
+  },
+  "F41": {
+   "name": "Ash Ascension",
+   "rarity": "Legendary",
+   "desc": "ivory fire rises amid charcoal ash",
+   "cell": [
+    162,
+    66
+   ]
+  },
+  "F42": {
+   "name": "Cathedral Fall",
+   "rarity": "Legendary",
+   "desc": "spectral silver spire strikes ground",
+   "cell": [
+    162,
+    79
+   ]
+  },
+  "F43": {
+   "name": "Kingless Edict",
+   "rarity": "Legendary",
+   "desc": "broken gold crown explodes into shards",
+   "cell": [
+    162,
+    73
+   ]
+  },
+  "F44": {
+   "name": "Dawn Wound",
+   "rarity": "Legendary",
+   "desc": "long narrow gold-white slash opens right",
+   "cell": [
+    162,
+    62
+   ]
+  },
+  "F45": {
+   "name": "Gravebell Toll",
+   "rarity": "Legendary",
+   "desc": "bronze bell-shaped flare emits floor rings",
+   "cell": [
+    162,
+    74
+   ]
+  },
+  "F46": {
+   "name": "Halo Collapse",
+   "rarity": "Legendary",
+   "desc": "silver broken halo contracts to spark",
+   "cell": [
+    159,
+    91
+   ]
+  },
+  "F47": {
+   "name": "Obsidian Oath",
+   "rarity": "Legendary",
+   "desc": "black glass spikes burst with white edges",
+   "cell": [
+    162,
+    71
+   ]
+  },
+  "F48": {
+   "name": "Winter Mercy",
+   "rarity": "Legendary",
+   "desc": "pale icy blue branching healing sigil",
+   "cell": [
+    162,
+    75
+   ]
+  },
+  "F49": {
+   "name": "Cinder Roar",
+   "rarity": "Legendary",
+   "desc": "small ember lion-like flame head lunges right",
+   "cell": [
+    162,
+    64
+   ]
+  },
+  "F50": {
+   "name": "Star Requiem",
+   "rarity": "Legendary",
+   "desc": "silver stars spiral into midnight vortex",
+   "cell": [
+    162,
+    72
+   ]
+  },
+  "F51": {
+   "name": "Godless Light",
+   "rarity": "Mythic",
+   "desc": "black-white split ray flashes right",
+   "cell": [
+    162,
+    60
+   ]
+  },
+  "F52": {
+   "name": "Last Sun",
+   "rarity": "Mythic",
+   "desc": "tiny dying black sun flares with copper corona",
+   "cell": [
+    162,
+    73
+   ]
+  },
+  "F53": {
+   "name": "Deathless Grace",
+   "rarity": "Mythic",
+   "desc": "ivory spectral ribs bloom into pale wings",
+   "cell": [
+    162,
+    62
+   ]
+  },
+  "F54": {
+   "name": "Thorn Apotheosis",
+   "rarity": "Mythic",
+   "desc": "crimson thorn crown erupts and collapses",
+   "cell": [
+    162,
+    88
+   ]
+  },
+  "F55": {
+   "name": "Abyssal Pardon",
+   "rarity": "Mythic",
+   "desc": "dark cyan void spiral closes inward",
+   "cell": [
+    162,
+    74
+   ]
+  },
+  "F56": {
+   "name": "First Flame",
+   "rarity": "Mythic",
+   "desc": "thin white core fire with red broken edges",
+   "cell": [
+    162,
+    60
+   ]
+  },
+  "F57": {
+   "name": "Eternal Funeral",
+   "rarity": "Mythic",
+   "desc": "silver funeral candles ignite in ring and extinguish",
+   "cell": [
+    162,
+    81
+   ]
+  },
+  "F58": {
+   "name": "Heaven Shatters",
+   "rarity": "Mythic",
+   "desc": "pale gold arch breaks into angular shards",
+   "cell": [
+    162,
+    67
+   ]
+  },
+  "F59": {
+   "name": "Covenant Blood",
+   "rarity": "Mythic",
+   "desc": "crimson droplets form sharp sacred seal",
+   "cell": [
+    162,
+    62
+   ]
+  },
+  "F60": {
+   "name": "Final Amen",
+   "rarity": "Mythic",
+   "desc": "single ivory vertical line expands into cross flare then fades",
+   "cell": [
+    162,
+    64
+   ]
+  }
+ },
+ "source": "catalog-and-prompts.json"
+}
