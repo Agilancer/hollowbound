@@ -67,8 +67,8 @@ const KIND = {
       for (const tg of list) { const d = skillHit(a, sk, n > 1 ? 1 : 1); hit(a, tg, d.amount, { ...hopts(sk), el: sk.el, crit: d.crit, dir: around ? Math.sign(tg.x - a.x) || f : f }); if (m.exp) blast({ owner: a, x: tg.x, y: tg.cy, r: 1.3 * TILE, dmg: dm(a, sk, 0.5), el: sk.el, hopts: {}, skip: tg, quiet: true }); }
       const up = (n - left) % 2 === 1;
       if (thrust) flashFx({ shape: 'thrust', follow: a, ox: f * (rx * 0.55), oy: -6 + rnd(-8, 8), w: rx * 1.25, h: 34, flip: f < 0, col, dur: 0.14 });
-      else flashFx({ shape: 'slash', follow: a, ox: f * (around ? 0 : rx * 0.42), oy: -4, w: rx * (around ? 2.1 : 1.35), h: (around ? 1.0 : 1.5) * Math.max(110, rx * 0.95), flip: f < 0, rot: (up ? 0.5 : -0.25) * f, col, dur: 0.17, grow: 0.2 });
-      if (around) flashFx({ shape: 'slash', follow: a, ox: 0, oy: -4, w: rx * 2.1, h: rx, flip: f > 0, col, dur: 0.17, grow: 0.2 });
+      else flashFx({ shape: 'slash', follow: a, ox: f * (around ? 0 : rx * 0.42), oy: -4, w: rx * (around ? 2.1 : 1.35), h: (around ? 1.0 : 1.25) * Math.max(100, rx * 0.9), flip: f < 0, rot: (up ? 0.5 : -0.25) * f, col, dur: 0.17, grow: 0.2, a: 0.72 });
+      if (around) flashFx({ shape: 'slash', follow: a, ox: 0, oy: -4, w: rx * 2.1, h: rx, flip: f > 0, col, dur: 0.17, grow: 0.2, a: 0.72 });
       a.lunge = Math.max(a.lunge, 0.75);
     };
     strike(); left--;

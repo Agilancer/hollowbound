@@ -12,12 +12,12 @@ import { SKILLS, xpToNext, CLASSES, classWeapon } from '../data/game.js';
 import { loadMap, tickMap, bossAdds, MAP_BY_ID, DUNGEON_BY_ID } from '../world/map.js';
 import { MAPS, DUNGEONS } from '../data/world.js';
 import { NPCS } from '../data/npcs.js';
-import { loadBestiary } from './bestiary.js';
+import { loadBestiary, mobDef, BEST } from './bestiary.js';
 import { bakeShapes, Particles, SHAPES } from '../gfx/fx.js';
 import { Text } from '../gfx/text.js';
 import { drawActor, drawOverlay, drawShadow, drawDrop } from '../gfx/draw.js';
 import { drawBack, drawTerrain, drawFront, ambient } from '../gfx/scene.js';
-import { loadNpcMeta, sweepLooks, heroSprite } from '../gfx/sprites.js';
+import { loadNpcMeta, sweepLooks, heroSprite, mobSprite } from '../gfx/sprites.js';
 import { loadHeldIndex } from '../gfx/herolook.js';
 import * as Q from './quests.js';
 import * as S from './social.js';
@@ -27,6 +27,20 @@ import { actions } from './actions.js';
 import { Director } from './director.js';
 
 const SAVE_KEY = 'velscour_hollowbound_v1';
+// Pets: Velscour's 730 familiars trot behind their owners; yours also fetches loot.
+function givePet(h, id, scope) { const def = mobDef(id); if (!def) return; const hw = Math.max(26, Math.min(46, def.hw * 0.62)); h.pet = { def, x: h.x - 40, y: h.y, t: Math.random() * 9, face: 1, sp: mobSprite(def, scope), k: hw / def.h, hop: 0 }; }
+function tickPet(h, dt) {
+  const p = h.pet, tx = h.x - h.face * 46, dx = tx - p.x; p.t += dt;
+  if (Math.abs(dx) > 14) { p.x += Math.sign(dx) * Math.min(Math.abs(dx), (Math.abs(dx) > 300 ? 900 : 250) * dt); p.face = dx > 0 ? 1 : -1; p.hop = Math.abs(Math.sin(p.t * 9)) * 7; } else p.hop *= 0.8;
+  p.y += (h.y - p.y) * Math.min(1, dt * 8);
+}
+function drawPet(rd, h, light) {
+  const p = h.pet, sp = p.sp, r = sp.r; if (!r || r.layer < 0) return;
+  const k = p.k * (1 + Math.sin(p.t * 2.2) * 0.02), f = p.face;
+  rd.quad(SHAPES.shadow, p.x - 16, p.y - 4, 32, 9, [1, 1, 1, 0.7]);
+  rd.affine(r, [k * f, 0, 0, k, p.x, p.y - p.hop], -sp.ax, -sp.ay, sp.w, sp.h, [light[0], light[1], light[2], h.alpha]);
+}
+export { givePet };
 const dust = (a, n) => G.parts.burst(a.x, a.y - 2, n, { shape: 'smoke', speed: 70, life: 0.4, size: 14, size2: 34, col: [0.55, 0.5, 0.45], add: 0, a: 0.35, dir: -Math.PI / 2, arc: Math.PI, front: false });
 const timers = [];
 export const game = {
@@ -48,6 +62,7 @@ export const game = {
   async newGame({ name, cls }) {
     const c = { v: 1, name: name || 'Hero', cls, lvl: 1, xp: 0, sp: 0, equip: {}, ranks: {}, bar: [], autoSkills: true, gold: 60, bag: [], bagMax: 40, potions: { hp: 8, mp: 5 }, etc: {},
       quests: { active: {}, done: {} }, map: 'hh_square', guild: null, kills: 0, deaths: 0, settings: { ...G.settings }, autoGear: true };
+    c.pet = pick(['bs1_0', 'bs1_3', 'wf0', 'bs2_1', 'bs1_7']);
     const kit = kitFor(cls, 1); c.equip = { weapon: kit.weapon, body: kit.body }; if (kit.offhand) c.equip.offhand = kit.offhand;
     for (const k in c.equip) c.equip[k].rarity = 0;
     await this.begin(c);
@@ -67,6 +82,7 @@ export const game = {
     // companions walk with you from the start
     for (const f of G.roster) if (f.companion) this.joinParty(f, true);
     G.mode = 'play'; emit('started', {});
+    if (!Object.keys(c.quests.done).length && !Object.keys(c.quests.active).length) { const t = G.map.npcs.find(n => n.npcId === 'tobin'); if (t) { P.body.place(G.map.geo, t.x + 150); P.body.face = -1; G.cam.x = P.x - G.cam.viewW / 2; this.clampCam(); } }
     if (!Object.keys(c.quests.done).length && !Object.keys(c.quests.active).length) this.later(1.2, () => emit('toast', { text: 'Welcome to Herrington Hollow. Speak with Old Tobin.', kind: 'quest' }));
   },
   later(t, fn) { timers.push({ t, fn }); },
@@ -78,6 +94,8 @@ export const game = {
     const M = await loadMap(id, from, inst || null);
     S.populate(M); Q.onMap(); Q.refreshMarks();
     G.heroes = G.actors.filter(a => a.kind === 'hero');
+    const fam = BEST.groups.familiars || [];
+    if (fam.length) for (const h of G.heroes) { const id = h.isPlayer ? G.char.pet : h.fake && (h.fake.seed % 100) < 38 ? fam[h.fake.seed % fam.length].id : null; if (id) givePet(h, id, 'map'); }
     const cam = G.cam; cam.x = G.player.x - cam.viewW / 2; cam.y = G.player.y - cam.viewH * 0.76; this.clampCam();
     G.loading = false; emit('loading', { on: false }); audio.sfx('portal');
     if (!inst) { G.char.map = id; this.save(); }
@@ -181,6 +199,7 @@ export const game = {
         if (a !== P && a.brain) a.brain.tick(dt);
       }
     }
+    for (const h of G.heroes) if (h.pet) tickPet(h, dt);
     for (let i = G.effects.length - 1; i >= 0; i--) { let alive = false; try { alive = G.effects[i].upd(dt); } catch (e) { console.error(e); } if (!alive) G.effects.splice(i, 1); }
     tickDrops(dt); G.parts.update(dt); ambient(M, dt);
     for (let i = G.floaters.length - 1; i >= 0; i--) { const f = G.floaters[i]; f.t += dt; f.y -= (f.slow ? 26 : 44) * dt; if (f.t > (f.slow ? 2 : f.word ? 1.2 : 0.95)) G.floaters.splice(i, 1); }
@@ -242,6 +261,7 @@ export const game = {
     for (const d of G.drops) if (d.x > vx0 && d.x < vx1) drawDrop(rd, d);
     const order = { npc: 0, mob: 1, summon: 2, hero: 3 };
     vis.sort((p, q) => (p.isPlayer ? 9 : order[p.kind]) - (q.isPlayer ? 9 : order[q.kind]) || p.y - q.y);
+    for (const a of vis) if (a.pet && a.kind === 'hero' && !a.dead) drawPet(rd, a, light);
     for (const a of vis) { if (a.kind === 'npc' && !a.sprite) { a.cls = a.heroSpec; a.equip = a.equip || kitFor(a.cls, 12); a.kind = 'hero'; heroSprite(a); a.kind = 'npc'; } drawActor(rd, a, light); }
     for (const e of G.effects) if (!e.back) e.draw(rd);
     G.parts.draw(rd, true, vx0, vx1);

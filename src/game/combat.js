@@ -43,7 +43,7 @@ export function hit(src, tgt, amount, opts = {}) {
   if (tgt.status.amp > 0) amt *= 1.3;
   if (src && tgt.kind === 'hero' && (src.kind === 'hero' || (src.owner && src.owner.kind === 'hero'))) amt *= 0.4;      // duels last longer than a blink
   amt = Math.max(1, Math.round(amt));
-  tgt.hp -= amt; tgt.barT = 3; tgt.flash = 0.5; tgt.flashCol = null; tgt.hurtT = Math.max(tgt.hurtT, opts.dot ? 0.2 : 0.7);
+  tgt.hp -= amt; tgt.barT = 3; tgt.flash = 0.42; tgt.flashCol = null; tgt.hurtT = Math.max(tgt.hurtT, opts.dot ? 0.2 : 0.7);
   // numbers stack upward while hits keep landing on the same target
   const now = G.time; if (now - (tgt._fT || 0) > 0.35) tgt._fRow = 0; tgt._fT = now; const row = tgt._fRow = (tgt._fRow || 0) + 1;
   const mine = src && (src.isPlayer || src.owner === G.player);
@@ -187,7 +187,7 @@ export function tickDrops(dt) {
       continue;
     }
     if (d.t <= 0) { G.drops.splice(i, 1); continue; }
-    if (d.pick <= 0 && !P.dead && Math.abs(d.x - P.x) < (G.auto ? 150 : 46) && Math.abs(d.y - P.y) < 70) {
+    if (d.pick <= 0 && !P.dead && Math.abs(d.x - P.x) < (G.auto ? 170 : P.pet ? 120 : 46) && Math.abs(d.y - P.y) < 70) {
       if (d.kind === 'item' && G.char.bag.length >= G.char.bagMax) { if (!d.warned) { d.warned = true; emit('toast', { text: 'Your bag is full.' }); } continue; }
       d.fly = 0.001; sfxAt(d.kind === 'gold' ? 'coin' : d.rarity >= 3 ? 'loot_rare' : 'loot', P, 0.8);
     }

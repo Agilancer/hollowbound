@@ -60,7 +60,7 @@ export function drawActor(rd, a, light) {
     rd.quad(SHAPES.glow, b.x - gs / 2, b.y - a.h * 0.5 - gs / 2 - lift, gs, gs, [g[0], g[1], g[2], 0.42 * alpha], null, 1);
   }
   let flash = null;
-  if (a.flash > 0) { FL[0] = a.flashCol ? a.flashCol[0] : 1; FL[1] = a.flashCol ? a.flashCol[1] : 1; FL[2] = a.flashCol ? a.flashCol[2] : 1; FL[3] = Math.min(0.8, a.flash * 1.6); flash = FL; }
+  if (a.flash > 0) { FL[0] = a.flashCol ? a.flashCol[0] : 1; FL[1] = a.flashCol ? a.flashCol[1] : 1; FL[2] = a.flashCol ? a.flashCol[2] : 1; FL[3] = Math.min(0.5, a.flash * 1.1); flash = FL; }
   rd.affine(r, M, -sp.ax, -sp.ay, sp.w, sp.h, TINT, flash, 0);
   a._top = b.y - lift - a.h * (a.scale > 1 ? 1 : 1) - 6;     // where bars and bubbles sit
 }
