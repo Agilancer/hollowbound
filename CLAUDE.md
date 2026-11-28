@@ -10,6 +10,7 @@ python3 -m http.server 8200              # from the repo root
 # http://localhost:8200/?cls=wizard&lvl=12&map=forest_2&auto=1&speed=4   (dev: start straight into a hero)
 node tools/check_content.mjs -v          # world / npc / quest data cross-checks
 node tools/check_nav.mjs                 # every foothold of every map reachable
+node tools/check_bot.mjs [mapId]         # the hero Bot walks/jumps/climbs to every foothold and back with the real physics
 node tools/gen_bestiary.mjs /path/to/velscour   # rebuild assets/bestiary.json from Velscour's data modules
 ```
 Headless Chromium in the cloud container cannot present a WebGPU canvas. Add `?offscreen` and the renderer
